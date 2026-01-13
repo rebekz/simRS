@@ -137,3 +137,10 @@ async def cleanup_old_audit_logs(
 
     await db.commit()
     return count
+
+
+async def count_audit_logs(db: AsyncSession) -> int:
+    """Count total number of audit logs"""
+    from sqlalchemy import func
+    result = await db.execute(select(func.count(AuditLog.id)))
+    return result.scalar()

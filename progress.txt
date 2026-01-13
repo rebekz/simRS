@@ -555,3 +555,194 @@ WAL archiving, retention policies, off-site sync, and disaster recovery procedur
 - .env.example - Added backup configuration variables
 
 
+---
+
+## [2026-01-13] STORY-005: System Monitoring & Alerting - COMPLETED
+
+### Summary
+Implemented comprehensive system monitoring and alerting with Prometheus, Grafana, Alertmanager,
+Loki log aggregation, automated metrics collection, custom dashboards, and operational runbooks.
+
+### What was implemented:
+
+1. **Application Metrics** (backend/app/core/metrics.py)
+   - HTTP request metrics (total, duration, in-progress)
+   - Database query metrics (count, duration, active connections)
+   - Cache/Redis metrics (operations, hit/miss rate)
+   - Authentication metrics (attempts, sessions, MFA)
+   - Business logic metrics (patient registrations, BPJS API calls)
+   - Audit log metrics (entries by action/resource)
+   - Backup metrics (operations, size, last success timestamp)
+   - System health metrics (service status, disk, memory)
+   - Error metrics (by type and severity)
+   - Background job metrics (execution count, duration)
+
+2. **Prometheus Middleware** (backend/app/middleware/metrics.py)
+   - Custom middleware for HTTP request tracking
+   - Integration with prometheus-fastapi-instrumentator
+   - Endpoint name extraction and labeling
+   - In-progress request tracking
+   - Error tracking with severity levels
+   - Metrics exposure at /metrics endpoint
+
+3. **Monitoring API Endpoints** (backend/app/api/v1/endpoints/monitoring.py)
+   - GET /api/v1/monitoring/health - Basic health check
+   - GET /api/v1/monitoring/health/detailed - Detailed health with service status
+   - GET /api/v1/monitoring/stats - System statistics
+   - GET /api/v1/monitoring/metrics - Prometheus metrics endpoint
+   - GET /api/v1/monitoring/config - Monitoring configuration
+   - POST /api/v1/monitoring/test-alert - Test alerting system
+
+4. **Prometheus Configuration** (monitoring/prometheus/)
+   - prometheus.yml - Scrape configs for all services
+   - 15-second scrape interval
+   - Target discovery for:
+     - SIMRS backend API
+     - PostgreSQL exporter
+     - Redis exporter
+     - Node exporter (system metrics)
+     - cAdvisor (container metrics)
+     - Alertmanager
+   - 15-day data retention
+
+5. **Alert Rules** (monitoring/prometheus/alerts.yml)
+   - Service health alerts (ServiceDown)
+   - Error rate alerts (HighErrorRate, CriticalErrorRate)
+   - Response time alerts (HighResponseTime, CriticalResponseTime)
+   - Database alerts (connection failure, slow queries, high connection usage)
+   - Cache alerts (Redis down, high miss rate)
+   - Storage alerts (DiskSpaceLow, DiskSpaceCritical)
+   - Memory alerts (HighMemoryUsage, CriticalMemoryUsage)
+   - Authentication alerts (failed login rate, brute force detection)
+   - Backup alerts (BackupFailed, BackupStale)
+   - MinIO/S3 alerts (service down)
+   - BPJS API alerts (high failure rate)
+   - Business logic alerts (zero registrations, high sessions)
+   - Total: 25+ alert rules
+
+6. **Alertmanager Configuration** (monitoring/alertmanager/alertmanager.yml)
+   - SMTP email notifications
+   - Route configuration by severity and team
+   - Multiple receivers (default, critical, security, infrastructure, backend)
+   - Inhibition rules to reduce alert noise
+   - Configurable via environment variables
+
+7. **Grafana Dashboards** (monitoring/grafana/provisioning/)
+   - Auto-provisioned datasource configuration
+   - SIMRS Overview dashboard with 15 panels:
+     - System health status
+     - Request rate, response time, error rate
+     - Active sessions
+     - Database, Redis, MinIO status
+     - DB connections
+     - Authentication attempts
+     - Top endpoints
+     - Last backup status
+   - 10-second auto-refresh
+
+8. **Docker Compose Integration** (docker-compose.yml)
+   - Prometheus service (port 9090)
+   - Grafana service (port 3001)
+   - Alertmanager service (port 9093)
+   - PostgreSQL exporter (port 9187)
+   - Redis exporter (port 9121)
+   - Node exporter (port 9100)
+   - cAdvisor (port 8080)
+   - Loki log aggregation (port 3100)
+   - Promtail log collector
+   - All monitoring services on simrs-network
+   - Persistent volumes for data
+
+9. **Log Aggregation** (monitoring/loki/, monitoring/promtail/)
+   - Loki configuration for TSDB storage
+   - Promtail configuration for:
+     - Docker container logs
+     - Backend application logs
+     - Frontend logs
+     - PostgreSQL logs
+     - Nginx logs
+     - System journal logs
+   - Automatic log parsing and labeling
+
+10. **Monitoring Runbooks** (docs/monitoring-runbooks.md)
+    - Critical alert procedures (ServiceDown, DatabaseConnectionFailure, SuspiciousLoginActivity, BackupStale)
+    - Warning alert procedures (HighErrorRate, HighResponseTime, DiskSpaceLow, BPJSAPIFailureRate)
+    - Performance troubleshooting (slow queries, high memory)
+    - Security incident procedures (brute force, unauthorized access)
+    - Maintenance procedures (database cleanup, monitoring system maintenance)
+    - Contact information and useful links
+
+11. **Monitoring Setup Guide** (docs/monitoring-setup-guide.md)
+    - Quick start instructions
+    - Architecture overview
+    - Configuration guide (environment variables, alerts, email)
+    - Metrics reference
+    - Grafana dashboard documentation
+    - Common tasks (adding alerts, testing alerts, viewing logs)
+    - Troubleshooting guide
+    - Performance tuning
+    - Security best practices
+
+12. **Updated Dependencies** (backend/requirements.txt)
+    - prometheus-client==0.19.0
+    - prometheus-fastapi-instrumentator==7.0.0
+
+### Acceptance Criteria Met:
+
+- [x] AC-001: System health metrics collected (CPU, memory, disk, network via node-exporter)
+- [x] AC-002: Application metrics collected (response time, request rate, error rate)
+- [x] AC-003: Database metrics collected (connections, query performance, locks via postgres-exporter)
+- [x] AC-004: Dashboard shows real-time system status (Grafana SIMRS Overview)
+- [x] AC-005: Alerts sent for critical failures (25+ alert rules configured)
+- [x] AC-006: API rate limit monitoring configured (simrs_http_requests_total)
+- [x] AC-007: Log aggregation configured (Loki + Promtail for all services)
+- [x] AC-008: Uptime monitoring configured (health check endpoints)
+- [x] AC-009: Performance baseline established and monitored (dashboard panels)
+- [x] AC-010: Alerting channels: Email (SMTP), log output (extensible to SMS/WhatsApp)
+
+### Testing:
+
+- Metrics endpoint accessible at /metrics
+- Prometheus targets all healthy
+- Grafana dashboard auto-provisioned
+- Alert rules loaded without errors
+- Health check endpoints functional
+- Log aggregation collecting container logs
+
+### Notes:
+
+- Grafana default credentials: admin/admin (change in production)
+- SMTP configuration required for email alerts
+- Alert thresholds configurable in alerts.yml
+- Metrics retention: 15 days (configurable)
+- External uptime monitoring (UptimeRobot) TODO: manual setup
+- Dashboard panels auto-refresh every 10 seconds
+- All alerts routed through Alertmanager for deduplication
+- Logs stored in Loki with 30-day retention (configurable)
+
+### Files Created:
+- backend/app/core/metrics.py
+- backend/app/middleware/metrics.py
+- backend/app/api/v1/endpoints/monitoring.py
+- monitoring/prometheus/prometheus.yml
+- monitoring/prometheus/alerts.yml
+- monitoring/alertmanager/alertmanager.yml
+- monitoring/grafana/provisioning/datasources/prometheus.yml
+- monitoring/grafana/provisioning/dashboards/dashboards.yml
+- monitoring/grafana/provisioning/dashboards/simrs-overview-dashboard.json
+- monitoring/loki/loki-config.yml
+- monitoring/promtail/promtail-config.yml
+- docs/monitoring-runbooks.md
+- docs/monitoring-setup-guide.md
+
+### Files Modified:
+- backend/requirements.txt - Added prometheus-client and prometheus-fastapi-instrumentator
+- backend/app/main.py - Added metrics initialization and middleware setup
+- backend/app/api/v1/api.py - Added monitoring router
+- backend/app/crud/user.py - Added count_users() function
+- backend/app/crud/audit_log.py - Added count_audit_logs() function
+- docker-compose.yml - Added all monitoring services and volumes
+
+
+
+

@@ -6,6 +6,7 @@ import logging
 from datetime import datetime
 
 from app.core.config import settings
+from app.core.metrics import initialize_metrics
 from app.api.v1.api import api_router
 from app.db.session import engine
 from app.db.base_class import Base
@@ -29,6 +30,13 @@ async def lifespan(app: FastAPI):
     logger.info(f"Starting {settings.PROJECT_NAME} API...")
     logger.info(f"Environment: {settings.ENVIRONMENT}")
     logger.info(f"Version: {settings.VERSION}")
+
+    # Initialize Prometheus metrics
+    try:
+        initialize_metrics()
+        logger.info("Prometheus metrics initialized")
+    except Exception as e:
+        logger.error(f"Error initializing metrics: {e}")
 
     # Create database tables
     try:
@@ -63,6 +71,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Setup Prometheus metrics
+from app.middleware.metrics import setup_metrics
+setup_metrics(app)
 
 
 # Root endpoint

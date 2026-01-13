@@ -1,0 +1,90 @@
+# Promtail Configuration for SIMRS
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  # Docker container logs
+  - job_name: docker-containers
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 5s
+    relabel_configs:
+      - source_labels: ['__meta_docker_container_name']
+        regex: '/(.*)'
+        target_label: container_name
+      - source_labels: ['__meta_docker_container_log_stream']
+        target_label: stream
+      - source_labels: ['__meta_docker_container_label_logging_jobname']
+        target_label: job
+      - replacement: simrs
+        target_label: env
+
+  # Backend application logs
+  - job_name: backend-logs
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: backend
+          __path__: /var/lib/docker/containers/*simrs-backend*-json.log
+    pipeline_stages:
+      - json:
+          expressions:
+            output: log
+            level: level
+            timestamp: time
+      - labels:
+          level:
+          timestamp:
+      - output:
+          source: output
+
+  # Frontend logs
+  - job_name: frontend-logs
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: frontend
+          __path__: /var/lib/docker/containers/*simrs-frontend*-json.log
+
+  # PostgreSQL logs
+  - job_name: postgres-logs
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: postgres
+          __path__: /var/lib/docker/containers/*simrs-postgres*-json.log
+
+  # Nginx logs
+  - job_name: nginx-logs
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: nginx
+          __path__: /var/lib/docker/containers/*simrs-nginx*-json.log
+
+  # System logs (journald)
+  - job_name: system-logs
+    journal:
+      max_age: 12h
+      labels:
+        job: systemd-journal
+    relabel_configs:
+      - source_labels: ['__journal__systemd_unit']
+        regex: '(.*)'
+        target_label: unit
+      - source_labels: ['__journal__hostname']
+        regex: '(.*)'
+        target_label: hostname
+      - replacement: simrs
+        target_label: env

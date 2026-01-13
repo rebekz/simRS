@@ -1,0 +1,90 @@
+# Alertmanager Configuration for SIMRS
+global:
+  resolve_timeout: 5m
+  # SMTP configuration for email alerts
+  smtp_smarthost: '${SMTP_SERVER:-localhost:587}'
+  smtp_from: '${SMTP_FROM:-alerts@simrs.local}'
+  smtp_auth_username: '${SMTP_USER:-}'
+  smtp_auth_password: '${SMTP_PASSWORD:-}'
+  smtp_require_tls: true
+
+# Route alerts to appropriate receivers
+route:
+  group_by: ['alertname', 'cluster', 'service']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 12h
+  receiver: 'default'
+
+  routes:
+    # Critical alerts go to both email and SMS
+    - match:
+        severity: critical
+      receiver: 'critical-alerts'
+      continue: true
+
+    # Security alerts
+    - match:
+        team: security
+      receiver: 'security-team'
+
+    # Infrastructure alerts
+    - match:
+        team: infrastructure
+      receiver: 'infrastructure-team'
+
+    # Backend alerts
+    - match:
+        team: backend
+      receiver: 'backend-team'
+
+# Receivers define how alerts are sent
+receivers:
+  - name: 'default'
+    email_configs:
+      - to: '${DEFAULT_ALERT_EMAIL:-admin@simrs.local}'
+        headers:
+          Subject: '[SIMRS Alert] {{ .GroupLabels.alertname }}'
+
+  - name: 'critical-alerts'
+    email_configs:
+      - to: '${CRITICAL_ALERT_EMAIL:-oncall@simrs.local}'
+        headers:
+          Subject: '[CRITICAL] {{ .GroupLabels.alertname }}'
+    # webhook_configs:
+    #   - url: 'http://sms-gateway:8080/send'
+    #     send_resolved: true
+
+  - name: 'security-team'
+    email_configs:
+      - to: '${SECURITY_ALERT_EMAIL:-security@simrs.local}'
+        headers:
+          Subject: '[Security] {{ .GroupLabels.alertname }}'
+
+  - name: 'infrastructure-team'
+    email_configs:
+      - to: '${INFRA_ALERT_EMAIL:-infra@simrs.local}'
+        headers:
+          Subject: '[Infrastructure] {{ .GroupLabels.alertname }}'
+
+  - name: 'backend-team'
+    email_configs:
+      - to: '${BACKEND_ALERT_EMAIL:-backend@simrs.local}'
+        headers:
+          Subject: '[Backend] {{ .GroupLabels.alertname }}'
+
+# Inhibit rules reduce alert noise
+inhibit_rules:
+  # Inhibit warning if critical is firing for the same alert
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'instance', 'service']
+
+  # Inhibit all if the service is down
+  - source_match:
+      alertname: 'ServiceDown'
+    target_match_re:
+      alertname: '(.*ErrorRate|.*ResponseTime|.*Failed)'
+    equal: ['service']

@@ -1,0 +1,295 @@
+# Prometheus Alert Rules for SIMRS
+groups:
+  - name: simrs_alerts
+    interval: 30s
+    rules:
+      # Service Health Alerts
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: infrastructure
+        annotations:
+          summary: "Service {{ $labels.service }} is down"
+          description: "{{ $labels.job }} on {{ $labels.instance }} has been down for more than 1 minute."
+
+      # High Error Rate Alerts
+      - alert: HighErrorRate
+        expr: |
+          rate(simrs_http_requests_total{status=~"5.."}[5m]) /
+          rate(simrs_http_requests_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value | humanizePercentage }} on {{ $labels.endpoint }}"
+
+      - alert: CriticalErrorRate
+        expr: |
+          rate(simrs_http_requests_total{status=~"5.."}[5m]) /
+          rate(simrs_http_requests_total[5m]) > 0.15
+        for: 2m
+        labels:
+          severity: critical
+          team: backend
+        annotations:
+          summary: "Critical error rate detected"
+          description: "Error rate is {{ $value | humanizePercentage }} on {{ $labels.endpoint }}"
+
+      # Response Time Alerts
+      - alert: HighResponseTime
+        expr: |
+          histogram_quantile(0.95,
+            rate(simrs_http_request_duration_seconds_bucket[5m])
+          ) > 1
+        for: 5m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "High response time detected"
+          description: "95th percentile response time is {{ $value }}s for {{ $labels.endpoint }}"
+
+      - alert: CriticalResponseTime
+        expr: |
+          histogram_quantile(0.95,
+            rate(simrs_http_request_duration_seconds_bucket[5m])
+          ) > 5
+        for: 2m
+        labels:
+          severity: critical
+          team: backend
+        annotations:
+          summary: "Critical response time detected"
+          description: "95th percentile response time is {{ $value }}s for {{ $labels.endpoint }}"
+
+      # Database Alerts
+      - alert: DatabaseConnectionFailure
+        expr: simrs_system_health_status{service="database"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: infrastructure
+        annotations:
+          summary: "Database connection failed"
+          description: "PostgreSQL database has been unreachable for 1 minute."
+
+      - alert: HighDatabaseConnectionUsage
+        expr: |
+          simrs_db_connections_active{state="active"} /
+          (simrs_db_connections_active{state="active"} + simrs_db_connections_active{state="idle"}) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "High database connection usage"
+          description: "{{ $value | humanizePercentage }} of database connections are active."
+
+      - alert: SlowDatabaseQueries
+        expr: |
+          histogram_quantile(0.95,
+            rate(simrs_db_query_duration_seconds_bucket[5m])
+          ) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "Slow database queries detected"
+          description: "95th percentile query time is {{ $value }}s"
+
+      # Cache Alerts
+      - alert: RedisDown
+        expr: simrs_system_health_status{service="redis"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: infrastructure
+        annotations:
+          summary: "Redis cache is down"
+          description: "Redis has been unreachable for 1 minute."
+
+      - alert: HighCacheMissRate
+        expr: |
+          rate(simrs_cache_operations_total{status="miss"}[5m]) /
+          rate(simrs_cache_operations_total[5m]) > 0.3
+        for: 10m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "High cache miss rate"
+          description: "Cache miss rate is {{ $value | humanizePercentage }}"
+
+      # Storage Alerts
+      - alert: DiskSpaceLow
+        expr: |
+          (node_filesystem_avail_bytes{mountpoint="/"} /
+          node_filesystem_size_bytes{mountpoint="/"}) < 0.2
+        for: 5m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: "Low disk space"
+          description: "Disk space on {{ $labels.instance }} is below 20%"
+
+      - alert: DiskSpaceCritical
+        expr: |
+          (node_filesystem_avail_bytes{mountpoint="/"} /
+          node_filesystem_size_bytes{mountpoint="/"}) < 0.1
+        for: 2m
+        labels:
+          severity: critical
+          team: infrastructure
+        annotations:
+          summary: "Critical disk space"
+          description: "Disk space on {{ $labels.instance }} is below 10%"
+
+      # Memory Alerts
+      - alert: HighMemoryUsage
+        expr: |
+          (node_memory_MemAvailable_bytes /
+          node_memory_MemTotal_bytes) < 0.2
+        for: 5m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: "High memory usage"
+          description: "Available memory is below 20% on {{ $labels.instance }}"
+
+      - alert: CriticalMemoryUsage
+        expr: |
+          (node_memory_MemAvailable_bytes /
+          node_memory_MemTotal_bytes) < 0.1
+        for: 2m
+        labels:
+          severity: critical
+          team: infrastructure
+        annotations:
+          summary: "Critical memory usage"
+          description: "Available memory is below 10% on {{ $labels.instance }}"
+
+      # Authentication Alerts
+      - alert: HighFailedLoginRate
+        expr: |
+          rate(simrs_auth_attempts_total{status="failure"}[5m]) > 10
+        for: 2m
+        labels:
+          severity: warning
+          team: security
+        annotations:
+          summary: "High failed login rate detected"
+          description: "{{ $value }} failed logins per second"
+
+      - alert: SuspiciousLoginActivity
+        expr: |
+          rate(simrs_auth_attempts_total{status="failure"}[1m]) > 50
+        for: 1m
+        labels:
+          severity: critical
+          team: security
+        annotations:
+          summary: "Possible brute force attack detected"
+          description: "{{ $value }} failed logins per second - possible attack in progress"
+
+      # Backup Alerts
+      - alert: BackupFailed
+        expr: |
+          increase(simrs_backup_operations_total{status="failure"}[24h]) > 0
+        labels:
+          severity: critical
+          team: infrastructure
+        annotations:
+          summary: "Backup operation failed"
+          description: "{{ $value }} backup failures in the last 24 hours"
+
+      - alert: BackupStale
+        expr: |
+          time() - simrs_backup_last_success_timestamp{type="full"} > 86400 * 1.5
+        for: 1h
+        labels:
+          severity: critical
+          team: infrastructure
+        annotations:
+          summary: "Backup is stale"
+          description: "Last successful backup was more than 36 hours ago"
+
+      # MinIO/S3 Alerts
+      - alert: MinIODown
+        expr: simrs_system_health_status{service="minio"} == 0
+        for: 2m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: "MinIO object storage is down"
+          description: "MinIO has been unreachable for 2 minutes."
+
+      # BPJS API Alerts
+      - alert: BPJSAPIFailureRate
+        expr: |
+          rate(simrs_bpjs_api_calls_total{status="failure"}[5m]) /
+          rate(simrs_bpjs_api_calls_total[5m]) > 0.2
+        for: 5m
+        labels:
+          severity: warning
+          team: integration
+        annotations:
+          summary: "High BPJS API failure rate"
+          description: "BPJS API failure rate is {{ $value | humanizePercentage }}"
+
+      # Audit Log Alerts
+      - alert: AuditLogVolumeHigh
+        expr: |
+          rate(simrs_audit_log_entries_total[5m]) > 100
+        for: 10m
+        labels:
+          severity: info
+          team: operations
+        annotations:
+          summary: "High audit log volume"
+          description: "{{ $value }} audit log entries per second"
+
+      # Rate Limiting Alerts
+      - alert: HighRequestRate
+        expr: |
+          sum(rate(simrs_http_requests_total[1m])) > 1000
+        for: 5m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "High request rate detected"
+          description: "{{ $value }} requests per second"
+
+  - name: business_logic_alerts
+    interval: 60s
+    rules:
+      # Patient Registration Alerts
+      - alert: ZeroPatientRegistrations
+        expr: |
+          increase(simrs_patient_registrations_total[1h]) == 0
+        for: 2h
+        labels:
+          severity: warning
+          team: operations
+        annotations:
+          summary: "No patient registrations in the last 2 hours"
+          description: "This may indicate a system issue or unusual business hours"
+
+      # Session Alerts
+      - alert: HighActiveSessions
+        expr: simrs_auth_sessions_active > 1000
+        for: 10m
+        labels:
+          severity: info
+          team: operations
+        annotations:
+          summary: "High number of active sessions"
+          description: "{{ $value }} active user sessions"

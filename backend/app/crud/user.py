@@ -178,3 +178,10 @@ async def reset_password(db: AsyncSession, user: User, new_password: str) -> Use
     await db.commit()
     await db.refresh(user)
     return user
+
+
+async def count_users(db: AsyncSession) -> int:
+    """Count total number of users"""
+    from sqlalchemy import func
+    result = await db.execute(select(func.count(User.id)))
+    return result.scalar()

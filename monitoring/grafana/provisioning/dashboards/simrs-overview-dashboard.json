@@ -1,0 +1,360 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": "Prometheus",
+      "description": "Overall system health status",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "mappings": [
+            {"options": {"0": {"color": "red", "index": 0, "text": "Unhealthy"}}, "type": "value"},
+            {"options": {"1": {"color": "green", "index": 1, "text": "Healthy"}}, "type": "value"}
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]
+          },
+          "unit": "none"
+        }
+      },
+      "gridPos": {"h": 4, "w": 4, "x": 0, "y": 0},
+      "id": 1,
+      "options": {"colorMode": "background", "graphMode": "area", "orientation": "auto"},
+      "pluginVersion": "9.5.0",
+      "targets": [
+        {
+          "expr": "min(simrs_system_health_status)",
+          "refId": "A"
+        }
+      ],
+      "title": "System Health",
+      "type": "stat"
+    },
+    {
+      "datasource": "Prometheus",
+      "description": "HTTP requests per second",
+      "fieldConfig": {
+        "defaults": {"color": {"mode": "palette-classic"}, "unit": "reqps"}
+      },
+      "gridPos": {"h": 4, "w": 5, "x": 4, "y": 0},
+      "id": 2,
+      "options": {"graphMode": "area", "orientation": "auto"},
+      "pluginVersion": "9.5.0",
+      "targets": [
+        {
+          "expr": "sum(rate(simrs_http_requests_total[1m]))",
+          "refId": "A"
+        }
+      ],
+      "title": "Request Rate",
+      "type": "stat"
+    },
+    {
+      "datasource": "Prometheus",
+      "description": "95th percentile response time",
+      "fieldConfig": {
+        "defaults": {"color": {"mode": "thresholds"}, "unit": "s"}
+      },
+      "gridPos": {"h": 4, "w": 5, "x": 9, "y": 0},
+      "id": 3,
+      "options": {"graphMode": "area", "orientation": "auto"},
+      "pluginVersion": "9.5.0",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(simrs_http_request_duration_seconds_bucket[5m])) by (le))",
+          "refId": "A"
+        }
+      ],
+      "title": "Response Time (p95)",
+      "type": "stat"
+    },
+    {
+      "datasource": "Prometheus",
+      "description": "Error rate percentage",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "max": 100,
+          "min": 0,
+          "unit": "percent"
+        }
+      },
+      "gridPos": {"h": 4, "w": 5, "x": 14, "y": 0},
+      "id": 4,
+      "options": {"graphMode": "area", "orientation": "auto"},
+      "pluginVersion": "9.5.0",
+      "targets": [
+        {
+          "expr": "(sum(rate(simrs_http_requests_total{status=~\"5..\"}[5m])) / sum(rate(simrs_http_requests_total[5m]))) * 100",
+          "refId": "A"
+        }
+      ],
+      "title": "Error Rate",
+      "type": "stat"
+    },
+    {
+      "datasource": "Prometheus",
+      "description": "Active user sessions",
+      "fieldConfig": {
+        "defaults": {"color": {"mode": "palette-classic"}, "unit": "short"}
+      },
+      "gridPos": {"h": 4, "w": 5, "x": 19, "y": 0},
+      "id": 5,
+      "options": {"graphMode": "area", "orientation": "auto"},
+      "pluginVersion": "9.5.0",
+      "targets": [
+        {
+          "expr": "simrs_auth_sessions_active",
+          "refId": "A"
+        }
+      ],
+      "title": "Active Sessions",
+      "type": "stat"
+    },
+    {
+      "datasource": "Prometheus",
+      "description": "HTTP requests over time by status code",
+      "fieldConfig": {"defaults": {"unit": "reqps"}},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4},
+      "id": 6,
+      "options": {"legend": {"displayMode": "table", "placement": "bottom"}},
+      "pluginVersion": "9.5.0",
+      "targets": [
+        {
+          "expr": "sum(rate(simrs_http_requests_total[5m])) by (status)",
+          "refId": "A"
+        }
+      ],
+      "title": "Request Rate by Status",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Prometheus",
+      "description": "Response time percentiles",
+      "fieldConfig": {"defaults": {"unit": "s"}},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4},
+      "id": 7,
+      "options": {"legend": {"displayMode": "table", "placement": "bottom"}},
+      "pluginVersion": "9.5.0",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum(rate(simrs_http_request_duration_seconds_bucket[5m])) by (le))",
+          "legendFormat": "p50",
+          "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(simrs_http_request_duration_seconds_bucket[5m])) by (le))",
+          "legendFormat": "p95",
+          "refId": "B"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum(rate(simrs_http_request_duration_seconds_bucket[5m])) by (le))",
+          "legendFormat": "p99",
+          "refId": "C"
+        }
+      ],
+      "title": "Response Time Percentiles",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Prometheus",
+      "description": "Database health status",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "mappings": [
+            {"options": {"0": {"color": "red", "index": 0, "text": "Down"}}, "type": "value"},
+            {"options": {"1": {"color": "green", "index": 1, "text": "Up"}}, "type": "value"}
+          ]
+        }
+      },
+      "gridPos": {"h": 4, "w": 6, "x": 0, "y": 12},
+      "id": 8,
+      "options": {"colorMode": "background", "graphMode": "area", "orientation": "auto"},
+      "pluginVersion": "9.5.0",
+      "targets": [
+        {
+          "expr": "simrs_system_health_status{service=\"database\"}",
+          "refId": "A"
+        }
+      ],
+      "title": "Database",
+      "type": "stat"
+    },
+    {
+      "datasource": "Prometheus",
+      "description": "Redis cache health status",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "mappings": [
+            {"options": {"0": {"color": "red", "index": 0, "text": "Down"}}, "type": "value"},
+            {"options": {"1": {"color": "green", "index": 1, "text": "Up"}}, "type": "value"}
+          ]
+        }
+      },
+      "gridPos": {"h": 4, "w": 6, "x": 6, "y": 12},
+      "id": 9,
+      "options": {"colorMode": "background", "graphMode": "area", "orientation": "auto"},
+      "pluginVersion": "9.5.0",
+      "targets": [
+        {
+          "expr": "simrs_system_health_status{service=\"redis\"}",
+          "refId": "A"
+        }
+      ],
+      "title": "Redis Cache",
+      "type": "stat"
+    },
+    {
+      "datasource": "Prometheus",
+      "description": "MinIO storage health status",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "mappings": [
+            {"options": {"0": {"color": "red", "index": 0, "text": "Down"}}, "type": "value"},
+            {"options": {"1": {"color": "green", "index": 1, "text": "Up"}}, "type": "value"}
+          ]
+        }
+      },
+      "gridPos": {"h": 4, "w": 6, "x": 12, "y": 12},
+      "id": 10,
+      "options": {"colorMode": "background", "graphMode": "area", "orientation": "auto"},
+      "pluginVersion": "9.5.0",
+      "targets": [
+        {
+          "expr": "simrs_system_health_status{service=\"minio\"}",
+          "refId": "A"
+        }
+      ],
+      "title": "MinIO Storage",
+      "type": "stat"
+    },
+    {
+      "datasource": "Prometheus",
+      "description": "Active database connections",
+      "fieldConfig": {"defaults": {"unit": "short"}},
+      "gridPos": {"h": 4, "w": 6, "x": 18, "y": 12},
+      "id": 11,
+      "options": {"graphMode": "area", "orientation": "auto"},
+      "pluginVersion": "9.5.0",
+      "targets": [
+        {
+          "expr": "simrs_db_connections_active{state=\"active\"}",
+          "refId": "A"
+        }
+      ],
+      "title": "DB Connections",
+      "type": "stat"
+    },
+    {
+      "datasource": "Prometheus",
+      "description": "Authentication attempts by status",
+      "fieldConfig": {"defaults": {"unit": "ops"}},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+      "id": 12,
+      "options": {"legend": {"displayMode": "table", "placement": "bottom"}},
+      "pluginVersion": "9.5.0",
+      "targets": [
+        {
+          "expr": "sum(rate(simrs_auth_attempts_total[5m])) by (status)",
+          "refId": "A"
+        }
+      ],
+      "title": "Authentication Attempts",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Prometheus",
+      "description": "Failed logins rate (potential attacks)",
+      "fieldConfig": {"defaults": {"unit": "ops"}},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+      "id": 13,
+      "options": {"legend": {"displayMode": "table", "placement": "bottom"}},
+      "pluginVersion": "9.5.0",
+      "targets": [
+        {
+          "expr": "sum(rate(simrs_auth_attempts_total{status=\"failure\"}[1m]))",
+          "refId": "A"
+        }
+      ],
+      "title": "Failed Login Rate",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Prometheus",
+      "description": "Top endpoints by request rate",
+      "fieldConfig": {"defaults": {"unit": "reqps"}},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24},
+      "id": 14,
+      "options": {"displayMode": "table", "orientation": "horizontal"},
+      "pluginVersion": "9.5.0",
+      "targets": [
+        {
+          "expr": "topk(10, sum(rate(simrs_http_requests_total[5m])) by (endpoint))",
+          "refId": "A"
+        }
+      ],
+      "title": "Top Endpoints",
+      "type": "bargauge"
+    },
+    {
+      "datasource": "Prometheus",
+      "description": "Backup status",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "mappings": [
+            {"options": {"0": {"color": "red", "index": 0, "text": "Never"}}, "type": "value"},
+            {"options": {"1": {"color": "green", "index": 1, "text": "Recent"}}, "type": "value"}
+          ],
+          "unit": "s"
+        }
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24},
+      "id": 15,
+      "options": {"colorMode": "background", "graphMode": "area", "orientation": "auto"},
+      "pluginVersion": "9.5.0",
+      "targets": [
+        {
+          "expr": "time() - simrs_backup_last_success_timestamp{type=\"full\"}",
+          "refId": "A"
+        }
+      ],
+      "title": "Last Backup (seconds ago)",
+      "type": "stat"
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["simrs", "overview"],
+  "templating": {
+    "list": []
+  },
+  "time": {"from": "now-1h", "to": "now"},
+  "timepicker": {},
+  "timezone": "",
+  "title": "SIMRS Overview",
+  "uid": "simrs-overview",
+  "version": 1
+}
