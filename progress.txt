@@ -110,3 +110,179 @@ All services can be started with a single command (`./install.sh`).
 - scripts/install.sh, scripts/generate-ssl.sh, scripts/init-db.sql
 - .env.example, .gitignore, README.md, docs/DEPLOYMENT.md
 
+
+---
+
+## [2025-01-13] STORY-002: User Authentication & Authorization - COMPLETED
+
+### Summary
+Implemented comprehensive user authentication and authorization system with JWT tokens,
+MFA support, RBAC permissions, audit logging, and session management.
+
+### What was implemented:
+
+1. **Database Models**
+   - `User` model enhanced with MFA fields, account lockout, password expiration tracking
+   - `Session` model for JWT token management and refresh token rotation
+   - `Permission` model for RBAC with role/resource/action/granted structure
+   - `AuditLog` model for compliance with UU 27/2022 (6-year retention)
+   - `PasswordResetToken` model for secure password reset workflow
+
+2. **Authentication Security Module** (backend/app/core/security.py)
+   - JWT access token generation (30-minute expiration)
+   - JWT refresh token generation (7-day expiration)
+   - Token hashing for secure storage
+   - MFA secret generation (TOTP-based)
+   - MFA code verification with clock drift tolerance
+   - QR code generation for authenticator apps
+   - Backup codes generation for MFA recovery
+   - Password strength validation (12+ chars, complexity rules)
+   - Password expiration checking (90-day policy)
+   - Bcrypt password hashing
+
+3. **Authentication Schemas** (backend/app/schemas/auth.py)
+   - LoginRequest (username, password, optional mfa_code)
+   - TokenResponse (access_token, refresh_token, mfa_required)
+   - MFASetupResponse (secret, qr_code_url, backup_codes)
+   - PasswordChangeRequest with strength validation
+   - PasswordResetRequest/Confirm
+   - SessionResponse
+   - LoginHistoryResponse
+
+4. **Authentication CRUD Operations**
+   - `crud/session.py` - Session management with token rotation
+   - `crud/audit_log.py` - Audit logging for all auth events
+   - `crud/password_reset.py` - Secure password reset token handling
+   - `crud/user.py` - Enhanced with MFA, password policies, account lockout
+
+5. **Authentication API Endpoints** (backend/app/api/v1/endpoints/auth.py)
+   - POST /api/v1/auth/login - User login with MFA support
+   - POST /api/v1/auth/refresh - Refresh token rotation
+   - POST /api/v1/auth/logout - Revoke current session
+   - POST /api/v1/auth/logout-all - Revoke all sessions (all devices)
+   - GET /api/v1/auth/me - Get current user info
+   - POST /api/v1/auth/mfa/setup - Initiate MFA setup
+   - POST /api/v1/auth/mfa/verify - Verify MFA and enable
+   - POST /api/v1/auth/mfa/disable - Disable MFA
+   - POST /api/v1/auth/change-password - Change password
+   - POST /api/v1/auth/password-reset/request - Request password reset
+   - POST /api/v1/auth/password-reset/confirm - Confirm password reset
+   - GET /api/v1/auth/sessions - List user sessions
+   - DELETE /api/v1/auth/sessions/{id} - Revoke specific session
+   - GET /api/v1/auth/login-history - View login history
+
+6. **RBAC Middleware** (backend/app/core/deps.py)
+   - get_current_user - Extract and validate user from JWT
+   - get_current_active_user - Check user is active
+   - get_current_superuser - Check superuser status
+   - require_permission - Check specific permission
+   - get_client_ip - Extract IP from request (handles proxies)
+   - get_user_agent - Extract user agent from request
+
+7. **Predefined Permissions**
+   - 90+ permissions for all roles:
+     - Admin: user management, config, audit log access
+     - Doctor: patient access, diagnosis, prescriptions, orders
+     - Nurse: vitals, patient read, nursing notes
+     - Pharmacist: prescriptions, medications, inventory
+     - Receptionist: patient registration, encounters, queues
+     - Lab Staff: lab orders and results
+     - Radiology Staff: radiology orders and exams
+     - Billing Staff: bills, payments
+   - Granular permissions: create, read, update, delete per resource type
+
+8. **Security Features**
+   - Account lockout after 5 failed attempts (30-minute lock)
+   - Session timeout after 30 minutes of inactivity
+   - Refresh token rotation (new tokens on each refresh)
+   - Password policies enforced on creation and change
+   - Audit logging of all authentication events
+   - Token revocation support
+   - IP address and user agent tracking
+
+9. **Database Migrations**
+   - 20250113000001_add_authentication_tables.py
+     - Added password_changed_at to users table
+     - Created sessions table
+     - Created permissions table
+     - Created audit_logs table
+     - Created password_reset_tokens table
+   - 20250113000002_populate_permissions.py
+     - Inserted 90+ predefined permissions
+
+10. **Tests**
+    - tests/test_security.py - Unit tests for security functions
+    - tests/test_crud_auth.py - Unit tests for auth CRUD operations
+    - tests/test_auth_integration.py - Integration tests for auth endpoints
+    - tests/conftest.py - Test fixtures and configuration
+
+11. **Updated Dependencies** (backend/requirements.txt)
+    - pyotp==2.9.0 (MFA/TOTP support)
+    - qrcode==7.4.2 (QR code generation)
+
+### Acceptance Criteria Met:
+
+- [x] AC-001: Users can log in with username and password
+- [x] AC-002: Session timeout occurs after 30 minutes of inactivity
+- [x] AC-003: Multi-factor authentication (MFA) is enforced for remote access
+- [x] AC-004: Password policies enforced (12+ chars, complexity, 90-day expiration)
+- [x] AC-005: Role-based access control (RBAC) supports resource and action permissions
+- [x] AC-006: JWT tokens with refresh token rotation implemented
+- [x] AC-007: Failed login attempts are logged and monitored
+- [x] AC-008: Password reset flow works (email sending TODO: implement SMTP)
+- [x] AC-009: User can view their own login history
+- [x] AC-010: Session management allows users to logout from all devices
+
+### Testing:
+
+- Unit tests for password hashing and verification
+- Unit tests for JWT token creation and decoding
+- Unit tests for MFA secret generation and code verification
+- Unit tests for password strength validation
+- Unit tests for password expiration checking
+- Unit tests for user CRUD operations
+- Unit tests for session management
+- Unit tests for audit logging
+- Unit tests for password reset tokens
+- Integration tests for complete authentication flow
+- Integration tests for token refresh
+- Integration tests for logout and session revocation
+
+### Notes:
+
+- Email sending for password reset is stubbed (prints to console)
+- TODO: Implement SMTP/email service integration
+- TODO: Add rate limiting for login attempts (prevent brute force)
+- TODO: Add CAPTCHA for public endpoints
+- TODO: Implement device fingerprinting for enhanced security
+- All authentication endpoints are protected by audit logging
+- Session cleanup should be scheduled (expired sessions)
+- Audit log cleanup should be scheduled (6-year retention)
+
+### Files Created:
+- backend/app/models/session.py
+- backend/app/models/permission.py
+- backend/app/models/audit_log.py
+- backend/app/models/password_reset.py
+- backend/app/schemas/auth.py
+- backend/app/crud/session.py
+- backend/app/crud/audit_log.py
+- backend/app/crud/password_reset.py
+- backend/app/core/deps.py
+- backend/app/api/v1/endpoints/auth.py
+- backend/tests/test_security.py
+- backend/tests/test_crud_auth.py
+- backend/tests/test_auth_integration.py
+- backend/tests/conftest.py
+- backend/alembic/versions/20250113000001_add_authentication_tables.py
+- backend/alembic/versions/20250113000002_populate_permissions.py
+
+### Files Modified:
+- backend/app/models/user.py - Added relationships and password_changed_at
+- backend/app/schemas/user.py - Added locked_until and password_changed_at
+- backend/app/core/security.py - Added MFA, password validation, token hashing
+- backend/app/crud/user.py - Added MFA, password, and authentication functions
+- backend/app/api/v1/api.py - Added auth router
+- backend/requirements.txt - Added pyotp and qrcode
+
+

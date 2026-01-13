@@ -34,6 +34,8 @@ class UserInDB(UserBase):
     is_superuser: bool = False
     mfa_enabled: bool = False
     failed_login_attempts: int = 0
+    locked_until: Optional[datetime] = None
+    password_changed_at: Optional[datetime] = None
     last_login: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
