@@ -51,6 +51,9 @@ class Settings(BaseSettings):
     # Logging
     LOG_LEVEL: str = "INFO"
 
+    # Audit Log Encryption
+    AUDIT_LOG_ENCRYPTION_KEY: Optional[str] = Field(default="", env="AUDIT_LOG_ENCRYPTION_KEY")
+
     # File Upload
     MAX_UPLOAD_SIZE: int = 10 * 1024 * 1024  # 10MB
     ALLOWED_EXTENSIONS: set[str] = {

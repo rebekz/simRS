@@ -41,3 +41,28 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
             raise
         finally:
             await session.close()
+
+
+from contextlib import asynccontextmanager
+
+
+@asynccontextmanager
+async def get_db_context():
+    """
+    Async context manager for database sessions.
+
+    Useful for background tasks that need DB access outside of request context.
+
+    Example:
+        async with get_db_context() as db:
+            await some_crud_function(db, ...)
+    """
+    async with AsyncSessionLocal() as session:
+        try:
+            yield session
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            raise
+        finally:
+            await session.close()
