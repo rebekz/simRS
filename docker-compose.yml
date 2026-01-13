@@ -148,12 +148,82 @@ services:
     networks:
       - simrs-network
 
+  backup:
+    image: postgres:16-alpine
+    container_name: simrs-backup
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        echo "Initializing backup system..."
+        mkdir -p /backup/daily /backup/weekly /backup/monthly /backup/wal
+
+        # Generate encryption key if not exists
+        if [ ! -f /backup/.encryption_key ]; then
+          python3 -c "import os; print(os.urandom(32).hex())" > /backup/.encryption_key
+          echo "Generated encryption key at /backup/.encryption_key"
+          echo "BACKUP_ENCRYPTION_KEY=$$(cat /backup/.encryption_key)" >> /backup/.env
+        fi
+
+        # Wait for database to be ready
+        until pg_isready -h postgres -U $${POSTGRES_USER} -d $${POSTGRES_DB}; do
+          echo "Waiting for postgres..."
+          sleep 5
+        done
+
+        echo "Database ready. Setting up cron jobs..."
+
+        # Install cron and Python dependencies
+        apk add --no-cache dcron python3 py3-pip py3-cryptography
+        pip3 install --no-cache-dir cryptography
+
+        # Set up cron jobs
+        # Daily backup at 2 AM
+        echo "0 2 * * * /scripts/backup_db.sh full" >> /etc/crontabs/root
+        # Weekly off-site sync on Sunday at 3 AM
+        echo "0 3 * * 0 /scripts/sync_offsite_backup.sh" >> /etc/crontabs/root
+        # Daily backup verification at 4 AM
+        echo "0 4 * * * /scripts/verify_backup.sh --all" >> /etc/crontabs/root
+        # Hourly WAL check
+        echo "0 * * * * ls -lh /backup/wal | tail -10 >> /backup/wal_status.log" >> /etc/crontabs/root
+
+        # Start cron daemon
+        crond -f -l 2
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-simrs}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-simrs_password}
+      POSTGRES_DB: ${POSTGRES_DB:-simrs}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      BACKUP_DIR: /backup
+      BACKUP_ENCRYPTION_KEY: ${BACKUP_ENCRYPTION_KEY:-}
+      S3_BUCKET: ${S3_BUCKET:-}
+      S3_PREFIX: ${S3_PREFIX:-simrs-backups/}
+      RSYNC_HOST: ${RSYNC_HOST:-}
+      RSYNC_USER: ${RSYNC_USER:-}
+      RSYNC_PATH: ${RSYNC_PATH:-/backups/simrs}
+      BACKUP_ALERT_EMAIL: ${BACKUP_ALERT_EMAIL:-}
+      SMTP_SERVER: ${SMTP_SERVER:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+    volumes:
+      - backup_data:/backup
+      - ./scripts:/scripts:ro
+      - ./backend:/app/backend:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - simrs-network
+    restart: unless-stopped
+
 volumes:
   postgres_data:
   redis_data:
   minio_data:
   static_files:
   media_files:
+  backup_data:
 
 networks:
   simrs-network:
