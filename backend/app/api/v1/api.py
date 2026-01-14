@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import health, auth, audit, monitoring, patients, encounters, bpjs, bpjs_verification, icd10, allergies, clinical_notes, consultation, sep, inventory, user_management, medications, drug_interactions, prescriptions, dispensing, queue, bed, hospital
+from app.api.v1.endpoints import health, auth, audit, monitoring, patients, encounters, bpjs, bpjs_verification, icd10, allergies, clinical_notes, consultation, sep, inventory, user_management, medications, drug_interactions, prescriptions, dispensing, queue, bed, hospital, admission
 
 api_router = APIRouter()
 
@@ -68,3 +68,6 @@ api_router.include_router(bed.router, tags=["bed"])
 
 # Include Hospital Configuration endpoints
 api_router.include_router(hospital.router, prefix="/hospital", tags=["hospital"])
+
+# Include Admission Workflow endpoints
+api_router.include_router(admission.router, prefix="/admission", tags=["admission"])
