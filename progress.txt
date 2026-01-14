@@ -1054,3 +1054,127 @@ chronic conditions highlighting, and tabbed interface for easy navigation.
 - backend/app/api/v1/api.py - Added encounters router
 
 
+## [2025-01-14] STORY-022: BPJS VClaim API Integration - COMPLETED
+
+### Summary
+Implemented BPJS VClaim API integration for Indonesian national health insurance verification.
+Provides eligibility checking, SEP creation, and reference data lookup capabilities.
+
+### What was implemented:
+
+1. **BPJS VClaim API Client** (backend/app/services/bpjs_vclaim.py)
+   - Async HTTP client using httpx
+   - HMAC-SHA256 signature generation for authentication
+   - Request timestamp generation
+   - Proper error handling with custom BPJSVClaimError exception
+   - Support for all VClaim API endpoints:
+     - Check eligibility by card number (GET /Peserta/nokartu/{cardNumber}/tglSEP/{date})
+     - Check eligibility by NIK (GET /Peserta/nik/{nik}/tglSEP/{date})
+     - Create SEP (POST /SEP/create)
+     - Delete SEP (DELETE /SEP/{sepNumber})
+     - Get polyclinics list
+     - Get facilities list
+     - Get diagnoses (ICD-10) list
+     - Get doctors list
+
+2. **BPJS Schemas** (backend/app/schemas/bpjs.py)
+   - BPJSConfig: Configuration schema with API URL and credentials
+   - BPJSEligibilityRequest: Request schema for eligibility checks
+   - BPJSEligibilityResponse: Response schema with participant information
+   - BPJSPesertaInfo: Participant information model matching VClaim API response
+   - BPJSSEPCreateRequest: Request schema for SEP creation
+   - BPJSSEPCreateResponse: Response schema for created SEP
+   - BPJSSEPDeleteRequest/Response: SEP deletion schemas
+   - BPJSErrorResponse: Error response schema
+   - Reference data schemas: BPJSPolyclinicInfo, BPJSFacilityInfo, BPJSDiagnosisInfo, BPJSDoctorInfo
+
+3. **BPJS API Endpoints** (backend/app/api/v1/endpoints/bpjs.py)
+   - POST /bpjs/eligibility - Check BPJS member eligibility
+   - POST /bpjs/sep - Create SEP letter
+   - DELETE /bpjs/sep/{sep_number} - Delete SEP
+   - GET /bpjs/polyclinics - Get polyclinic list
+   - GET /bpjs/facilities - Get healthcare facility list
+   - GET /bpjs/diagnoses - Get ICD-10 diagnosis list
+   - GET /bpjs/doctors - Get doctor list
+   - All endpoints protected with RBAC (bpjs:read, bpjs:create, bpjs:delete permissions)
+   - Proper error handling for BPJS API errors
+
+4. **Frontend BPJS Verification Card** (frontend/src/components/BPJSVerificationCard.tsx)
+   - Card component for BPJS eligibility verification
+   - Input fields for card number (13 digits) and NIK (16 digits)
+   - SEP date picker with default to today
+   - Check eligibility button with loading state
+   - Result display with:
+     - Eligibility status badge (green/red)
+     - Participant information card
+     - Status peserta with color coding
+     - Jenis peserta, kelas hak, umur display
+   - Error message display
+   - Auto-fills NIK from patient data if provided
+   - onVerificationComplete callback for parent integration
+
+5. **Frontend SEP Creation Dialog** (frontend/src/components/SEPCreateDialog.tsx)
+   - Modal dialog for creating SEP letters
+   - Form fields:
+     - Tanggal SEP (required)
+     - Kode Faskes/PPK Pelayanan (required)
+     - Jenis Pelayanan (Rawat Jalan/Rawat Inap)
+     - Kelas Rawat (optional)
+     - Kode Diagnosa Awal/ICD-10 (required, 3 chars)
+     - Poli Tujuan (optional)
+     - DPJP/Dokter Penanggung Jawab (optional)
+     - Catatan (optional, max 200 chars)
+   - Displays patient name and card number
+   - Success message with SEP number
+   - Form validation
+   - onSuccess callback for parent integration
+
+### Acceptance Criteria Met:
+
+- [x] AC-001: BPJS VClaim API client implemented with authentication
+- [x] AC-002: Eligibility check endpoint supports both card number and NIK
+- [x] AC-003: SEP creation endpoint with required fields
+- [x] AC-004: Frontend verification card component
+- [x] AC-005: Frontend SEP creation dialog component
+- [x] AC-006: Proper error handling for BPJS API errors
+- [x] AC-007: RBAC permissions for BPJS endpoints
+
+### Technical Implementation:
+
+- BPJS authentication using X-cons-id, X-signature, X-timestamp headers
+- HMAC-SHA256 signature: hash(cons_id + timestamp, secret_key)
+- httpx AsyncClient for non-blocking HTTP requests
+- Timeout configured to 30 seconds for BPJS API calls
+- Proper response parsing for VClaim API structure
+- Status code mapping for eligibility determination
+
+### Configuration:
+
+BPJS settings already in config.py:
+- BPJS_CONSUMER_ID: Consumer ID from BPJS
+- BPJS_CONSUMER_SECRET: Secret key from BPJS
+- BPJS_USER_KEY: User key for BPJS API
+- BPJS_SERVICE_NAME: Service name (default: SIMRS)
+- BPJS_API_URL: VClaim API base URL
+
+### Notes:
+
+- BPJS VClaim API requires valid credentials from BPJS
+- Eligibility check returns is_eligible flag based on statusPeserta
+- SEP creation requires doctor and facility codes from reference data
+- ICD-10 diagnosis codes are 3 characters (e.g., A00, J01)
+- Service types: RJ (Rawat Jalan) or RI (Rawat Inap)
+- Treatment classes: 1, 2, or 3
+- SEP number format: 0001R00101YYYYMMDDXXXX (generated by BPJS)
+
+### Files Created:
+- backend/app/services/__init__.py
+- backend/app/services/bpjs_vclaim.py
+- backend/app/schemas/bpjs.py
+- backend/app/api/v1/endpoints/bpjs.py
+- frontend/src/components/BPJSVerificationCard.tsx
+- frontend/src/components/SEPCreateDialog.tsx
+
+### Files Modified:
+- backend/app/api/v1/api.py - Added BPJS router with /bpjs prefix
+
