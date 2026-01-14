@@ -240,3 +240,116 @@ class BPJSDoctorListResponse(BaseModel):
 
     metaInfo: Optional[Dict[str, Any]] = Field(None, description="Response metadata")
     list: Optional[List[BPJSDoctorInfo]] = Field(default_factory=list, description="Doctor list")
+
+
+# =============================================================================
+# BPJS Aplicare Schemas for Bed Availability (STORY-032)
+# =============================================================================
+
+class BPJSAplicareBedCreate(BaseModel):
+    """Schema for creating bed in BPJS Aplicare."""
+
+    kodekelas: str = Field(..., description="Room class code (1, 2, 3, VVIP, VIP)")
+    koderuang: str = Field(..., description="Room code")
+    namaruang: str = Field(..., description="Room name")
+    kapasitas: int = Field(..., ge=0, description="Total bed capacity")
+    tersedia: int = Field(..., ge=0, description="Available beds")
+    tersediapria: int = Field(..., ge=0, description="Available male beds")
+    tersediawanita: int = Field(..., ge=0, description="Available female beds")
+    tersediapriawanita: int = Field(..., ge=0, description="Available mixed gender beds")
+
+    @validator('kodekelas')
+    def validate_room_class(cls, v):
+        """Validate room class code"""
+        valid_classes = ['1', '2', '3', 'VVIP', 'VIP']
+        if v.upper() not in valid_classes:
+            raise ValueError(f'Room class must be one of: {", ".join(valid_classes)}')
+        return v.upper()
+
+    @validator('tersedia')
+    def validate_available_beds(cls, v, values):
+        """Validate available beds doesn't exceed capacity"""
+        if 'kapasitas' in values and v > values['kapasitas']:
+            raise ValueError('Available beds cannot exceed capacity')
+        return v
+
+
+class BPJSAplicareBedUpdate(BaseModel):
+    """Schema for updating bed in BPJS Aplicare."""
+
+    kodekelas: str = Field(..., description="Room class code (1, 2, 3, VVIP, VIP)")
+    koderuang: str = Field(..., description="Room code")
+    namaruang: str = Field(..., description="Room name")
+    kapasitas: int = Field(..., ge=0, description="Total bed capacity")
+    tersedia: int = Field(..., ge=0, description="Available beds")
+    tersediapria: int = Field(..., ge=0, description="Available male beds")
+    tersediawanita: int = Field(..., ge=0, description="Available female beds")
+    tersediapriawanita: int = Field(..., ge=0, description="Available mixed gender beds")
+
+    @validator('kodekelas')
+    def validate_room_class(cls, v):
+        """Validate room class code"""
+        valid_classes = ['1', '2', '3', 'VVIP', 'VIP']
+        if v.upper() not in valid_classes:
+            raise ValueError(f'Room class must be one of: {", ".join(valid_classes)}')
+        return v.upper()
+
+    @validator('tersedia')
+    def validate_available_beds(cls, v, values):
+        """Validate available beds doesn't exceed capacity"""
+        if 'kapasitas' in values and v > values['kapasitas']:
+            raise ValueError('Available beds cannot exceed capacity')
+        return v
+
+
+class BPJSAplicareBedDelete(BaseModel):
+    """Schema for deleting bed from BPJS Aplicare."""
+
+    kodekelas: str = Field(..., description="Room class code")
+    koderuang: str = Field(..., description="Room code")
+
+
+class BPJSAplicareBedInfo(BaseModel):
+    """Bed information from BPJS Aplicare."""
+
+    kodekelas: str = Field(..., description="Room class code")
+    koderuang: str = Field(..., description="Room code")
+    namaruang: str = Field(..., description="Room name")
+    kapasitas: int = Field(..., description="Total bed capacity")
+    tersedia: int = Field(..., description="Available beds")
+    tersediapria: int = Field(..., description="Available male beds")
+    tersediawanita: int = Field(..., description="Available female beds")
+    tersediapriawanita: int = Field(..., description="Available mixed gender beds")
+
+
+class BPJSAplicareBedListResponse(BaseModel):
+    """Response schema for bed list from BPJS Aplicare."""
+
+    metaInfo: Optional[Dict[str, Any]] = Field(None, description="Response metadata")
+    list: Optional[List[BPJSAplicareBedInfo]] = Field(default_factory=list, description="Bed list")
+
+
+class BPJSAplicareBedCountResponse(BaseModel):
+    """Response schema for bed count by room class."""
+
+    metaInfo: Optional[Dict[str, Any]] = Field(None, description="Response metadata")
+    totalbed: Optional[int] = Field(None, description="Total bed count")
+    kodekelas: Optional[str] = Field(None, description="Room class code")
+
+
+class BPJSAplicareSyncRequest(BaseModel):
+    """Schema for requesting bed sync to BPJS Aplicare."""
+
+    room_id: int = Field(..., description="Room ID to sync")
+    force_update: bool = Field(default=False, description="Force update even if data unchanged")
+
+
+class BPJSAplicareSyncResponse(BaseModel):
+    """Response schema for bed sync operation."""
+
+    success: bool = Field(..., description="Sync success status")
+    message: str = Field(..., description="Sync response message")
+    room_id: int = Field(..., description="Room ID that was synced")
+    bpjs_response: Optional[Dict[str, Any]] = Field(None, description="BPJS API response")
+    synced_at: Optional[datetime] = Field(None, description="Sync timestamp")
+

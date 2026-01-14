@@ -44,6 +44,7 @@ class Settings(BaseSettings):
     BPJS_BASE_URL: str = "https://apijkn.bpjs-kesehatan.go.id"
     BPJS_BASE_URL_VCLAIM: str = "https://new-api.bpjs-kesehatan.go.id:8080"
     BPJS_API_URL: str = "https://apijkn.bpjs-kesehatan.go.id/vclaim-rest"
+    BPJS_APLICARE_URL: str = "https://apijkn.bpjs-kesehatan.go.id/aplicarews"
 
     # SATUSEHAT Integration
     SATUSEHAT_CLIENT_ID: Optional[str] = Field(default="", env="SATUSEHAT_CLIENT_ID")
