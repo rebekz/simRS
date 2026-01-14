@@ -51,6 +51,7 @@ class Settings(BaseSettings):
     SATUSEHAT_CLIENT_SECRET: Optional[str] = Field(default="", env="SATUSEHAT_CLIENT_SECRET")
     SATUSEHAT_BASE_URL: str = "https://api-satusehat.kemkes.go.id"
     SATUSEHAT_AUTH_URL: str = "https://api-satusehat.kemkes.go.id/oauth2/v1"
+    SATUSEHAT_API_URL: str = "https://api-satusehat.kemkes.go.id/fhir-r4/v1"
 
     # Logging
     LOG_LEVEL: str = "INFO"

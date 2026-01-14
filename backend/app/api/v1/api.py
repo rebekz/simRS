@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import health, auth, audit, monitoring, patients, encounters, bpjs, bpjs_verification, bpjs_aplicare, icd10, allergies, clinical_notes, consultation, sep, inventory, user_management, medications, drug_interactions, prescriptions, dispensing, queue, bed, hospital, admission, daily_care, discharge
+from app.api.v1.endpoints import health, auth, audit, monitoring, patients, encounters, bpjs, bpjs_verification, bpjs_aplicare, icd10, allergies, clinical_notes, consultation, sep, inventory, user_management, medications, drug_interactions, prescriptions, dispensing, queue, bed, hospital, admission, daily_care, discharge, satusehat
 
 api_router = APIRouter()
 
@@ -80,3 +80,6 @@ api_router.include_router(daily_care.router, prefix="/daily-care", tags=["daily-
 
 # Include Discharge Planning endpoints
 api_router.include_router(discharge.router, prefix="/discharge", tags=["discharge"])
+
+# Include SATUSEHAT FHIR endpoints
+api_router.include_router(satusehat.router, prefix="/satusehat", tags=["satusehat"])

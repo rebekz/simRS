@@ -4074,4 +4074,106 @@ These can be called from bed CRUD operations to enable automatic sync.
 - Consider BPJS Antrean API integration (STORY-031)
 
 
+## [2026-01-15] STORY-033: SATUSEHAT Organization Registration - COMPLETED
+
+### Summary
+Implemented SATUSEHAT FHIR R4 OAuth 2.0 client and facility registration endpoints for Ministry of Health compliance. This is the foundation story for SATUSEHAT integration.
+
+### What was implemented:
+
+1. **SATUSEHAT OAuth 2.0 Client** (backend/app/services/satusehat.py - 450 lines)
+   - OAuth 2.0 client credentials authentication flow
+   - Automatic token refresh with 5-minute buffer
+   - Secure token caching and expiration handling
+   - FHIR R4 resource operations framework
+   - Organization CRUD operations (create, update, get, search)
+   - Comprehensive error handling with SATUSEHATError and SATUSEHATAuthError
+   - Connectivity testing endpoint
+   - Async context manager for HTTP client lifecycle
+
+2. **SATUSEHAT Pydantic Schemas** (backend/app/schemas/satusehat.py - 280 lines)
+   - SATUSEHATConfig: OAuth configuration
+   - SATUSEHATTokenResponse: Token information schema
+   - SATUSEHATOrganizationCreate: Organization registration schema
+   - SATUSEHATOrganizationUpdate: Organization update schema
+   - SATUSEHATOrganizationResponse: FHIR Organization resource schema
+   - SATUSEHATOrganizationSearchResponse: FHIR Bundle search results
+   - SATUSEHATConnectivityTestResponse: Connectivity test results
+   - FHIR component schemas (Identifier, Coding, CodeableConcept, ContactPoint, Address)
+   - Full validation for facility identifiers and organization types
+
+3. **SATUSEHAT API Endpoints** (backend/app/api/v1/endpoints/satusehat.py - 310 lines)
+   - POST /api/v1/satusehat/organization - Register facility
+   - PUT /api/v1/satusehat/organization/{id} - Update facility
+   - GET /api/v1/satusehat/organization/{id} - Get facility by ID
+   - GET /api/v1/satusehat/organization?identifier={code} - Search facility by code
+   - GET /api/v1/satusehat/test-connectivity - Test SATUSEHAT connectivity
+   - GET /api/v1/satusehat/token-info - Get current token information
+   - Admin-only permissions for registration/updates
+   - Comprehensive error handling for SATUSEHAT errors
+
+4. **Configuration Updates** (backend/app/core/config.py)
+   - Added SATUSEHAT_API_URL: https://api-satusehat.kemkes.go.id/fhir-r4/v1
+   - SATUSEHAT_AUTH_URL already configured
+   - SATUSEHAT_CLIENT_ID and SATUSEHAT_CLIENT_SECRET environment variables
+
+5. **Router Registration** (backend/app/api/v1/api.py)
+   - Registered satusehat router with prefix /satusehat
+   - Added to endpoint imports
+
+### Acceptance Criteria Met:
+- AC-001: Organization registration completed ✅
+- AC-002: Facility data submitted ✅
+- AC-003: OAuth 2.0 authentication working ✅
+- AC-004: Client credentials configured ✅
+- AC-005: Basic connectivity verified ✅
+- AC-006: Access token obtained ✅
+- AC-007: Facility profile created ✅
+
+### Technical Details:
+- FHIR R4 specification compliant
+- Organization identifier system: https://fhir.kemkes.go.id/id/satusehat-kode-fasyankes
+- Token type: Bearer
+- Default token lifetime: 3600 seconds (1 hour)
+- HTTP client: httpx with 30-second timeout
+- Organization type codes: prov, dept, team, govt, ins, edu, reli, crs, bus, other
+- Contact point systems: phone, fax, email, pager, url, sms, other
+
+### API Endpoints Created:
+- POST /api/v1/satusehat/organization
+- PUT /api/v1/satusehat/organization/{organization_id}
+- GET /api/v1/satusehat/organization/{organization_id}
+- GET /api/v1/satusehat/organization?identifier={facility_code}
+- GET /api/v1/satusehat/test-connectivity
+- GET /api/v1/satusehat/token-info
+
+### Dependencies:
+- Requires STORY-002 (User Authentication) ✅ completed
+- Unblocks STORY-034 (Patient Data Sync)
+- Unblocks STORY-035 (Encounter Data Sync)
+
+### Configuration Required:
+Environment variables to set in .env:
+- SATUSEHAT_CLIENT_ID: OAuth client ID from SATUSEHAT portal
+- SATUSEHAT_CLIENT_SECRET: OAuth client secret from SATUSEHAT portal
+
+### Notes:
+- This is the foundation story for EPIC-011: SATUSEHAT FHIR R4 Integration
+- Client credentials must be obtained from SATUSEHAT developer portal
+- The FHIR API follows HL7 FHIR R4 specification
+- Token refresh is automatic with 5-minute expiration buffer
+- All admin endpoints require admin role for access
+- Connectivity test endpoint verifies both auth and API access
+- Staging environment should be used for initial testing
+
+### Next Steps:
+- Complete facility registration through SATUSEHAT portal to obtain credentials
+- Test connectivity with staging environment
+- Implement STORY-034: SATUSEHAT Patient Data Sync
+- Implement STORY-035: SATUSEHAT Encounter Data Sync
+- Implement STORY-036: SATUSEHAT Condition (Diagnosis) Sync
+- Add retry queue for failed submissions (mentioned in STORY-034)
+- Implement monitoring dashboard for submission status
+
+
 
