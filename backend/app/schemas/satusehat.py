@@ -348,3 +348,49 @@ class EncounterValidationResult(BaseModel):
     is_valid: bool = Field(..., description="Whether encounter data is valid for sync")
     errors: List[str] = Field(default_factory=list, description="List of validation errors")
     warnings: Optional[List[str]] = Field(None, description="List of validation warnings")
+
+
+# =============================================================================
+# Condition Schemas (STORY-036)
+# =============================================================================
+
+class FHIRConditionCreate(BaseModel):
+    """Schema for creating Condition in SATUSEHAT."""
+
+    diagnosis_id: int = Field(..., description="Internal diagnosis ID")
+    force_update: bool = Field(default=False, description="Force update even if data unchanged")
+
+
+class FHIRConditionResponse(BaseModel):
+    """Schema for Condition response from SATUSEHAT."""
+
+    resource_type: str = Field(default="Condition", description="FHIR resource type")
+    id: str = Field(..., description="FHIR resource ID")
+    clinicalStatus: Optional[Dict[str, Any]] = Field(None, description="Clinical status")
+    verificationStatus: Optional[Dict[str, Any]] = Field(None, description="Verification status")
+    category: Optional[List[Dict[str, Any]]] = Field(None, description="Category")
+    code: Optional[Dict[str, Any]] = Field(None, description="Diagnosis code (ICD-10)")
+    subject: Optional[Dict[str, Any]] = Field(None, description="Patient reference")
+    encounter: Optional[Dict[str, Any]] = Field(None, description="Encounter reference")
+    severity: Optional[Dict[str, Any]] = Field(None, description="Severity")
+    note: Optional[List[Dict[str, Any]]] = Field(None, description="Notes")
+
+
+class ConditionSyncResponse(BaseModel):
+    """Schema for condition sync operation response."""
+
+    success: bool = Field(..., description="Sync success status")
+    message: str = Field(..., description="Sync response message")
+    diagnosis_id: int = Field(..., description="Internal diagnosis ID")
+    satusehat_condition_id: Optional[str] = Field(None, description="SATUSEHAT Condition resource ID")
+    action: Optional[str] = Field(None, description="Action performed (create or update)")
+    synced_at: Optional[datetime] = Field(default_factory=datetime.now, description="Sync timestamp")
+    error: Optional[str] = Field(None, description="Error message if sync failed")
+
+
+class ConditionValidationResult(BaseModel):
+    """Schema for condition validation result."""
+
+    is_valid: bool = Field(..., description="Whether condition data is valid for sync")
+    errors: List[str] = Field(default_factory=list, description="List of validation errors")
+    warnings: Optional[List[str]] = Field(None, description="List of validation warnings")

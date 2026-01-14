@@ -86,6 +86,7 @@ class Diagnosis(Base):
     diagnosis_name = Column(String(500), nullable=False)
     diagnosis_type = Column(String(20), server_default="primary", nullable=False, index=True)
     is_chronic = Column(Boolean, server_default=False, nullable=False)
+    satusehat_condition_id = Column(String(100), nullable=True, index=True, comment="SATUSEHAT FHIR Condition resource ID")
     notes = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default="NOW()", nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default="NOW()", nullable=False)

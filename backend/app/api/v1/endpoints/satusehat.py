@@ -1,8 +1,10 @@
-"""SATUSEHAT FHIR R4 API endpoints for STORY-033 & STORY-034.
+"""SATUSEHAT FHIR R4 API endpoints for STORY-033, STORY-034, STORY-035 & STORY-036.
 
 This module provides REST API endpoints for:
 - SATUSEHAT facility/organization registration (STORY-033)
 - Patient demographics sync (STORY-034)
+- Encounter data sync (STORY-035)
+- Condition/diagnosis sync (STORY-036)
 - OAuth token management and testing
 - Connectivity verification
 """
@@ -29,6 +31,10 @@ from app.schemas.satusehat import (
     FHIREncounterResponse,
     EncounterSyncResponse,
     EncounterValidationResult,
+    FHIRConditionCreate,
+    FHIRConditionResponse,
+    ConditionSyncResponse,
+    ConditionValidationResult,
 )
 from app.services.satusehat import (
     SATUSEHATClient,
@@ -52,7 +58,14 @@ from app.services.encounter_sync import (
     trigger_encounter_sync_on_completion,
     validate_encounter_for_sync,
 )
-from app.models.encounter import Encounter
+from app.models.encounter import Encounter, Diagnosis
+from app.services.condition_sync import (
+    sync_condition_to_satusehat,
+    sync_all_conditions_for_encounter,
+    get_condition_from_satusehat,
+    trigger_condition_sync_on_create,
+    validate_condition_for_sync,
+)
 
 
 router = APIRouter()
@@ -917,6 +930,210 @@ async def validate_encounter_for_satusehat(
         warnings.append("BPJS SEP number not provided - insurance claim may not be linked")
 
     return EncounterValidationResult(
+        is_valid=is_valid,
+        errors=errors,
+        warnings=warnings if warnings else None,
+    )
+
+
+# =============================================================================
+# Condition Sync Endpoints (STORY-036)
+# =============================================================================
+
+@router.post("/conditions/sync/{diagnosis_id}", response_model=ConditionSyncResponse)
+async def sync_condition_to_satusehat_endpoint(
+    diagnosis_id: int,
+    force_update: bool = Query(default=False, description="Force update even if data unchanged"),
+    background_tasks: BackgroundTasks = None,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Sync a diagnosis/condition to SATUSEHAT.
+
+    This endpoint manually triggers a sync of diagnosis data to SATUSEHAT
+    for national health data exchange and epidemiological reporting.
+
+    Args:
+        diagnosis_id: Internal diagnosis ID to sync
+        force_update: Force update even if data unchanged
+        background_tasks: FastAPI background tasks
+        current_user: Authenticated user (admin/nurse/doctor)
+        db: Database session
+
+    Returns:
+        Sync result
+
+    Raises:
+        HTTPException 403: If user lacks permission
+        HTTPException 404: If diagnosis not found
+        HTTPException 502: If SATUSEHAT API error
+    """
+    # Verify user has permission
+    if current_user.role not in ["admin", "nurse", "doctor"]:
+        raise HTTPException(
+            status_code=403,
+            detail="Only admin, nurse, and doctor roles can sync condition data"
+        )
+
+    # Verify diagnosis exists and get related data
+    from sqlalchemy import select
+    diagnosis_result = await db.execute(select(Diagnosis).filter(Diagnosis.id == diagnosis_id))
+    diagnosis = diagnosis_result.scalar_one_or_none()
+
+    if not diagnosis:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Diagnosis {diagnosis_id} not found"
+        )
+
+    # Perform sync
+    try:
+        async with SATUSEHATClient() as client:
+            result = await sync_condition_to_satusehat(
+                db,
+                diagnosis_id,
+                client,
+                force_update
+            )
+
+        return ConditionSyncResponse(
+            success=result["success"],
+            message=result["message"],
+            diagnosis_id=diagnosis_id,
+            satusehat_condition_id=result.get("satusehat_condition_id"),
+            action=result.get("action"),
+            synced_at=datetime.now() if result["success"] else None,
+            error=result.get("error"),
+        )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to sync condition: {str(e)}"
+        )
+
+
+@router.get("/conditions/satusehat/{satusehat_condition_id}", response_model=FHIRConditionResponse)
+async def get_satusehat_condition(
+    satusehat_condition_id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Retrieve a condition from SATUSEHAT.
+
+    This endpoint fetches a condition's FHIR resource from SATUSEHAT.
+
+    Args:
+        satusehat_condition_id: SATUSEHAT Condition resource ID
+        current_user: Authenticated user
+        db: Database session
+
+    Returns:
+        FHIR Condition resource
+
+    Raises:
+        HTTPException 404: If condition not found
+        HTTPException 502: If SATUSEHAT API error
+    """
+    try:
+        async with SATUSEHATClient() as client:
+            result = await get_condition_from_satusehat(client, satusehat_condition_id)
+
+            if not result:
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"Condition {satusehat_condition_id} not found in SATUSEHAT"
+                )
+
+            return FHIRConditionResponse(**result)
+
+    except HTTPException:
+        raise
+
+    except SATUSEHATAuthError as e:
+        raise HTTPException(
+            status_code=502,
+            detail=f"SATUSEHAT authentication error: {e.message}"
+        )
+
+    except SATUSEHATError as e:
+        raise HTTPException(
+            status_code=502,
+            detail=f"SATUSEHAT API error: {e.message}"
+        )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to retrieve condition: {str(e)}"
+        )
+
+
+@router.get("/conditions/{diagnosis_id}/validate", response_model=ConditionValidationResult)
+async def validate_condition_for_satusehat(
+    diagnosis_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Validate condition data for SATUSEHAT sync.
+
+    This endpoint checks if a condition's data meets SATUSEHAT requirements
+    before attempting to sync.
+
+    Args:
+        diagnosis_id: Internal diagnosis ID to validate
+        current_user: Authenticated user
+        db: Database session
+
+    Returns:
+        Validation result
+
+    Raises:
+        HTTPException 404: If diagnosis not found
+    """
+    # Get diagnosis
+    from sqlalchemy import select
+    diagnosis_result = await db.execute(select(Diagnosis).filter(Diagnosis.id == diagnosis_id))
+    diagnosis = diagnosis_result.scalar_one_or_none()
+
+    if not diagnosis:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Diagnosis {diagnosis_id} not found"
+        )
+
+    # Get encounter
+    encounter_result = await db.execute(select(Encounter).filter(Encounter.id == diagnosis.encounter_id))
+    encounter = encounter_result.scalar_one_or_none()
+
+    if not encounter:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Encounter {diagnosis.encounter_id} not found"
+        )
+
+    # Get patient
+    patient_result = await db.execute(select(Patient).filter(Patient.id == encounter.patient_id))
+    patient = patient_result.scalar_one_or_none()
+
+    if not patient:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Patient {encounter.patient_id} not found"
+        )
+
+    # Validate condition data
+    is_valid, errors = validate_condition_for_sync(diagnosis, encounter, patient)
+
+    # Add warnings
+    warnings = []
+    if diagnosis.is_chronic:
+        warnings.append("Chronic condition - requires ongoing monitoring")
+
+    return ConditionValidationResult(
         is_valid=is_valid,
         errors=errors,
         warnings=warnings if warnings else None,

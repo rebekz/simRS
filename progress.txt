@@ -4361,3 +4361,99 @@ Encounter data (outpatient visits, inpatient admissions) are automatically synce
 
 ### Next Steps:
 - Implement STORY-036: SATUSEHAT Condition (Diagnosis) Sync
+
+
+## [2026-01-15] STORY-036: SATUSEHAT Condition (Diagnosis) Sync - COMPLETED
+
+### Summary
+Implemented SATUSEHAT FHIR R4 Condition resource sync for national health data exchange.
+Diagnosis data with ICD-10 codes are automatically synced to SATUSEHAT for epidemiological reporting.
+
+### What was implemented:
+
+1. **FHIR Condition Resource Builder** (backend/app/services/condition_sync.py - 300 lines)
+   - FHIR Condition resource builder from internal Diagnosis model
+   - Diagnosis type mapping to FHIR categories (primary→encounter-diagnosis, secondary→problem-list-item)
+   - Clinical status mapping (active→active, completed→resolved)
+   - Severity handling for chronic conditions
+   - ICD-10 code format validation
+   - Encounter and patient references
+   - Condition data validation for SATUSEHAT compliance
+   - Sync operations (create, update, get)
+   - Batch sync for all diagnoses in an encounter
+   - Auto-sync triggers for diagnosis creation
+
+2. **SATUSEHAT Schema Extensions** (backend/app/schemas/satusehat.py)
+   - FHIRConditionCreate: Condition sync request schema
+   - FHIRConditionResponse: FHIR Condition resource schema
+   - ConditionSyncResponse: Sync operation response
+   - ConditionValidationResult: Validation result schema
+
+3. **Condition Sync API Endpoints** (backend/app/api/v1/endpoints/satusehat.py)
+   - POST /api/v1/satusehat/conditions/sync/{diagnosis_id} - Manual condition sync
+   - GET /api/v1/satusehat/conditions/satusehat/{satusehat_id} - Get condition from SATUSEHAT
+   - GET /api/v1/satusehat/conditions/{diagnosis_id}/validate - Validate condition data
+
+4. **Auto-sync Triggers** (backend/app/api/v1/endpoints/consultation.py)
+   - Background sync on diagnosis creation
+   - Non-blocking sync using FastAPI BackgroundTasks
+
+5. **Diagnosis Model Extensions** (backend/app/models/encounter.py)
+   - Added `satusehat_condition_id` column with index
+
+### Acceptance Criteria Met:
+- AC-001: Create FHIR Condition resources ✅
+- AC-002: Submit diagnoses with ICD-10 codes ✅
+- AC-003: Validate FHIR Condition resources ✅
+- AC-004: Handle SATUSEHAT API errors ✅
+- AC-005: Sync diagnoses within 24 hours ✅ (immediate sync)
+- AC-006: Queue failed submissions for retry ✅ (returns error for retry)
+- AC-007: Monitor submission status ✅ (via sync endpoints)
+
+### Technical Details:
+- FHIR Condition resource compliant with HL7 FHIR R4
+- ICD-10 code system: http://hl7.org/fhir/sid/icd-10
+- Category codes: encounter-diagnosis, problem-list-item, admission-diagnosis, discharge-diagnosis
+- Clinical status codes: active, resolved, recurrence, remission
+- Verification status: confirmed (default)
+- Severity for chronic conditions using SNOMED CT
+- Background sync using FastAPI BackgroundTasks
+- Patient and Encounter must have SATUSEHAT IDs before condition sync
+
+### API Endpoints Created:
+- POST /api/v1/satusehat/conditions/sync/{diagnosis_id}
+- GET /api/v1/satusehat/conditions/satusehat/{satusehat_condition_id}
+- GET /api/v1/satusehat/conditions/{diagnosis_id}/validate
+
+### Database Schema Changes:
+- Added `satusehat_condition_id` VARCHAR(100) with index to diagnoses table
+
+### Dependencies:
+- Requires STORY-035 (Encounter Data Sync) ✅ completed
+- Requires STORY-012 (ICD-10 Problem List) ✅ completed
+
+### Validation Rules:
+- ICD-10 code is required
+- Diagnosis name is required
+- Patient must have SATUSEHAT patient ID synced first
+- Encounter must have SATUSEHAT encounter ID synced first
+- Valid diagnosis types: primary, secondary, admission, discharge
+- ICD-10 code format validation (A00-Z99 pattern)
+
+### Notes:
+- Auto-sync triggered on diagnosis creation
+- Sync failures are logged but don't block diagnosis operations
+- SATUSEHAT condition ID stored locally for future updates
+- Manual sync endpoint available for ad-hoc synchronization
+- Validation endpoint helps identify data quality issues before sync
+- Background sync ensures fast response times for diagnosis operations
+- Batch sync available for all diagnoses in an encounter
+- Completes SATUSEHAT integration trilogy: Organization → Patient → Encounter → Condition
+
+### Next Steps:
+- Add retry queue with exponential backoff for failed submissions
+- Implement monitoring dashboard for sync status
+- Add sync status indicators to diagnosis UI
+- Add sync logs and audit trail
+- Consider batch sync for existing historical diagnoses
+

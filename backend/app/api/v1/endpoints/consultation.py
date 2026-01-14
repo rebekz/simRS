@@ -166,6 +166,7 @@ async def update_documentation(
 @router.post("/consultation/diagnosis", response_model=dict)
 async def add_diagnosis(
     diagnosis_data: QuickDiagnosisCreate,
+    background_tasks: BackgroundTasks = None,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -179,6 +180,12 @@ async def add_diagnosis(
             diagnosis_type=diagnosis_data.diagnosis_type,
             is_chronic=diagnosis_data.is_chronic,
         )
+
+        # Trigger SATUSEHAT sync in background (STORY-036)
+        if background_tasks and diagnosis:
+            from app.services.condition_sync import trigger_condition_sync_on_create
+            background_tasks.add_task(trigger_condition_sync_on_create, db, diagnosis.id)
+
         return {
             "diagnosis_id": diagnosis.id,
             "encounter_id": diagnosis.encounter_id,
