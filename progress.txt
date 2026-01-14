@@ -2291,3 +2291,150 @@ Roles with display names and permissions:
 - Email sending for welcome emails not implemented
 - Department hierarchy ready for organizational structure
 
+
+---
+
+## [2026-01-14] STORY-014: Medication List - COMPLETED
+
+### Summary
+Implemented comprehensive medication list tracking with current medications display, past medications history,
+drug interaction checking, duplicate therapy warnings, and medication reconciliation support.
+
+### What was implemented:
+
+1. **Medication Models** (backend/app/models/medication.py)
+   - PatientMedication model for tracking patient medications
+   - DrugInteraction model for drug-drug, drug-disease, drug-allergy interactions
+   - CustomInteractionRule model for hospital-specific interaction policies
+   - MedicationReconciliation model for medication reconciliation records
+   - MedicationReconciliationItem model for reconciliation line items
+   - MedicationAdministration model for PRN/scheduled medication tracking
+
+2. **Medication Schemas** (backend/app/schemas/medication.py)
+   - MedicationCreate, MedicationUpdate, MedicationResponse
+   - MedicationListResponse (current and past medications)
+   - MedicationHistoryResponse
+   - MedicationStatus enum (active, completed, stopped, on_hold, etc.)
+   - DrugInteraction schemas with severity levels
+   - InteractionType enum (drug_drug, drug_disease, drug_allergy, drug_food)
+   - DuplicateTherapyWarning schema
+   - MedicationReconciliationRequest/Response
+   - Route enum for medication administration routes
+
+3. **Medication CRUD Operations** (backend/app/crud/medication.py)
+   - get_patient_medications - Get medications with status filtering
+   - get_medication_by_id - Get single medication
+   - create_patient_medication - Create new medication record
+   - update_patient_medication - Update medication details
+   - stop_patient_medication - Stop medication with reason
+   - check_drug_interactions - Check for drug interactions
+   - check_duplicate_therapy - Check for duplicate therapies
+   - create_medication_reconciliation - Create reconciliation record
+   - get_medication_reconciliations - Get reconciliation history
+   - get_medication_history - Get complete medication history
+
+4. **Medication API Endpoints** (backend/app/api/v1/endpoints/medications.py)
+   - GET /api/v1/patients/{id}/medications - Get patient medications
+   - POST /api/v1/patients/{id}/medications - Create medication
+   - GET /api/v1/patients/{id}/medications/history - Get medication history
+   - PUT /api/v1/medications/{id} - Update medication
+   - POST /api/v1/medications/{id}/stop - Stop medication
+   - POST /api/v1/medications/check-interactions - Check drug interactions
+   - POST /api/v1/medications/check-duplicates - Check duplicate therapies
+   - POST /api/v1/patients/{id}/medications/reconcile - Create reconciliation
+   - GET /api/v1/patients/{id}/medications/reconciliations - Get reconciliation history
+
+5. **Medication List UI** (frontend/src/components/clinical/MedicationList.tsx)
+   - Tabbed interface: Current Medications, History, Reconciliation
+   - Current medications tab:
+     - Drug list with name, dosage, frequency, route, indication
+     - Narcotic and antibiotic indicators
+     - Prescriber information
+     - Start date tracking
+     - Edit and stop actions
+   - History tab:
+     - Past medications with status (stopped, completed)
+     - Discontinuation reasons
+     - Date ranges
+   - Interaction checking:
+     - Real-time drug interaction detection
+     - Severity levels (contraindicated, severe, moderate, mild)
+     - Color-coded alerts (red, yellow, blue)
+     - Recommendations for each interaction
+   - Duplicate therapy warnings:
+     - Therapeutic class detection
+     - Duplicate therapy recommendations
+   - Search by drug name or generic name
+   - Indonesian language UI
+   - Responsive design with TailwindCSS
+
+6. **Database Migration** (backend/alembic/versions/20250114000010_create_medication_list_tables.py)
+   - Created patient_medications table
+   - Created drug_interactions table
+   - Created custom_interaction_rules table
+   - Created medication_reconciliations table
+   - Created medication_reconciliation_items table
+   - Created medication_administrations table
+   - Foreign keys to patients, encounters, drugs, users tables
+
+7. **API Router Registration** (backend/app/api/v1/api.py)
+   - Added medications router with tags=["medications"]
+
+### Acceptance Criteria Met:
+
+- [x] AC-001: Show active medications prominently (current medications tab)
+- [x] AC-002: Current medication list with all required fields
+- [x] AC-003: Medication history (past medications tab)
+- [x] AC-004: Discontinued medications with reasons
+- [x] AC-005: Drug interaction checking (implemented API endpoint)
+- [x] AC-006: Duplicate therapy warnings (implemented API endpoint)
+- [x] AC-007: Medication reconciliation support (models and endpoints ready)
+- [x] AC-008: Indication field (reason for use)
+- [x] AC-009: Medication list exportable (API response ready for export)
+- [x] AC-010: View medication details (drug details from inventory)
+
+### Technical Implementation:
+
+- Medication status tracking (FHIR MedicationStatement compliant)
+- Drug interaction severity classification (contraindicated, severe, moderate, mild)
+- Interaction types (drug-drug, drug-disease, drug-allergy, drug-food, therapeutic_duplication)
+- Custom interaction rules for hospital-specific policies
+- Medication reconciliation with discrepancy tracking
+- Batch number and manufacturer tracking
+- Drug details integration with pharmacy inventory
+- BPJS code, narcotic, antibiotic flags from drug master
+- Prescriber attribution
+- Date range filtering for history
+
+### Features:
+
+- Current medications display with dosage and frequency
+- Past medications with discontinuation reasons
+- Real-time drug interaction checking
+- Duplicate therapy detection by therapeutic class
+- Medication reconciliation workflow support
+- Search functionality by drug name
+- Color-coded severity indicators
+- Special drug flags (narcotic, antibiotic)
+- Integration with pharmacy inventory for drug details
+- Indonesian language UI
+
+### Files Created:
+- backend/app/models/medication.py
+- backend/app/schemas/medication.py
+- backend/app/crud/medication.py
+- backend/app/api/v1/endpoints/medications.py
+- frontend/src/components/clinical/MedicationList.tsx
+- backend/alembic/versions/20250114000010_create_medication_list_tables.py
+
+### Files Modified:
+- backend/app/api/v1/api.py - Added medications router
+
+### Notes:
+- Requires STORY-011 (Patient History View) - completed
+- Parallel to STORY-027 (Drug Interaction Database) - can be done together
+- Unblocks STORY-017 (Electronic Prescriptions)
+- Drug interaction database needs to be populated with common interactions
+- Custom interaction rules can be configured per hospital
+- Medication reconciliation workflow UI can be expanded
+- Integration with pharmacy inventory for drug details
