@@ -1,0 +1,517 @@
+"""Radiology Order API endpoints for Lab/Radiology Ordering
+
+This module provides API endpoints for:
+- Radiology order creation and management
+- Imaging procedure ordering with procedure codes
+- Order status tracking and updates
+- Pending queue management for radiology departments
+"""
+from typing import List, Optional
+from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.deps import get_current_user, get_current_active_user, get_db
+from app.models.user import User, UserRole
+from app.schemas.radiology_orders import (
+    RadiologyOrderCreate,
+    RadiologyOrderResponse,
+    RadiologyOrderUpdate,
+    RadiologyOrderStatusUpdate,
+    RadiologyOrderListResponse,
+    RadiologyOrderItemResponse,
+    RadiologyOrderStatus,
+)
+
+
+router = APIRouter()
+
+
+# =============================================================================
+# Radiology Order Management Endpoints
+# =============================================================================
+
+@router.post("/radiology/orders", response_model=RadiologyOrderResponse)
+async def create_radiology_order(
+    order_data: RadiologyOrderCreate,
+    background_tasks: BackgroundTasks = None,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+) -> RadiologyOrderResponse:
+    """Create a new radiology order.
+
+    Args:
+        order_data: Radiology order details including procedures, patient, encounter info
+        background_tasks: FastAPI background tasks for async operations
+        db: Database session
+        current_user: Authenticated user (doctor/nurse)
+
+    Returns:
+        RadiologyOrderResponse: Created radiology order with details
+
+    Raises:
+        HTTPException 400: Invalid data or business rule violation
+        HTTPException 403: Insufficient permissions
+        HTTPException 404: Patient or encounter not found
+    """
+    try:
+        from app.crud import radiology_orders as crud_radiology
+
+        # Create radiology order
+        order = await crud_radiology.create_radiology_order(
+            db=db,
+            patient_id=order_data.patient_id,
+            encounter_id=order_data.encounter_id,
+            ordering_physician_id=current_user.id,
+            department_id=order_data.department_id,
+            priority=order_data.priority,
+            diagnosis=order_data.diagnosis,
+            clinical_indication=order_data.clinical_indication,
+            procedure_items=order_data.procedure_items,
+            notes=order_data.notes,
+            contrast_required=order_data.contrast_required,
+            pregnancy_status=order_data.pregnancy_status,
+            special_instructions=order_data.special_instructions,
+        )
+
+        # Trigger background tasks if needed (e.g., notification to radiology)
+        if background_tasks and order:
+            from app.services.radiology_notification import notify_radiology_department
+            background_tasks.add_task(
+                notify_radiology_department,
+                db,
+                order.id,
+                order.department_id,
+            )
+
+        return await _build_radiology_order_response(db, order)
+
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except PermissionError as e:
+        raise HTTPException(status_code=403, detail=str(e))
+
+
+@router.get("/radiology/orders/{order_id}", response_model=RadiologyOrderResponse)
+async def get_radiology_order(
+    order_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+) -> RadiologyOrderResponse:
+    """Get a single radiology order by ID.
+
+    Args:
+        order_id: Radiology order ID
+        db: Database session
+        current_user: Authenticated user
+
+    Returns:
+        RadiologyOrderResponse: Radiology order details
+
+    Raises:
+        HTTPException 404: Order not found
+    """
+    from app.crud import radiology_orders as crud_radiology
+
+    order = await crud_radiology.get_radiology_order(db=db, order_id=order_id)
+
+    if not order:
+        raise HTTPException(status_code=404, detail="Radiology order not found")
+
+    return await _build_radiology_order_response(db, order)
+
+
+@router.get("/radiology/orders/patient/{patient_id}", response_model=RadiologyOrderListResponse)
+async def get_patient_radiology_orders(
+    patient_id: int,
+    status: Optional[RadiologyOrderStatus] = Query(None, description="Filter by status"),
+    limit: int = Query(default=50, ge=1, le=100),
+    offset: int = Query(default=0, ge=0),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+) -> RadiologyOrderListResponse:
+    """Get all radiology orders for a specific patient.
+
+    Args:
+        patient_id: Patient ID
+        status: Optional status filter
+        limit: Maximum number of results
+        offset: Pagination offset
+        db: Database session
+        current_user: Authenticated user
+
+    Returns:
+        RadiologyOrderListResponse: Paginated list of radiology orders
+    """
+    from app.crud import radiology_orders as crud_radiology
+
+    orders, total = await crud_radiology.get_patient_radiology_orders(
+        db=db,
+        patient_id=patient_id,
+        status=status,
+        limit=limit,
+        offset=offset,
+    )
+
+    response_data = []
+    for order in orders:
+        response_data.append(await _build_radiology_order_response(db, order))
+
+    return RadiologyOrderListResponse(
+        orders=response_data,
+        total=total,
+        limit=limit,
+        offset=offset,
+    )
+
+
+@router.get("/radiology/orders/encounter/{encounter_id}", response_model=RadiologyOrderListResponse)
+async def get_encounter_radiology_orders(
+    encounter_id: int,
+    status: Optional[RadiologyOrderStatus] = Query(None, description="Filter by status"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+) -> RadiologyOrderListResponse:
+    """Get all radiology orders for a specific encounter.
+
+    Args:
+        encounter_id: Encounter ID
+        status: Optional status filter
+        db: Database session
+        current_user: Authenticated user
+
+    Returns:
+        RadiologyOrderListResponse: List of radiology orders for the encounter
+    """
+    from app.crud import radiology_orders as crud_radiology
+
+    orders = await crud_radiology.get_encounter_radiology_orders(
+        db=db,
+        encounter_id=encounter_id,
+        status=status,
+    )
+
+    response_data = []
+    for order in orders:
+        response_data.append(await _build_radiology_order_response(db, order))
+
+    return RadiologyOrderListResponse(
+        orders=response_data,
+        total=len(orders),
+        limit=100,
+        offset=0,
+    )
+
+
+@router.put("/radiology/orders/{order_id}", response_model=RadiologyOrderResponse)
+async def update_radiology_order(
+    order_id: int,
+    order_update: RadiologyOrderUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+) -> RadiologyOrderResponse:
+    """Update a radiology order.
+
+    Only draft orders or orders pending approval can be modified.
+    Completed orders cannot be modified.
+
+    Args:
+        order_id: Radiology order ID
+        order_update: Updated order data
+        db: Database session
+        current_user: Authenticated user
+
+    Returns:
+        RadiologyOrderResponse: Updated radiology order
+
+    Raises:
+        HTTPException 400: Cannot modify completed order
+        HTTPException 403: Insufficient permissions
+        HTTPException 404: Order not found
+    """
+    from app.crud import radiology_orders as crud_radiology
+
+    try:
+        order = await crud_radiology.update_radiology_order(
+            db=db,
+            order_id=order_id,
+            order_update=order_update,
+            updated_by_id=current_user.id,
+        )
+
+        if not order:
+            raise HTTPException(status_code=404, detail="Radiology order not found")
+
+        return await _build_radiology_order_response(db, order)
+
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except PermissionError as e:
+        raise HTTPException(status_code=403, detail=str(e))
+
+
+@router.patch("/radiology/orders/{order_id}/status", response_model=RadiologyOrderResponse)
+async def update_radiology_order_status(
+    order_id: int,
+    status_update: RadiologyOrderStatusUpdate,
+    background_tasks: BackgroundTasks = None,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+) -> RadiologyOrderResponse:
+    """Update radiology order status.
+
+    Status transitions:
+    - draft -> pending_approval
+    - pending_approval -> approved | rejected
+    - approved -> scheduled | in_progress | cancelled
+    - scheduled -> in_progress | cancelled
+    - in_progress -> completed | cancelled
+
+    Args:
+        order_id: Radiology order ID
+        status_update: New status and optional notes
+        background_tasks: FastAPI background tasks for notifications
+        db: Database session
+        current_user: Authenticated user
+
+    Returns:
+        RadiologyOrderResponse: Updated radiology order
+
+    Raises:
+        HTTPException 400: Invalid status transition
+        HTTPException 403: Insufficient permissions
+        HTTPException 404: Order not found
+    """
+    from app.crud import radiology_orders as crud_radiology
+
+    try:
+        order = await crud_radiology.update_order_status(
+            db=db,
+            order_id=order_id,
+            new_status=status_update.status,
+            updated_by_id=current_user.id,
+            notes=status_update.notes,
+            rejection_reason=status_update.rejection_reason,
+        )
+
+        if not order:
+            raise HTTPException(status_code=404, detail="Radiology order not found")
+
+        # Trigger notifications for status changes
+        if background_tasks:
+            from app.services.radiology_notification import notify_order_status_change
+            background_tasks.add_task(
+                notify_order_status_change,
+                db,
+                order.id,
+                status_update.status,
+            )
+
+        return await _build_radiology_order_response(db, order)
+
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except PermissionError as e:
+        raise HTTPException(status_code=403, detail=str(e))
+
+
+@router.delete("/radiology/orders/{order_id}", response_model=dict)
+async def cancel_radiology_order(
+    order_id: int,
+    reason: Optional[str] = Query(None, description="Cancellation reason"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+) -> dict:
+    """Cancel a radiology order.
+
+    Only draft, pending_approval, approved, or scheduled orders can be cancelled.
+    In-progress or completed orders cannot be cancelled.
+
+    Args:
+        order_id: Radiology order ID
+        reason: Optional cancellation reason
+        db: Database session
+        current_user: Authenticated user
+
+    Returns:
+        dict: Cancellation confirmation
+
+    Raises:
+        HTTPException 400: Cannot cancel order
+        HTTPException 403: Insufficient permissions
+        HTTPException 404: Order not found
+    """
+    from app.crud import radiology_orders as crud_radiology
+
+    try:
+        success = await crud_radiology.cancel_radiology_order(
+            db=db,
+            order_id=order_id,
+            cancelled_by_id=current_user.id,
+            cancellation_reason=reason,
+        )
+
+        if not success:
+            raise HTTPException(status_code=404, detail="Radiology order not found")
+
+        return {
+            "message": "Radiology order cancelled successfully",
+            "order_id": order_id,
+            "cancelled": True,
+        }
+
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except PermissionError as e:
+        raise HTTPException(status_code=403, detail=str(e))
+
+
+@router.get("/radiology/orders/pending/{department_id}", response_model=RadiologyOrderListResponse)
+async def get_pending_radiology_orders(
+    department_id: int,
+    priority: Optional[str] = Query(None, description="Filter by priority: routine, urgent, stat"),
+    limit: int = Query(default=50, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+) -> RadiologyOrderListResponse:
+    """Get pending radiology orders for a department (radiology queue view).
+
+    Used by radiology staff to view and process incoming orders.
+    Orders are sorted by priority (stat > urgent > routine) and creation time.
+
+    Args:
+        department_id: Department ID (radiology department)
+        priority: Optional priority filter
+        limit: Maximum number of results
+        db: Database session
+        current_user: Authenticated user (radiology staff)
+
+    Returns:
+        RadiologyOrderListResponse: Paginated list of pending orders
+
+    Raises:
+        HTTPException 403: Not authorized to view radiology queue
+    """
+    # Verify user has access to this department
+    if current_user.role not in [UserRole.RADIOLOGY_STAFF, UserRole.ADMIN]:
+        raise HTTPException(
+            status_code=403,
+            detail="Only radiology staff can view pending radiology orders",
+        )
+
+    from app.crud import radiology_orders as crud_radiology
+
+    orders = await crud_radiology.get_pending_radiology_orders(
+        db=db,
+        department_id=department_id,
+        priority=priority,
+        limit=limit,
+    )
+
+    response_data = []
+    for order in orders:
+        response_data.append(await _build_radiology_order_response(db, order))
+
+    return RadiologyOrderListResponse(
+        orders=response_data,
+        total=len(orders),
+        limit=limit,
+        offset=0,
+    )
+
+
+# =============================================================================
+# Helper Functions
+# =============================================================================
+
+async def _build_radiology_order_response(
+    db: AsyncSession,
+    order,
+) -> RadiologyOrderResponse:
+    """Build full radiology order response with all details.
+
+    Args:
+        db: Database session
+        order: Radiology order model instance
+
+    Returns:
+        RadiologyOrderResponse: Complete order response
+    """
+    # Get patient details
+    patient_name = order.patient.name if order.patient else None
+    patient_bpjs_number = order.patient.bpjs_number if order.patient else None
+
+    # Get encounter details
+    encounter_type = order.encounter.encounter_type if order.encounter else None
+
+    # Get ordering physician details
+    physician_name = order.ordering_physician.full_name if order.ordering_physician else None
+    physician_license = getattr(order.ordering_physician, 'license_number', None) if order.ordering_physician else None
+
+    # Build procedure items
+    procedure_items = []
+    for item in order.procedure_items:
+        procedure_items.append(RadiologyOrderItemResponse(
+            id=item.id,
+            procedure_code_id=item.procedure_code_id,
+            procedure_code=item.procedure_code.code if item.procedure_code else None,
+            procedure_name=item.procedure_code.name if item.procedure_code else None,
+            body_site=item.body_site,
+            view_position=item.view_position,
+            status=item.status,
+        ))
+
+    # Get approver details
+    approved_by_name = order.approved_by.full_name if order.approved_by else None
+    approved_date = order.approved_date
+
+    # Get scheduler/technologist details
+    scheduled_by_name = order.scheduled_by.full_name if order.scheduled_by else None
+    scheduled_date = order.scheduled_date
+
+    # Get radiologist details
+    performed_by_name = order.performed_by.full_name if order.performed_by else None
+    performed_date = order.performed_date
+
+    return RadiologyOrderResponse(
+        id=order.id,
+        order_number=order.order_number,
+        patient_id=order.patient_id,
+        patient_name=patient_name,
+        patient_bpjs_number=patient_bpjs_number,
+        encounter_id=order.encounter_id,
+        encounter_type=encounter_type,
+        ordering_physician_id=order.ordering_physician_id,
+        ordering_physician_name=physician_name,
+        ordering_physician_license=physician_license,
+        department_id=order.department_id,
+        status=order.status,
+        priority=order.priority,
+        diagnosis=order.diagnosis,
+        clinical_indication=order.clinical_indication,
+        procedure_items=procedure_items,
+        notes=order.notes,
+        contrast_required=order.contrast_required,
+        pregnancy_status=order.pregnancy_status,
+        special_instructions=order.special_instructions,
+        scheduled_start_time=order.scheduled_start_time,
+        scheduled_end_time=order.scheduled_end_time,
+        appointment_status=order.appointment_status,
+        approved_by_id=order.approved_by_id,
+        approved_by_name=approved_by_name,
+        approved_date=approved_date,
+        scheduled_by_id=order.scheduled_by_id,
+        scheduled_by_name=scheduled_by_name,
+        scheduled_date=scheduled_date,
+        performed_by_id=order.performed_by_id,
+        performed_by_name=performed_by_name,
+        performed_date=performed_date,
+        images_captured=order.images_captured,
+        images_url=order.images_url,
+        report_available=order.report_available,
+        report_url=order.report_url,
+        cancellation_reason=order.cancellation_reason,
+        cancelled_by_id=order.cancelled_by_id,
+        cancelled_at=order.cancelled_at,
+        created_at=order.created_at,
+        updated_at=order.updated_at,
+    )
