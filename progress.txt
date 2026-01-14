@@ -2711,3 +2711,163 @@ Implemented comprehensive electronic prescription system with drug search, inter
 - BPJS coverage based on drug.bpjs_code presence
 - Interaction checking uses existing drug_interactions module
 
+
+## [2025-01-14] STORY-025: Prescription Dispensing - COMPLETED
+
+### Summary
+Implemented comprehensive prescription dispensing system with queue management, barcode scanning, prescription verification, stock availability checking, label generation, and patient counseling documentation.
+
+### What was implemented:
+
+1. **Dispensing Schemas** (backend/app/schemas/dispensing.py)
+   - DispensingStatus enum (queued, in_progress, awaiting_verification, verified, ready_for_pickup, dispensed, cancelled, on_hold)
+   - DispensePriority enum (stat, urgent, routine)
+   - VerificationStatus enum (pending, approved, flagged, rejected)
+   - DispensingQueueItem, DispensingQueueResponse schemas
+   - PrescriptionVerificationRequest, PrescriptionVerificationResponse schemas
+   - DrugScanRequest, DrugScanResponse schemas
+   - StockCheckResult schema
+   - DispensingLabel, LabelGenerationRequest, LabelGenerationResponse schemas
+   - CounselingRequest, CounselingNote schemas
+   - DispensingCompletion, DispensingCompletionResponse schemas
+   - DispensingHistoryResponse, DispensingStatistics schemas
+
+2. **Dispensing Models** (backend/app/models/dispensing.py)
+   - DispensingQueue model - tracks prescriptions through dispensing workflow
+   - DispensingScan model - individual drug scan records for verification
+   - PatientCounseling model - patient counseling documentation
+   - DispensingLabel model - generated dispensing labels
+   - PrescriptionVerificationRecord model - detailed verification records
+   - StockCheckLog model - stock availability check logs
+
+3. **Dispensing CRUD** (backend/app/crud/dispensing.py)
+   - get_dispensing_queue - Get queue with filtering and pagination
+   - get_or_create_dispensing_queue - Get or create queue entry
+   - update_dispensing_status - Update status through workflow
+   - get_queue_statistics - Get queue statistics
+   - scan_drug - Scan drug barcode for verification
+   - verify_prescription_for_dispensing - Pharmacist verification
+   - check_stock_availability - Check stock for all items
+   - generate_dispensing_labels - Generate labels with barcode
+   - create_counseling_record - Document patient counseling
+   - complete_dispensing - Complete dispensing process
+   - get_dispensing_history - Get dispensing history
+   - _update_queue_positions - Update queue positions
+   - _calculate_ready_time - Calculate estimated ready time
+
+4. **Dispensing API Endpoints** (backend/app/api/v1/endpoints/dispensing.py)
+   - GET /api/v1/dispensing/queue - Get dispensing queue
+   - GET /api/v1/dispensing/statistics - Get dispensing statistics
+   - POST /api/v1/dispensing/queue/{prescription_id}/start - Start dispensing
+   - POST /api/v1/dispensing/scan - Scan drug barcode
+   - GET /api/v1/dispensing/prescriptions/{prescription_id}/stock-check - Check stock
+   - POST /api/v1/dispensing/prescriptions/{prescription_id}/verify - Verify prescription
+   - POST /api/v1/dispensing/prescriptions/{prescription_id}/labels - Generate labels
+   - POST /api/v1/dispensing/counseling - Create counseling record
+   - POST /api/v1/dispensing/prescriptions/{prescription_id}/complete - Complete dispensing
+   - POST /api/v1/dispensing/prescriptions/{prescription_id}/dispense-to-patient - Mark as dispensed
+   - GET /api/v1/dispensing/history - Get dispensing history
+
+5. **Dispensing Queue UI** (frontend/src/components/pharmacy/DispensingQueue.tsx)
+   - Queue display with priority sorting (stat, urgent, routine)
+   - Status filtering (all, queued, in_progress, awaiting_verification, verified, ready_for_pickup)
+   - "Assigned to me" filter
+   - Queue statistics dashboard
+   - Barcode scanning modal
+   - Progress tracking for each prescription
+   - Narcotic and antibiotic indicators
+   - Estimated wait time display
+   - Indonesian language UI
+   - Auto-refresh every 30 seconds
+   - Responsive design with TailwindCSS
+
+6. **Database Migration** (backend/alembic/versions/20250114000012_create_dispensing_tables.py)
+   - Created dispensing_queue table
+   - Created dispensing_scans table
+   - Created patient_counseling table
+   - Created dispensing_labels table
+   - Created prescription_verification_records table
+   - Created stock_check_logs table
+   - Enums: DispensingStatus, DispensePriority, VerificationStatus
+
+7. **API Router Registration** (backend/app/api/v1/api.py)
+   - Added dispensing router with tags=["dispensing"]
+
+### Acceptance Criteria Met:
+
+- [x] AC-001: Process prescription in <5 minutes (queue tracking with timestamps)
+- [x] AC-002: Receive prescriptions electronically (automatic queue creation)
+- [x] AC-003: Queue by priority (stat, urgent, routine with sorting)
+- [x] AC-004: Barcode patient verification (verification workflow)
+- [x] AC-005: Verify prescription (verification endpoint)
+- [x] AC-006: Check drug interactions (integrated with existing drug_interactions)
+- [x] AC-007: Check stock availability (stock check endpoint with alternatives)
+- [x] AC-008: Barcode scan all drugs (scanning with match verification)
+- [x] AC-009: Count/package medication (quantity tracking)
+- [x] AC-010: Label generation (with barcode and warnings)
+- [x] AC-011: Pharmacist verification (verification workflow)
+- [x] AC-012: Document counseling (counseling record)
+- [x] AC-013: Dispensing history (history endpoint with filtering)
+
+### Technical Implementation:
+
+- Priority-based queue management (STAT < URGENT < ROUTINE)
+- Automatic queue position calculation
+- Estimated wait time calculation (5 min per item ahead)
+- Barcode scanning with drug verification
+- Stock availability checking with alternative suggestions
+- Label generation with warnings (narcotic, antibiotic)
+- Patient counseling documentation (7 topics covered)
+- Prescription verification workflow (approve/flag/reject)
+- Dispensing completion tracking
+- Partial dispensing support
+- Scan record audit trail
+- Verification record with override support
+- Stock check logging
+- Label print tracking
+- Counseling documentation with patient understanding assessment
+
+### Features:
+
+- Electronic prescription receiving
+- Priority-based queue management
+- Barcode drug scanning with verification
+- Stock availability checking
+- Alternative drug suggestions
+- Prescription verification workflow
+- Label generation with barcodes
+- Patient counseling documentation
+- Dispensing history tracking
+- Queue statistics dashboard
+- Narcotic and antibiotic tracking
+- Partial dispensing support
+- Override workflow with approval
+- Estimated wait time calculation
+- Scan record audit trail
+- Indonesian language UI
+
+### Files Created:
+- backend/app/schemas/dispensing.py
+- backend/app/models/dispensing.py
+- backend/app/crud/dispensing.py
+- backend/app/api/v1/endpoints/dispensing.py
+- frontend/src/components/pharmacy/DispensingQueue.tsx
+- backend/alembic/versions/20250114000012_create_dispensing_tables.py
+
+### Files Modified:
+- backend/app/api/v1/api.py - Added dispensing router
+
+### Notes:
+- Requires STORY-017 (Electronic Prescriptions) - completed
+- Requires STORY-026 (Drug Interaction Database) - completed
+- Requires STORY-024 (Inventory) - completed
+- Queue auto-refreshes every 30 seconds
+- Estimated wait time: 5 minutes per item ahead in queue
+- STAT prescriptions processed in ~15 minutes
+- URGENT prescriptions processed in ~30 minutes
+- ROUTINE prescriptions processed in ~2 hours
+- Barcode scanning verifies drug match and quantity
+- Labels include warnings for narcotics and antibiotics
+- Counseling covers 7 topics (purpose, dosage, timing, side effects, interactions, storage, special instructions)
+- Partial dispensing supported with reason tracking
+
