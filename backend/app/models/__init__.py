@@ -14,6 +14,17 @@ from app.models.training import (
     TrainingStatus,
     DifficultyLevel,
 )
+from app.models.appointments import (
+    Appointment,
+    AppointmentSlot,
+    AppointmentReminder,
+    AppointmentType,
+    AppointmentStatus,
+    BookingChannel,
+    AppointmentPriority,
+    ReminderType,
+    ReminderStatus,
+)
 
 __all__ = [
     "User",
@@ -31,4 +42,13 @@ __all__ = [
     "TrainingCategory",
     "TrainingStatus",
     "DifficultyLevel",
+    "Appointment",
+    "AppointmentSlot",
+    "AppointmentReminder",
+    "AppointmentType",
+    "AppointmentStatus",
+    "BookingChannel",
+    "AppointmentPriority",
+    "ReminderType",
+    "ReminderStatus",
 ]
