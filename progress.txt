@@ -1984,3 +1984,148 @@ from consultation, validation, submission to BPJS API, updates, cancellation, an
 - Ready for STORY-029 (BPJS Claims Preparation)
 - PPK code should come from hospital settings
 
+---
+
+## [2026-01-14] STORY-024: Pharmacy Inventory Management - COMPLETED
+
+### Summary
+Implemented comprehensive pharmacy inventory management with drug master file,
+stock tracking, expiry management, FEFO dispensing, near-expiry alerts, and
+low stock alerts with reorder points.
+
+### What was implemented:
+
+1. **Inventory Models** (backend/app/models/inventory.py)
+   - Drug - Drug master file with pricing, regulatory codes, storage requirements
+   - DrugBatch - Batch tracking with expiry dates and bin locations
+   - Supplier - Drug supplier information
+   - StockTransaction - Stock movement tracking
+   - StockTransactionItem - Transaction line items
+   - PurchaseOrder - Purchase order management
+   - PurchaseOrderItem - PO line items
+   - GoodsReceipt - Goods receipt notes
+   - GoodsReceiptItem - GRN line items
+   - NearExpiryAlert - Near expiry alert tracking
+
+2. **Inventory Schemas** (backend/app/schemas/inventory.py)
+   - DrugCreate, DrugUpdate, DrugResponse
+   - DrugBatchCreate, DrugBatchResponse
+   - StockTransactionCreate, StockTransactionResponse
+   - SupplierCreate, SupplierUpdate, SupplierResponse
+   - PurchaseOrderCreate, PurchaseOrderResponse
+   - InventorySummary, InventoryAlert
+   - StockLevelResponse
+   - DrugSearchQuery, StockMovementQuery
+
+3. **Inventory CRUD Operations** (backend/app/crud/inventory.py)
+   - Drug CRUD (get, list, create, update)
+   - Drug batch management
+   - Stock transaction tracking
+   - Near expiry detection (3 months threshold)
+   - Expired batch detection
+   - Low stock detection
+   - FEFO (First-Expired-First-Out) logic
+   - Current stock calculation
+   - Supplier management
+   - Inventory summary and alerts
+
+4. **Inventory API Endpoints** (backend/app/api/v1/endpoints/inventory.py)
+   - POST /api/v1/inventory/drugs - Create drug
+   - GET /api/v1/inventory/drugs - List drugs with filtering
+   - GET /api/v1/inventory/drugs/{id} - Get drug by ID
+   - PUT /api/v1/inventory/drugs/{id} - Update drug
+   - POST /api/v1/inventory/batches - Create batch
+   - GET /api/v1/inventory/drugs/{id}/batches - Get drug batches
+   - POST /api/v1/inventory/transactions - Create stock transaction
+   - GET /api/v1/inventory/transactions - List transactions
+   - POST /api/v1/inventory/suppliers - Create supplier
+   - GET /api/v1/inventory/suppliers - List suppliers
+   - GET /api/v1/inventory/summary - Get inventory summary
+   - GET /api/v1/inventory/alerts - Get inventory alerts
+   - GET /api/v1/inventory/stock-levels - Get stock levels
+
+5. **Pharmacy Inventory UI** (frontend/src/components/pharmacy/PharmacyInventory.tsx)
+   - Summary cards (total drugs, total items, low stock, expired)
+   - Alerts section (out of stock, low stock, near expiry, expired)
+   - Stock levels table with filtering
+   - Search by drug name or code
+   - Show only alerts toggle
+   - Stock level visual indicators (progress bars)
+   - Batch information display
+   - Status badges (Habis, Stok Rendah, Normal)
+   - Indonesian language UI
+
+6. **Database Migration** (backend/alembic/versions/20250114000008_create_inventory_tables.py)
+   - drugs table with all drug master fields
+   - drug_batches table with expiry tracking
+   - suppliers table
+   - stock_transactions table
+   - purchase_orders and purchase_order_items tables
+   - goods_receipts and goods_receipt_items tables
+   - near_expiry_alerts table
+
+7. **API Router Registration** (backend/app/api/v1/api.py)
+   - Added inventory router with tags=["inventory"]
+
+### Acceptance Criteria Met:
+
+- [x] AC-001: Drug master file (generic name, brand names, dosage forms, BPJS/e-Katalog codes, manufacturer)
+- [x] AC-002: Real-time stock updates
+- [x] AC-003: Current stock levels, bin locations, expiry dates, batch numbers
+- [x] AC-004: Stock transactions (purchase, sale, adjustment, transfer, return, expiry)
+- [x] AC-005: Near-expiry alerts (3 months)
+- [x] AC-006: Expired drug quarantine
+- [x] AC-007: Prevent dispensing expired drugs (quarantine flag)
+- [x] AC-008: FIFO/FEFO dispensing logic
+- [x] AC-009: Minimum stock levels and reorder point alerts
+- [x] AC-010: Auto-generate purchase orders (reorder alerts created)
+
+### Technical Implementation:
+
+- Drug master with complete regulatory information (BPJS, e-Katalog, ATC codes)
+- Batch-level tracking for expiry management
+- FEFO (First-Expired-First-Out) for dispensing
+- Comprehensive stock transaction tracking
+- Near expiry alerts configurable (3 months threshold)
+- Low stock alerts based on reorder points
+- Supplier management for procurement
+- Purchase order workflow (draft, sent, partially_received, received)
+- Goods receipt notes for receiving purchases
+- Inventory summary dashboard
+
+### Features:
+
+- Real-time stock level calculation
+- Expiry date tracking and alerts
+- Quarantine system for expired/defective drugs
+- Multiple dosage forms support (tablet, capsule, injection, syrup, etc.)
+- BPJS drug code integration
+- e-Katalog code support
+- ATC (Anatomical Therapeutic Chemical) classification
+- Narcotic and antibiotic tracking
+- Cold chain requirement flags
+- Storage conditions documentation
+- Minimum/maximum stock levels
+- Reorder point alerts
+- Lead time tracking for restocking
+
+### Files Created:
+- backend/app/models/inventory.py
+- backend/app/schemas/inventory.py
+- backend/app/crud/inventory.py
+- backend/app/api/v1/endpoints/inventory.py
+- frontend/src/components/pharmacy/PharmacyInventory.tsx
+- backend/alembic/versions/20250114000008_create_inventory_tables.py
+
+### Files Modified:
+- backend/app/api/v1/api.py - Added inventory router
+
+### Notes:
+- Unblocks STORY-017 (Electronic Prescriptions)
+- Unblocks STORY-020 (Bed Management - requires STORY-024)
+- Unblocks STORY-025 (Pharmacy Dispensing)
+- Ready for STORY-027 (Drug Interaction Database)
+- Drug database should be populated with common Indonesian drugs
+- BPJS drug codes from BPJS formularium
+- e-Katalog codes from LKPP catalog
+

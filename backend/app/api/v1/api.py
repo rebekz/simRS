@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import health, auth, audit, monitoring, patients, encounters, bpjs, bpjs_verification, icd10, allergies, clinical_notes, consultation, sep
+from app.api.v1.endpoints import health, auth, audit, monitoring, patients, encounters, bpjs, bpjs_verification, icd10, allergies, clinical_notes, consultation, sep, inventory
 
 api_router = APIRouter()
 
@@ -41,3 +41,6 @@ api_router.include_router(consultation.router, tags=["consultation"])
 
 # Include BPJS SEP endpoints
 api_router.include_router(sep.router, tags=["sep"])
+
+# Include Pharmacy Inventory endpoints
+api_router.include_router(inventory.router, tags=["inventory"])
