@@ -3153,3 +3153,116 @@ Supports real-time bed availability tracking, patient assignment workflow, and b
 - Consider WebSocket implementation for real-time dashboard updates
 - Consider mobile app for bed status updates from nursing stations
 
+## [2025-01-14] STORY-039: Hospital Configuration - COMPLETED
+
+### Summary
+Implemented comprehensive hospital configuration system for hospital profile, departments, staff management, and branding.
+
+### What was implemented:
+
+1. **Hospital Configuration Schemas** (backend/app/schemas/hospital.py)
+   - HospitalProfile schemas for hospital information
+   - Department schemas for wards, polyclinics, and units
+   - StaffProfile schemas for staff directory
+   - Shift schemas for working hour configuration
+   - ShiftAssignment schemas linking staff to shifts
+   - WorkingHours schemas per department and day
+   - BrandingConfig schemas for hospital customization
+   - ConfigurationSummary schema for setup tracking
+
+2. **Hospital Configuration Models** (backend/app/models/hospital.py)
+   - HospitalProfile model (singleton - one row per system)
+   - Department model with hierarchy support
+   - StaffProfile model extending user with hospital-specific info
+   - Shift model for working hour configuration
+   - ShiftAssignment model for staff-to-shift mapping
+   - WorkingHours model per department and day of week
+   - BrandingConfig model for UI customization
+
+3. **Hospital Configuration CRUD** (backend/app/crud/hospital.py)
+   - Hospital profile CRUD with statistics tracking
+   - Department management with parent-child relationships
+   - Staff profile CRUD with employment tracking
+   - Shift and shift assignment management
+   - Working hours per department (7 days)
+   - Branding configuration updates
+   - Configuration summary with completion percentage
+
+4. **Hospital Configuration API** (backend/app/api/v1/endpoints/hospital.py)
+   - GET /api/v1/hospital/profile - Get hospital profile (public)
+   - POST /api/v1/hospital/profile - Create hospital profile (superuser)
+   - PUT /api/v1/hospital/profile/{id} - Update hospital profile
+   - GET /api/v1/hospital/departments - List departments
+   - POST /api/v1/hospital/departments - Create department
+   - PUT /api/v1/hospital/departments/{id} - Update department
+   - GET /api/v1/hospital/staff - List staff profiles
+   - POST /api/v1/hospital/staff - Create staff profile
+   - GET /api/v1/hospital/shifts - List shifts
+   - POST /api/v1/hospital/shifts - Create shift
+   - GET /api/v1/hospital/shift-assignments - List shift assignments
+   - POST /api/v1/hospital/shift-assignments - Create shift assignment
+   - GET /api/v1/hospital/branding - Get branding (public)
+   - PUT /api/v1/hospital/branding - Update branding
+   - GET /api/v1/hospital/configuration-summary - Get setup status
+
+5. **Frontend Component** (frontend/src/components/hospital/HospitalProfile.tsx)
+   - Configuration completion banner with percentage
+   - Hospital profile display with edit mode
+   - Statistics cards (departments, staff, doctors, shifts)
+   - Department breakdown by type
+   - Staff breakdown by role
+   - BPJS information display
+
+6. **Database Migration** (backend/alembic/versions/20250114000015_create_hospital_tables.py)
+   - hospital_profiles table (singleton pattern)
+   - departments table with hierarchy support
+   - staff_profiles table extending users
+   - shifts table for working hour configuration
+   - shift_assignments table for staff-to-shift mapping
+   - working_hours table per department/day
+   - branding_configs table for UI customization
+   - ENUM types: departmenttype, staffrole, doctorspecialization, shifttype
+
+### Files Created:
+- backend/app/schemas/hospital.py
+- backend/app/models/hospital.py
+- backend/app/crud/hospital.py
+- backend/app/api/v1/endpoints/hospital.py
+- frontend/src/components/hospital/HospitalProfile.tsx
+- backend/alembic/versions/20250114000015_create_hospital_tables.py
+
+### Files Modified:
+- backend/app/api/v1/api.py - Added hospital router
+
+### Acceptance Criteria Met:
+
+- [x] Hospital profile (name, address, contact, license, BPJS PPK code)
+- [x] Department structure (wards, polyclinics, units)
+- [x] Doctor and staff directory
+- [x] Working hours and shifts
+- [x] Hospital branding (logo, letterhead)
+- [x] Configuration validation and completion tracking
+- [x] Indonesian localization (names, labels)
+
+### Notes:
+- Requires STORY-002 (User Authentication) - completed
+- Unblocks STORY-040 (Master Data Management)
+- Hospital profile uses singleton pattern (only one row in database)
+- Denormalized statistics for quick dashboard access
+- Department hierarchy supported via parent_department_id
+- Shift assignments support expiry dates for temporary assignments
+- Working hours configurable per department and day of week
+- Configuration completion percentage calculated automatically
+- Branding colors use hex format for easy CSS integration
+- BPJS codes: PPK (required), PCare (optional), Antrean (optional)
+- License number (IZIN OPERASIONAL) is required and unique
+- Employee IDs (NIP) are unique across the system
+
+### Next Steps:
+- STORY-040: Master Data Management can now use hospital configuration
+- Implement file upload for logo and letterhead
+- Add department management UI for creating/editing departments
+- Add staff management UI for creating/editing staff profiles
+- Add shift configuration UI for managing working hours
+- Consider integrating with Indonesian hospital directory APIs
+
