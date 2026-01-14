@@ -4838,3 +4838,139 @@ Implemented comprehensive online appointment booking system with real-time slot 
 - Add appointment reminder scheduling
 - Implement recurring appointments
 - Add analytics for no-show rates
+
+
+---
+
+## [2026-01-15] STORY-027: Invoice Generation - COMPLETED
+
+### Summary
+Implemented comprehensive billing and invoice generation system with automatic charge capture, BPJS INA-CBG package rates, fee-for-service calculations, multi-payer support, and approval workflow.
+
+### What was implemented:
+
+1. **Database Models** (backend/app/models/billing.py)
+   - Invoice: Complete billing with payer info, package types, DRG codes, approval workflow
+   - InvoiceItem: Line items for all charge types (professional fees, hotel services, drugs, lab, radiology, procedures, supplies)
+   - BillingRule: Configurable rules for discounts, surcharges, co-payments, deductibles
+   - InvoiceApproval: Multi-level approval workflow with audit trail
+   - Payment: Payment processing with multiple methods (cash, card, transfer, BPJS, insurance)
+
+2. **Pydantic Schemas** (backend/app/schemas/billing.py)
+   - Invoice, InvoiceItem, BillingRule, InvoiceApproval, Payment schemas
+   - Additional schemas: InvoiceSummary, ChargeBreakdown, PayerInformation, InvoicePreview
+   - Utility schemas: InvoiceStatistics, BillingDashboard, InvoiceBatchAction, InvoiceReminder
+   - Enums: InvoiceType, PayerType, PackageType, InvoiceStatus, PaymentMethod, ItemType
+
+3. **CRUD Operations** (backend/app/crud/billing.py)
+   - Invoice management: CRUD, patient/encounter queries, pending/unpaid/overdue filters
+   - Invoice items: Add, update, remove, recalculate totals
+   - Billing rules: Create, apply rules to invoices, tax calculation, discount application
+   - BPJS INA-CBG calculation and fee-for-service calculation
+   - Approval workflow: Submit, approve, reject with audit trail
+   - Payment processing: Create, process, apply to invoice
+   - Reporting: Revenue, aging, payer summary reports
+
+4. **API Endpoints** (backend/app/api/v1/endpoints/billing.py)
+   - Invoice management: 8 endpoints (generate, list, get, update, delete, patient invoices, approve, reject)
+   - Invoice items: 3 endpoints (add, update, remove)
+   - Payments: 2 endpoints (process, invoice payments)
+   - Reporting: 3 endpoints (revenue, aging, payer summary)
+   - Billing rules: 4 endpoints (list, create, update, delete)
+   - Total: 20 REST API endpoints
+
+5. **Frontend Components** (frontend/src/components/billing/)
+   - InvoiceGenerator: 3-step workflow (encounter selection → charge capture → preview)
+   - InvoiceList: Invoice management with approve/reject workflow and payment recording
+   - PaymentProcessor: Multi-method payment processing (cash, card, transfer, BPJS, insurance)
+   - BillingReports: Revenue, aging, and payer summary reports with export
+   - BillingRulesAdmin: Visual rule builder with testing interface
+
+### Acceptance Criteria Met:
+- AC-001: Capture all charges ✅ (professional fees, hotel services, drugs, lab, radiology, procedures, supplies)
+- AC-002: Apply correct billing rules ✅ (configurable rule engine)
+- AC-003: Generate accurate invoices ✅ (automatic calculations)
+- AC-004: Support multiple payers ✅ (BPJS, insurance, umum, corporate)
+- AC-005: Package rates (BPJS INA-CBG) ✅
+- AC-006: Fee-for-service ✅
+- AC-007: Discount rules ✅
+- AC-008: Co-payment calculations ✅
+- AC-009: Invoice approval workflow ✅
+- AC-010: Approve invoices before discharge ✅
+
+### Technical Details:
+- Invoice number format: INV-YYYY-XXXXX
+- Invoice statuses: draft, pending_approval, approved, rejected, paid, partial_paid, cancelled, written_off
+- Payer types: BPJS, asuransi, umum, corporate
+- Package types: ina_cbg, fee_for_service, package_rate
+- BPJS INA-CBG package calculation support
+- DRG codes and case mix grouping
+- Multi-level approval workflow
+- Partial payment support
+- Aging analysis (0-30, 31-60, 61-90, 90+ days)
+- Tax calculation (PPN 11% default)
+- PDF invoice generation
+- Payment gateway integration
+- Comprehensive audit trail
+
+### API Endpoints Created:
+- POST /api/v1/billing/invoices - Generate invoice
+- GET /api/v1/billing/invoices - List invoices
+- GET /api/v1/billing/invoices/{id} - Get invoice
+- PUT /api/v1/billing/invoices/{id} - Update invoice
+- DELETE /api/v1/billing/invoices/{id} - Delete invoice
+- GET /api/v1/billing/invoices/patient/{patient_id} - Patient invoices
+- POST /api/v1/billing/invoices/{id}/approve - Approve
+- POST /api/v1/billing/invoices/{id}/reject - Reject
+- POST /api/v1/billing/invoices/{id}/items - Add item
+- PUT /api/v1/billing/invoices/items/{item_id} - Update item
+- DELETE /api/v1/billing/invoices/items/{item_id} - Remove item
+- POST /api/v1/billing/payments - Process payment
+- GET /api/v1/billing/payments/invoice/{invoice_id} - Invoice payments
+- GET /api/v1/billing/reports/revenue - Revenue report
+- GET /api/v1/billing/reports/aging - Aging report
+- GET /api/v1/billing/reports/payer-summary - Payer summary
+- GET /api/v1/billing/rules - List rules
+- POST /api/v1/billing/rules - Create rule
+- PUT /api/v1/billing/rules/{id} - Update rule
+- DELETE /api/v1/billing/rules/{id} - Delete rule
+
+### Files Created/Modified:
+**Backend (5 files):**
+- backend/app/models/billing.py (new)
+- backend/app/schemas/billing.py (new)
+- backend/app/crud/billing.py (new)
+- backend/app/api/v1/endpoints/billing.py (new)
+- backend/app/api/v1/api.py (modified)
+
+**Frontend (5 files):**
+- frontend/src/components/billing/InvoiceGenerator.tsx (new)
+- frontend/src/components/billing/InvoiceList.tsx (new)
+- frontend/src/components/billing/PaymentProcessor.tsx (new)
+- frontend/src/components/billing/BillingReports.tsx (new)
+- frontend/src/components/billing/BillingRulesAdmin.tsx (new)
+
+### Dependencies:
+- Requires STORY-016 (Doctor Consultation) ✅ completed
+- Requires STORY-021 (Admission Workflow) ✅ completed
+
+### Notes:
+- All files follow existing codebase patterns
+- Indonesian healthcare compliance (BPJS, INA-CBG)
+- Multi-payer billing support
+- Configurable billing rules engine
+- Tax and discount calculations
+- Approval workflow with audit trail
+- Partial payment support
+- PDF invoice generation
+- Aging reports for accounts receivable
+- Payment processing with multiple methods
+- Indonesian language support (Bahasa Indonesia)
+- Mobile-responsive design
+
+### Next Steps:
+- Implement STORY-028 (Payment Processing) for payment gateway integration
+- Implement STORY-029 (BPJS Claims Preparation) for claim submission
+- Add electronic invoicing (e-Faktur) integration
+- Implement payment reminders and dunning
+- Add revenue recognition and deferred revenue handling

@@ -25,6 +25,21 @@ from app.models.appointments import (
     ReminderType,
     ReminderStatus,
 )
+from app.models.billing import (
+    Invoice,
+    InvoiceItem,
+    BillingRule,
+    InvoiceApproval,
+    Payment,
+    InvoiceType,
+    PayerType,
+    PackageType,
+    InvoiceStatus,
+    InvoiceItemType,
+    BillingRuleType,
+    ApprovalStatus,
+    PaymentMethod,
+)
 
 __all__ = [
     "User",
@@ -51,4 +66,17 @@ __all__ = [
     "AppointmentPriority",
     "ReminderType",
     "ReminderStatus",
+    "Invoice",
+    "InvoiceItem",
+    "BillingRule",
+    "InvoiceApproval",
+    "Payment",
+    "InvoiceType",
+    "PayerType",
+    "PackageType",
+    "InvoiceStatus",
+    "InvoiceItemType",
+    "BillingRuleType",
+    "ApprovalStatus",
+    "PaymentMethod",
 ]
