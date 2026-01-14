@@ -2129,3 +2129,165 @@ low stock alerts with reorder points.
 - BPJS drug codes from BPJS formularium
 - e-Katalog codes from LKPP catalog
 
+
+---
+
+## [2026-01-14] STORY-037: User Management Interface - COMPLETED
+
+### Summary
+Implemented comprehensive user management interface with user CRUD operations, role assignment,
+department-based access, bulk user import, password reset functionality, user activity logs,
+and user access request workflow.
+
+### What was implemented:
+
+1. **User Management Models** (backend/app/models/user_management.py)
+   - Department model for hospital organization structure
+   - UserAccessRequest model for role and permission requests
+   - Department supports hierarchical structure (parent_department_id)
+   - Access request status tracking (pending, approved, rejected)
+
+2. **User Model Extension** (backend/app/models/user.py)
+   - Added department_id foreign key
+   - Added phone field
+   - Added employee_id field
+   - Added license_number field (for doctors, nurses, pharmacists)
+   - Added department relationship
+
+3. **User Management Schemas** (backend/app/schemas/user_management.py)
+   - UserCreate with password validation (12+ chars, complexity)
+   - UserUpdate for user modification
+   - UserResponse for API responses
+   - UserListResponse for pagination
+   - UserSearchQuery for filtering
+   - RoleResponse for role listing
+   - DepartmentCreate/Update/Response
+   - BulkUserImportRequest/Response
+   - AdminPasswordReset for admin password reset
+   - UserActivityLogsResponse
+   - UserAccessRequestCreate/Response
+   - AccessRequestDecision
+
+4. **User Management CRUD Operations** (backend/app/crud/user_management.py)
+   - User CRUD (get, get_by_username, get_by_email, list, create, update, delete/soft_delete)
+   - change_user_password - Admin password reset
+   - bulk_import_users - CSV import with validation
+   - Department CRUD (get, get_by_code, list, create, update)
+   - get_user_activity_logs - Activity log retrieval
+   - create_access_request, list_access_requests, update_access_request
+
+5. **User Management API Endpoints** (backend/app/api/v1/endpoints/user_management.py)
+   - GET /api/v1/users/roles - List all roles with permissions
+   - POST /api/v1/users - Create user (admin only)
+   - GET /api/v1/users - List users with filtering (admin only)
+   - GET /api/v1/users/{id} - Get user by ID (admin only)
+   - PUT /api/v1/users/{id} - Update user (admin only)
+   - DELETE /api/v1/users/{id} - Deactivate user (soft delete, admin only)
+   - POST /api/v1/users/{id}/reset-password - Reset password (admin only)
+   - POST /api/v1/users/bulk-import - Bulk import users (admin only)
+   - POST /api/v1/departments - Create department (admin only)
+   - GET /api/v1/departments - List departments
+   - GET /api/v1/departments/{id} - Get department by ID
+   - PUT /api/v1/departments/{id} - Update department (admin only)
+   - GET /api/v1/users/{id}/activity-logs - Get user activity logs (admin only)
+   - GET /api/v1/activity-logs - Get all activity logs (admin only)
+   - POST /api/v1/users/access-requests - Create access request
+   - GET /api/v1/users/access-requests - List access requests (admin only)
+   - PUT /api/v1/users/access-requests/{id} - Approve/reject request (admin only)
+
+6. **User Management UI** (frontend/src/components/admin/UserManagement.tsx)
+   - Tabbed interface: Users, Departments, Access Requests, Activity Logs
+   - Users tab:
+     - User list table with name, username, role, department, status
+     - Search by name, username, email
+     - Filter by role and department
+     - Add user button
+     - Edit, reset password, deactivate actions
+     - Status badges (Active, Inactive, Locked)
+   - Departments tab:
+     - Department cards with name, code, description
+     - Add department button
+   - Access Requests tab:
+     - Request list with user, requested role, reason, date
+     - Approve/reject buttons
+     - Status badges (pending, approved, rejected)
+   - Activity Logs tab:
+     - Log list with user, action, timestamp
+     - Color-coded action badges
+   - Indonesian language UI
+   - Responsive design with TailwindCSS
+
+7. **Database Migration** (backend/alembic/versions/20250114000009_create_user_management_tables.py)
+   - Added department_id, phone, employee_id, license_number columns to users table
+   - Created departments table
+   - Created user_access_requests table
+   - Foreign keys for department_id and relationships
+
+8. **API Router Registration** (backend/app/api/v1/api.py)
+   - Added user_management router with tags=["user-management"]
+
+### Acceptance Criteria Met:
+
+- [x] AC-001: Create, update, deactivate users (CRUD endpoints implemented)
+- [x] AC-002: Assign roles and permissions (role assignment in UserCreate/Update)
+- [x] AC-003: Department-based access (department_id field, departments table)
+- [x] AC-004: User profile management (phone, employee_id, license_number fields)
+- [x] AC-005: Bulk user import (bulk_import_users endpoint)
+- [x] AC-006: User access request workflow (access_requests endpoints)
+- [x] AC-007: Password reset functionality (reset_password endpoint)
+- [x] AC-008: User activity logs (activity-logs endpoints)
+
+### Technical Implementation:
+
+- User soft delete (is_active=False instead of hard delete)
+- Department hierarchy support (parent_department_id)
+- Access request workflow with approval tracking
+- Role-based display names in Indonesian
+- Password complexity validation (uppercase, lowercase, digit required)
+- Bulk import with error handling and reporting
+- Activity log retrieval with pagination
+- Admin-only access for user management endpoints (get_current_admin_user)
+
+### Role Definitions:
+
+Roles with display names and permissions:
+- Administrator - Full system access
+- Dokter - Doctor access for consultations, prescriptions
+- Perawat - Nurse access for patient care
+- Apoteker - Pharmacist access for dispensing and inventory
+- Petugas Pendaftaran - Reception access for registration
+- Staff Laboratorium - Lab staff access
+- Staff Radiologi - Radiology staff access
+- Staff Keuangan - Billing staff access
+- Staff Pendukung - Basic support access
+
+### Features:
+
+- User search by name, username, email
+- Filter by role and department
+- Status indicators (Active, Inactive, Locked)
+- Department management with hierarchy
+- Access request approval workflow
+- Password reset with force change option
+- Activity log monitoring
+- Bulk import with error reporting
+
+### Files Created:
+- backend/app/models/user_management.py
+- backend/app/schemas/user_management.py
+- backend/app/crud/user_management.py
+- backend/app/api/v1/endpoints/user_management.py
+- frontend/src/components/admin/UserManagement.tsx
+- backend/alembic/versions/20250114000009_create_user_management_tables.py
+
+### Files Modified:
+- backend/app/models/user.py - Added department_id, phone, employee_id, license_number, department relationship
+- backend/app/api/v1/api.py - Added user_management router
+
+### Notes:
+- Requires STORY-002 (User Authentication) - completed
+- Unblocks STORY-038 (Training Management System)
+- Bulk import CSV format requires documentation
+- Email sending for welcome emails not implemented
+- Department hierarchy ready for organizational structure
+

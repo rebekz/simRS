@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum as SQLEnum
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum as SQLEnum, ForeignKey
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from enum import Enum
@@ -36,6 +36,13 @@ class User(Base):
     locked_until = Column(DateTime(timezone=True), nullable=True)
     password_changed_at = Column(DateTime(timezone=True), nullable=True)  # For password expiration
     last_login = Column(DateTime(timezone=True), nullable=True)
+
+    # Extended user management fields for STORY-037
+    department_id = Column(Integer, ForeignKey("departments.id"), nullable=True)
+    phone = Column(String(50), nullable=True)
+    employee_id = Column(String(50), nullable=True)
+    license_number = Column(String(100), nullable=True)  # For doctors, nurses, pharmacists
+
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
@@ -43,3 +50,4 @@ class User(Base):
     sessions = relationship("Session", back_populates="user", cascade="all, delete-orphan")
     audit_logs = relationship("AuditLog", back_populates="user", cascade="all, delete-orphan")
     password_reset_tokens = relationship("PasswordResetToken", back_populates="user", cascade="all, delete-orphan")
+    department = relationship("Department", back_populates="users")
