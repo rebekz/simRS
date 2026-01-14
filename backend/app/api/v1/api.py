@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import health, auth, audit, monitoring, patients, encounters, bpjs, bpjs_verification, icd10, allergies
+from app.api.v1.endpoints import health, auth, audit, monitoring, patients, encounters, bpjs, bpjs_verification, icd10, allergies, clinical_notes
 
 api_router = APIRouter()
 
@@ -32,3 +32,6 @@ api_router.include_router(icd10.router, tags=["icd10", "problems"])
 
 # Include Allergy Tracking endpoints
 api_router.include_router(allergies.router, tags=["allergies"])
+
+# Include Clinical Notes endpoints
+api_router.include_router(clinical_notes.router, tags=["clinical-notes"])
