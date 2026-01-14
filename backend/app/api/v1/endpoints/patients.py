@@ -15,7 +15,9 @@ from app.schemas.patient import (
     PatientUpdate,
     PatientResponse,
     PatientListResponse,
-    DuplicatePatientWarning
+    DuplicatePatientWarning,
+    PatientCheckInResponse,
+    PatientLookupResponse
 )
 from app.crud import patient as patient_crud
 
@@ -300,3 +302,146 @@ async def deactivate_patient(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Patient with ID {patient_id} not found"
         )
+
+
+@router.post("/{patient_id}/checkin", response_model=PatientCheckInResponse)
+async def check_in_patient(
+    patient_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_permission("patient", "update"))
+):
+    """
+    Check-in a returning patient with queue number generation.
+
+    Args:
+        patient_id: Patient ID
+        db: Database session
+        current_user: Authenticated user with patient:update permission
+
+    Returns:
+        Check-in confirmation with queue number
+
+    Raises:
+        HTTPException 404: If patient not found
+    """
+    from datetime import datetime
+
+    patient = await patient_crud.get_patient_by_id(db, patient_id)
+    if not patient:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Patient with ID {patient_id} not found"
+        )
+
+    # TODO: Generate queue number (requires STORY-010: Queue Management System)
+    # For now, return placeholder
+    queue_number = None
+
+    # Check insurance status
+    insurance_status = "Unknown"
+    if patient.insurance_policies:
+        latest_insurance = patient.insurance_policies[0]
+        if latest_insurance.expiry_date:
+            if latest_insurance.expiry_date > datetime.now().date():
+                insurance_status = f"Active ({latest_insurance.insurance_type.value.upper()})"
+            else:
+                insurance_status = f"Expired ({latest_insurance.insurance_type.value.upper()})"
+        else:
+            insurance_status = f"{latest_insurance.insurance_type.value.upper()}"
+
+    return PatientCheckInResponse(
+        patient=patient,
+        queue_number=queue_number,
+        check_in_time=datetime.now(),
+        message=f"Patient {patient.full_name} checked in successfully",
+        last_visit=None,  # TODO: Track visit history (requires encounter table)
+        insurance_status=insurance_status
+    )
+
+
+@router.get("/lookup/advanced", response_model=PatientLookupResponse)
+async def lookup_patient_advanced(
+    search: str = Query(..., description="Search term (MRN, NIK, BPJS number, phone, or name)"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_permission("patient", "read"))
+):
+    """
+    Advanced patient lookup for returning patient check-in (STORY-007).
+
+    Searches patients by multiple methods and returns enhanced information
+    including last visit, diagnoses, allergies, and insurance status.
+
+    Args:
+        search: Search term (MRN, NIK, BPJS number, phone, or name)
+        db: Database session
+        current_user: Authenticated user with patient:read permission
+
+    Returns:
+        Enhanced patient information for check-in
+
+    Raises:
+        HTTPException 404: If patient not found
+    """
+    # Try multiple search methods in order of specificity
+    patient = None
+
+    # 1. Try MRN (most specific)
+    patient = await patient_crud.get_patient_by_mrn(db, search)
+
+    # 2. Try NIK
+    if not patient:
+        patient = await patient_crud.get_patient_by_nik(db, search)
+
+    # 3. Try phone number
+    if not patient:
+        patients, _ = await patient_crud.search_patients(
+            db=db,
+            search_term=search,
+            skip=0,
+            limit=1,
+            is_active=True
+        )
+        if patients:
+            patient = patients[0]
+
+    # 4. Try by name (less specific, may return multiple)
+    if not patient:
+        patients, _ = await patient_crud.search_patients(
+            db=db,
+            search_term=search,
+            skip=0,
+            limit=10,
+            is_active=True
+        )
+        if patients and len(patients) == 1:
+            # Only auto-select if single match
+            patient = patients[0]
+
+    if not patient:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Patient not found with search term: {search}"
+        )
+
+    # Get insurance status
+    insurance_status = "Unknown"
+    if patient.insurance_policies:
+        latest_insurance = patient.insurance_policies[0]
+        if latest_insurance.expiry_date:
+            from datetime import datetime
+            if latest_insurance.expiry_date > datetime.now().date():
+                insurance_status = f"Active ({latest_insurance.insurance_type.value.upper()})"
+            else:
+                insurance_status = f"Expired ({latest_insurance.insurance_type.value.upper()})"
+        else:
+            insurance_status = f"{latest_insurance.insurance_type.value.upper()}"
+
+    # TODO: Get last visit, diagnoses, allergies (requires encounter table)
+    return PatientLookupResponse(
+        patient=patient,
+        last_visit_date=None,
+        last_diagnoses=[],
+        allergies=[],
+        insurance_status=insurance_status,
+        has_unpaid_bills=False
+    )

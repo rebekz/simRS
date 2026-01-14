@@ -202,3 +202,23 @@ class DuplicatePatientWarning(BaseModel):
     is_duplicate: bool
     existing_patient: Optional[PatientResponse] = None
     message: str
+
+
+class PatientCheckInResponse(BaseModel):
+    """Schema for patient check-in response"""
+    patient: PatientResponse
+    queue_number: Optional[str] = None
+    check_in_time: datetime
+    message: str
+    last_visit: Optional[datetime] = None
+    insurance_status: Optional[str] = None
+
+
+class PatientLookupResponse(BaseModel):
+    """Schema for enhanced patient lookup response"""
+    patient: PatientResponse
+    last_visit_date: Optional[datetime] = None
+    last_diagnoses: Optional[list] = []
+    allergies: Optional[list] = []
+    insurance_status: str = "Unknown"
+    has_unpaid_bills: bool = False
