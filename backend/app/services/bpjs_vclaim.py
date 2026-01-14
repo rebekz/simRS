@@ -583,11 +583,284 @@ class BPJSVClaimClient:
         endpoint = f"referensi/kamar/{ppk_code}/{start}/{limit}"
         return await self._request("GET", endpoint)
 
+    async def get_referral_list(
+        self,
+        card_number: str,
+        start_date: str,
+        end_date: str,
+    ) -> Dict[str, Any]:
+        """
+        Get referral (rujukan) list for a patient.
+
+        Args:
+            card_number: BPJS card number
+            start_date: Start date (format: YYYY-MM-DD)
+            end_date: End date (format: YYYY-MM-DD)
+
+        Returns:
+            Dictionary containing referral list
+
+        Raises:
+            BPJSVClaimError: If request fails
+        """
+        endpoint = f"Rujukan/List/Peserta/{card_number}/{start_date}/{end_date}"
+        return await self._request("GET", endpoint)
+
+    async def get_referral_by_number(
+        self,
+        referral_number: str,
+    ) -> Dict[str, Any]:
+        """
+        Get referral information by referral number.
+
+        Args:
+            referral_number: Referral number
+
+        Returns:
+            Dictionary containing referral information
+
+        Raises:
+            BPJSVClaimError: If request fails
+        """
+        endpoint = f"Rujukan/{referral_number}"
+        return await self._request("GET", endpoint)
+
+    async def get_claim_status(
+        self,
+        claim_number: str,
+        sep_date: str,
+    ) -> Dict[str, Any]:
+        """
+        Get claim status for monitoring.
+
+        Args:
+            claim_number: Claim number (NOSEP)
+            sep_date: SEP date (format: YYYY-MM-DD)
+
+        Returns:
+            Dictionary containing claim status information
+
+        Raises:
+            BPJSVClaimError: If request fails
+        """
+        endpoint = f"Klaim/Status/{claim_number}/tglSEP/{sep_date}"
+        return await self._request("GET", endpoint)
+
+    async def get_claim_data(
+        self,
+        claim_number: str,
+        sep_date: str,
+    ) -> Dict[str, Any]:
+        """
+        Get claim data for Summary of Bill (SRB).
+
+        Args:
+            claim_number: Claim number (NOSEP)
+            sep_date: SEP date (format: YYYY-MM-DD)
+
+        Returns:
+            Dictionary containing claim data
+
+        Raises:
+            BPJSVClaimError: If request fails
+        """
+        endpoint = f"Klaim/Data/{claim_number}/tglSEP/{sep_date}"
+        return await self._request("GET", endpoint)
+
+    async def get_patient_history(
+        self,
+        card_number: str,
+        start_date: str,
+        end_date: str,
+    ) -> Dict[str, Any]:
+        """
+        Get patient claim history.
+
+        Args:
+            card_number: BPJS card number
+            start_date: Start date (format: YYYY-MM-DD)
+            end_date: End date (format: YYYY-MM-DD)
+
+        Returns:
+            Dictionary containing patient history
+
+        Raises:
+            BPJSVClaimError: If request fails
+        """
+        endpoint = f"histori/{card_number}/{start_date}/{end_date}"
+        return await self._request("GET", endpoint)
+
+    async def get_diagnosis_group(
+        self,
+        group_id: str,
+    ) -> Dict[str, Any]:
+        """
+        Get diagnosis group information.
+
+        Args:
+            group_id: Diagnosis group ID
+
+        Returns:
+            Dictionary containing diagnosis group
+
+        Raises:
+            BPJSVClaimError: If request fails
+        """
+        endpoint = f"referensi/icdgroup/{group_id}"
+        return await self._request("GET", endpoint)
+
+    async def get_procedure_list(
+        self,
+        start: int = 0,
+        limit: int = 10,
+    ) -> Dict[str, Any]:
+        """
+        Get procedure list (ICD-9-CM).
+
+        Args:
+            start: Starting index
+            limit: Number of records to return
+
+        Returns:
+            Dictionary containing procedure list
+
+        Raises:
+            BPJSVClaimError: If request fails
+        """
+        endpoint = f"referensi/prosedur/{start}/{limit}"
+        return await self._request("GET", endpoint)
+
+    async def get_procedure_by_code(
+        self,
+        procedure_code: str,
+    ) -> Dict[str, Any]:
+        """
+        Get procedure information by code.
+
+        Args:
+            procedure_code: ICD-9-CM procedure code
+
+        Returns:
+            Dictionary containing procedure information
+
+        Raises:
+            BPJSVClaimError: If request fails
+        """
+        endpoint = f"referensi/prosedur/{procedure_code}"
+        return await self._request("GET", endpoint)
+
     async def close(self):
         """Close the HTTP client."""
         if self._client:
             await self._client.aclose()
             self._client = None
+
+
+class BPJSVClaimClientWithRetry(BPJSVClaimClient):
+    """
+    BPJS VClaim Client with automatic retry logic and exponential backoff.
+
+    Extends BPJSVClaimClient to add retry capability for transient failures.
+    """
+
+    def __init__(
+        self,
+        max_retries: int = 3,
+        initial_backoff: float = 1.0,
+        max_backoff: float = 10.0,
+        **kwargs
+    ):
+        """
+        Initialize BPJS VClaim client with retry logic.
+
+        Args:
+            max_retries: Maximum number of retry attempts
+            initial_backoff: Initial backoff time in seconds
+            max_backoff: Maximum backoff time in seconds
+            **kwargs: Arguments passed to BPJSVClaimClient
+        """
+        super().__init__(**kwargs)
+        self.max_retries = max_retries
+        self.initial_backoff = initial_backoff
+        self.max_backoff = max_backoff
+
+    async def _request_with_retry(
+        self,
+        method: str,
+        endpoint: str,
+        params: Optional[Dict[str, Any]] = None,
+        json_data: Optional[Dict[str, Any]] = None,
+        retry_count: int = 0,
+    ) -> Dict[str, Any]:
+        """
+        Make HTTP request to BPJS API with retry logic.
+
+        Args:
+            method: HTTP method (GET, POST, DELETE, etc.)
+            endpoint: API endpoint path
+            params: Query parameters
+            json_data: JSON body data
+            retry_count: Current retry attempt
+
+        Returns:
+            Parsed JSON response
+
+        Raises:
+            BPJSVClaimError: If all retry attempts fail
+        """
+        try:
+            return await self._request(method, endpoint, params=params, json_data=json_data)
+
+        except (httpx.TimeoutException, httpx.RequestError) as e:
+            if retry_count < self.max_retries:
+                # Calculate exponential backoff delay
+                backoff_delay = min(
+                    self.initial_backoff * (2 ** retry_count),
+                    self.max_backoff
+                )
+
+                logger.warning(
+                    f"BPJS API request failed (attempt {retry_count + 1}/{self.max_retries}): {e}. "
+                    f"Retrying in {backoff_delay} seconds..."
+                )
+
+                # Wait before retry
+                import asyncio
+                await asyncio.sleep(backoff_delay)
+
+                # Retry the request
+                return await self._request_with_retry(
+                    method, endpoint, params, json_data, retry_count + 1
+                )
+            else:
+                logger.error(f"BPJS API request failed after {self.max_retries} retries: {e}")
+                raise BPJSVClaimError(
+                    message=f"Request failed after {self.max_retries} retries",
+                    details=str(e)
+                )
+
+        except BPJSVClaimError as e:
+            # Check if this is a transient error (5xx status codes)
+            if e.code and e.code.startswith("5") and retry_count < self.max_retries:
+                backoff_delay = min(
+                    self.initial_backoff * (2 ** retry_count),
+                    self.max_backoff
+                )
+
+                logger.warning(
+                    f"BPJS API returned transient error (attempt {retry_count + 1}/{self.max_retries}): {e.message}. "
+                    f"Retrying in {backoff_delay} seconds..."
+                )
+
+                import asyncio
+                await asyncio.sleep(backoff_delay)
+
+                return await self._request_with_retry(
+                    method, endpoint, params, json_data, retry_count + 1
+                )
+            else:
+                # Not retryable or max retries reached
+                raise
 
 
 # Convenience function for creating client instance
@@ -599,5 +872,17 @@ async def get_bpjs_client() -> BPJSVClaimClient:
         BPJSVClaimClient instance
     """
     client = BPJSVClaimClient()
+    await client.get_client()  # Initialize HTTP client
+    return client
+
+
+async def get_bpjs_client_with_retry() -> BPJSVClaimClientWithRetry:
+    """
+    Get configured BPJS VClaim client instance with retry logic.
+
+    Returns:
+        BPJSVClaimClientWithRetry instance
+    """
+    client = BPJSVClaimClientWithRetry()
     await client.get_client()  # Initialize HTTP client
     return client

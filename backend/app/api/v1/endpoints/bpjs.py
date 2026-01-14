@@ -1,7 +1,12 @@
-"""BPJS VClaim API endpoints for STORY-022: BPJS VClaim API Integration
+"""BPJS VClaim API endpoints for STORY-030: BPJS VClaim API Integration
 
-This module provides REST API endpoints for BPJS VClaim integration,
-including eligibility checks and SEP management.
+This module provides REST API endpoints for BPJS VClaim integration, including:
+- Eligibility checks
+- SEP management (create, delete, update)
+- Referral (rujukan) information
+- Claim status monitoring
+- Summary of Bill (SRB) generation
+- Reference data (polyclinics, facilities, diagnoses, doctors, procedures)
 """
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -20,7 +25,11 @@ from app.schemas.bpjs import (
     BPJSSEPDeleteResponse,
     BPJSErrorResponse,
 )
-from app.services.bpjs_vclaim import BPJSVClaimClient, BPJSVClaimError
+from app.services.bpjs_vclaim import (
+    BPJSVClaimClient,
+    BPJSVClaimClientWithRetry,
+    BPJSVClaimError
+)
 
 router = APIRouter()
 
@@ -28,6 +37,13 @@ router = APIRouter()
 async def get_bpjs_client() -> BPJSVClaimClient:
     """Dependency to get BPJS VClaim client instance."""
     return BPJSVClaimClient()
+
+
+async def get_bpjs_client_with_retry() -> BPJSVClaimClientWithRetry:
+    """Dependency to get BPJS VClaim client instance with retry logic."""
+    client = BPJSVClaimClientWithRetry()
+    await client.get_client()  # Initialize HTTP client
+    return client
 
 
 @router.post("/eligibility", response_model=BPJSEligibilityResponse)
@@ -300,6 +316,348 @@ async def get_doctors(
         result = await bpjs_client.get_doctors(
             ppk_pelayanan=ppk_pelayanan,
             polyclinic=polyclinic
+        )
+        return result
+
+    except BPJSVClaimError as e:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"BPJS API error: {e.message}"
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Unexpected error: {str(e)}"
+        )
+
+
+# =============================================================================
+# Referral (Rujukan) Endpoints - AC-003
+# =============================================================================
+
+@router.get("/referrals")
+async def get_referral_list(
+    card_number: str = Query(..., description="BPJS card number"),
+    start_date: str = Query(..., description="Start date (YYYY-MM-DD)"),
+    end_date: str = Query(..., description="End date (YYYY-MM-DD)"),
+    bpjs_client: BPJSVClaimClient = Depends(get_bpjs_client),
+    current_user: User = Depends(require_permission("bpjs", "read"))
+):
+    """
+    Get referral (rujukan) list for a patient.
+
+    Args:
+        card_number: BPJS card number
+        start_date: Start date for referral search
+        end_date: End date for referral search
+        bpjs_client: BPJS VClaim API client
+        current_user: Authenticated user with bpjs:read permission
+
+    Returns:
+        List of referrals
+
+    Raises:
+        HTTPException 502: If BPJS API error
+    """
+    try:
+        result = await bpjs_client.get_referral_list(
+            card_number=card_number,
+            start_date=start_date,
+            end_date=end_date
+        )
+        return result
+
+    except BPJSVClaimError as e:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"BPJS API error: {e.message}"
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Unexpected error: {str(e)}"
+        )
+
+
+@router.get("/referrals/{referral_number}")
+async def get_referral_by_number(
+    referral_number: str,
+    bpjs_client: BPJSVClaimClient = Depends(get_bpjs_client),
+    current_user: User = Depends(require_permission("bpjs", "read"))
+):
+    """
+    Get referral information by referral number.
+
+    Args:
+        referral_number: Referral number
+        bpjs_client: BPJS VClaim API client
+        current_user: Authenticated user with bpjs:read permission
+
+    Returns:
+        Referral information
+
+    Raises:
+        HTTPException 404: If referral not found
+        HTTPException 502: If BPJS API error
+    """
+    try:
+        result = await bpjs_client.get_referral_by_number(
+            referral_number=referral_number
+        )
+        return result
+
+    except BPJSVClaimError as e:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"BPJS API error: {e.message}"
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Unexpected error: {str(e)}"
+        )
+
+
+# =============================================================================
+# Claim Status and SRB Endpoints - AC-006, AC-007
+# =============================================================================
+
+@router.get("/claims/{claim_number}/status")
+async def get_claim_status(
+    claim_number: str,
+    sep_date: str = Query(..., description="SEP date (YYYY-MM-DD)"),
+    bpjs_client: BPJSVClaimClient = Depends(get_bpjs_client_with_retry),
+    current_user: User = Depends(require_permission("bpjs", "read"))
+):
+    """
+    Get claim status for monitoring.
+
+    Args:
+        claim_number: Claim number
+        sep_date: SEP date
+        bpjs_client: BPJS VClaim API client with retry
+        current_user: Authenticated user with bpjs:read permission
+
+    Returns:
+        Claim status information
+
+    Raises:
+        HTTPException 404: If claim not found
+        HTTPException 502: If BPJS API error
+    """
+    try:
+        result = await bpjs_client.get_claim_status(
+            claim_number=claim_number,
+            sep_date=sep_date
+        )
+        return result
+
+    except BPJSVClaimError as e:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"BPJS API error: {e.message}"
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Unexpected error: {str(e)}"
+        )
+
+
+@router.get("/claims/{claim_number}/data")
+async def get_claim_data(
+    claim_number: str,
+    sep_date: str = Query(..., description="SEP date (YYYY-MM-DD)"),
+    bpjs_client: BPJSVClaimClient = Depends(get_bpjs_client_with_retry),
+    current_user: User = Depends(require_permission("bpjs", "read"))
+):
+    """
+    Get claim data for Summary of Bill (SRB) generation.
+
+    Args:
+        claim_number: Claim number
+        sep_date: SEP date
+        bpjs_client: BPJS VClaim API client with retry
+        current_user: Authenticated user with bpjs:read permission
+
+    Returns:
+        Claim data for SRB
+
+    Raises:
+        HTTPException 404: If claim not found
+        HTTPException 502: If BPJS API error
+    """
+    try:
+        result = await bpjs_client.get_claim_data(
+            claim_number=claim_number,
+            sep_date=sep_date
+        )
+        return result
+
+    except BPJSVClaimError as e:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"BPJS API error: {e.message}"
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Unexpected error: {str(e)}"
+        )
+
+
+@router.get("/patients/{card_number}/history")
+async def get_patient_history(
+    card_number: str,
+    start_date: str = Query(..., description="Start date (YYYY-MM-DD)"),
+    end_date: str = Query(..., description="End date (YYYY-MM-DD)"),
+    bpjs_client: BPJSVClaimClient = Depends(get_bpjs_client),
+    current_user: User = Depends(require_permission("bpjs", "read"))
+):
+    """
+    Get patient claim history.
+
+    Args:
+        card_number: BPJS card number
+        start_date: Start date for history search
+        end_date: End date for history search
+        bpjs_client: BPJS VClaim API client
+        current_user: Authenticated user with bpjs:read permission
+
+    Returns:
+        Patient claim history
+
+    Raises:
+        HTTPException 502: If BPJS API error
+    """
+    try:
+        result = await bpjs_client.get_patient_history(
+            card_number=card_number,
+            start_date=start_date,
+            end_date=end_date
+        )
+        return result
+
+    except BPJSVClaimError as e:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"BPJS API error: {e.message}"
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Unexpected error: {str(e)}"
+        )
+
+
+# =============================================================================
+# Procedure Endpoints (ICD-9-CM) - AC-004
+# =============================================================================
+
+@router.get("/procedures")
+async def get_procedures(
+    start: int = Query(0, description="Start index for pagination"),
+    limit: int = Query(10, description="Number of results to return"),
+    bpjs_client: BPJSVClaimClient = Depends(get_bpjs_client),
+    current_user: User = Depends(require_permission("bpjs", "read"))
+):
+    """
+    Get procedure list (ICD-9-CM).
+
+    Args:
+        start: Start index for pagination
+        limit: Number of results to return
+        bpjs_client: BPJS VClaim API client
+        current_user: Authenticated user with bpjs:read permission
+
+    Returns:
+        List of procedures
+
+    Raises:
+        HTTPException 502: If BPJS API error
+    """
+    try:
+        result = await bpjs_client.get_procedure_list(
+            start=start,
+            limit=limit
+        )
+        return result
+
+    except BPJSVClaimError as e:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"BPJS API error: {e.message}"
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Unexpected error: {str(e)}"
+        )
+
+
+@router.get("/procedures/{procedure_code}")
+async def get_procedure_by_code(
+    procedure_code: str,
+    bpjs_client: BPJSVClaimClient = Depends(get_bpjs_client),
+    current_user: User = Depends(require_permission("bpjs", "read"))
+):
+    """
+    Get procedure information by code.
+
+    Args:
+        procedure_code: Procedure code
+        bpjs_client: BPJS VClaim API client
+        current_user: Authenticated user with bpjs:read permission
+
+    Returns:
+        Procedure information
+
+    Raises:
+        HTTPException 404: If procedure not found
+        HTTPException 502: If BPJS API error
+    """
+    try:
+        result = await bpjs_client.get_procedure_by_code(
+            procedure_code=procedure_code
+        )
+        return result
+
+    except BPJSVClaimError as e:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"BPJS API error: {e.message}"
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Unexpected error: {str(e)}"
+        )
+
+
+@router.get("/diagnosis-groups/{group_id}")
+async def get_diagnosis_group(
+    group_id: str,
+    bpjs_client: BPJSVClaimClient = Depends(get_bpjs_client),
+    current_user: User = Depends(require_permission("bpjs", "read"))
+):
+    """
+    Get diagnosis group information.
+
+    Args:
+        group_id: Diagnosis group ID
+        bpjs_client: BPJS VClaim API client
+        current_user: Authenticated user with bpjs:read permission
+
+    Returns:
+        Diagnosis group information
+
+    Raises:
+        HTTPException 404: If group not found
+        HTTPException 502: If BPJS API error
+    """
+    try:
+        result = await bpjs_client.get_diagnosis_group(
+            group_id=group_id
         )
         return result
 
