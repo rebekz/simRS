@@ -25,6 +25,10 @@ from app.schemas.satusehat import (
     FHIRPatientSearchResponse,
     PatientSyncResponse,
     PatientValidationResult,
+    FHIREncounterCreate,
+    FHIREncounterResponse,
+    EncounterSyncResponse,
+    EncounterValidationResult,
 )
 from app.services.satusehat import (
     SATUSEHATClient,
@@ -40,6 +44,15 @@ from app.services.patient_sync import (
     trigger_patient_sync_on_update,
     validate_patient_for_sync,
 )
+from app.services.encounter_sync import (
+    sync_encounter_to_satusehat,
+    get_encounter_from_satusehat,
+    trigger_encounter_sync_on_create,
+    trigger_encounter_sync_on_update,
+    trigger_encounter_sync_on_completion,
+    validate_encounter_for_sync,
+)
+from app.models.encounter import Encounter
 
 
 router = APIRouter()
@@ -687,6 +700,223 @@ async def validate_patient_for_satusehat(
         warnings.append("BPJS card number not provided - patient may not be linked to BPJS")
 
     return PatientValidationResult(
+        is_valid=is_valid,
+        errors=errors,
+        warnings=warnings if warnings else None,
+    )
+
+
+# =============================================================================
+# Encounter Sync Endpoints (STORY-035)
+# =============================================================================
+
+@router.post("/encounters/sync/{encounter_id}", response_model=EncounterSyncResponse)
+async def sync_encounter_to_satusehat_endpoint(
+    encounter_id: int,
+    organization_id: Optional[str] = Query(None, description="SATUSEHAT Organization resource ID"),
+    force_update: bool = Query(default=False, description="Force update even if data unchanged"),
+    background_tasks: BackgroundTasks = None,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Sync an encounter to SATUSEHAT.
+
+    This endpoint manually triggers a sync of encounter data to SATUSEHAT
+    for national health data exchange.
+
+    Args:
+        encounter_id: Internal encounter ID to sync
+        organization_id: SATUSEHAT Organization resource ID
+        force_update: Force update even if data unchanged
+        background_tasks: FastAPI background tasks
+        current_user: Authenticated user (admin/nurse/doctor)
+        db: Database session
+
+    Returns:
+        Sync result
+
+    Raises:
+        HTTPException 403: If user lacks permission
+        HTTPException 404: If encounter not found
+        HTTPException 502: If SATUSEHAT API error
+    """
+    # Verify user has permission
+    if current_user.role not in ["admin", "nurse", "doctor"]:
+        raise HTTPException(
+            status_code=403,
+            detail="Only admin, nurse, and doctor roles can sync encounter data"
+        )
+
+    # Verify encounter exists and get related data
+    from sqlalchemy import select
+    encounter_result = await db.execute(select(Encounter).filter(Encounter.id == encounter_id))
+    encounter = encounter_result.scalar_one_or_none()
+
+    if not encounter:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Encounter {encounter_id} not found"
+        )
+
+    # Get patient
+    patient_result = await db.execute(select(Patient).filter(Patient.id == encounter.patient_id))
+    patient = patient_result.scalar_one_or_none()
+
+    if not patient:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Patient {encounter.patient_id} not found"
+        )
+
+    # Validate encounter data
+    is_valid, errors = validate_encounter_for_sync(encounter, patient)
+    if not is_valid:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Encounter data validation failed: {', '.join(errors)}"
+        )
+
+    # Perform sync
+    try:
+        async with SATUSEHATClient() as client:
+            result = await sync_encounter_to_satusehat(
+                db,
+                encounter_id,
+                client,
+                organization_id,
+                force_update
+            )
+
+        return EncounterSyncResponse(
+            success=result["success"],
+            message=result["message"],
+            encounter_id=encounter_id,
+            satusehat_encounter_id=result.get("satusehat_encounter_id"),
+            action=result.get("action"),
+            synced_at=datetime.now() if result["success"] else None,
+            error=result.get("error"),
+        )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to sync encounter: {str(e)}"
+        )
+
+
+@router.get("/encounters/satusehat/{satusehat_encounter_id}", response_model=FHIREncounterResponse)
+async def get_satusehat_encounter(
+    satusehat_encounter_id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Retrieve an encounter from SATUSEHAT.
+
+    This endpoint fetches an encounter's FHIR resource from SATUSEHAT.
+
+    Args:
+        satusehat_encounter_id: SATUSEHAT Encounter resource ID
+        current_user: Authenticated user
+        db: Database session
+
+    Returns:
+        FHIR Encounter resource
+
+    Raises:
+        HTTPException 404: If encounter not found
+        HTTPException 502: If SATUSEHAT API error
+    """
+    try:
+        async with SATUSEHATClient() as client:
+            result = await get_encounter_from_satusehat(client, satusehat_encounter_id)
+
+            if not result:
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"Encounter {satusehat_encounter_id} not found in SATUSEHAT"
+                )
+
+            return FHIREncounterResponse(**result)
+
+    except HTTPException:
+        raise
+
+    except SATUSEHATAuthError as e:
+        raise HTTPException(
+            status_code=502,
+            detail=f"SATUSEHAT authentication error: {e.message}"
+        )
+
+    except SATUSEHATError as e:
+        raise HTTPException(
+            status_code=502,
+            detail=f"SATUSEHAT API error: {e.message}"
+        )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to retrieve encounter: {str(e)}"
+        )
+
+
+@router.get("/encounters/{encounter_id}/validate", response_model=EncounterValidationResult)
+async def validate_encounter_for_satusehat(
+    encounter_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Validate encounter data for SATUSEHAT sync.
+
+    This endpoint checks if an encounter's data meets SATUSEHAT requirements
+    before attempting to sync.
+
+    Args:
+        encounter_id: Internal encounter ID to validate
+        current_user: Authenticated user
+        db: Database session
+
+    Returns:
+        Validation result
+
+    Raises:
+        HTTPException 404: If encounter not found
+    """
+    # Get encounter
+    from sqlalchemy import select
+    encounter_result = await db.execute(select(Encounter).filter(Encounter.id == encounter_id))
+    encounter = encounter_result.scalar_one_or_none()
+
+    if not encounter:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Encounter {encounter_id} not found"
+        )
+
+    # Get patient
+    patient_result = await db.execute(select(Patient).filter(Patient.id == encounter.patient_id))
+    patient = patient_result.scalar_one_or_none()
+
+    if not patient:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Patient {encounter.patient_id} not found"
+        )
+
+    # Validate encounter data
+    is_valid, errors = validate_encounter_for_sync(encounter, patient)
+
+    # Add warnings
+    warnings = []
+    if not encounter.doctor_id:
+        warnings.append("No doctor assigned - encounter may be incomplete")
+    if not encounter.bpjs_sep_number:
+        warnings.append("BPJS SEP number not provided - insurance claim may not be linked")
+
+    return EncounterValidationResult(
         is_valid=is_valid,
         errors=errors,
         warnings=warnings if warnings else None,

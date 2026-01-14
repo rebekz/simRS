@@ -64,6 +64,7 @@ class Encounter(Base):
     status = Column(String(20), server_default="active", nullable=False, index=True)
     is_urgent = Column(Boolean, server_default=False, nullable=False)
     bpjs_sep_number = Column(String(50), nullable=True)
+    satusehat_encounter_id = Column(String(100), nullable=True, index=True, comment="SATUSEHAT FHIR Encounter resource ID")
     notes = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default="NOW()", nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default="NOW()", nullable=False)

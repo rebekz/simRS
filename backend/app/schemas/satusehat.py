@@ -297,3 +297,54 @@ class PatientValidationResult(BaseModel):
     is_valid: bool = Field(..., description="Whether patient data is valid for sync")
     errors: List[str] = Field(default_factory=list, description="List of validation errors")
     warnings: Optional[List[str]] = Field(None, description="List of validation warnings")
+
+
+# =============================================================================
+# Encounter Schemas (STORY-035)
+# =============================================================================
+
+class FHIREncounterCreate(BaseModel):
+    """Schema for creating Encounter in SATUSEHAT."""
+
+    encounter_id: int = Field(..., description="Internal encounter ID")
+    organization_id: Optional[str] = Field(None, description="SATUSEHAT Organization resource ID")
+    force_update: bool = Field(default=False, description="Force update even if data unchanged")
+
+
+class FHIREncounterResponse(BaseModel):
+    """Schema for Encounter response from SATUSEHAT."""
+
+    resource_type: str = Field(default="Encounter", description="FHIR resource type")
+    id: str = Field(..., description="FHIR resource ID")
+    status: str = Field(..., description="in_progress | finished | cancelled | planned")
+    encounter_class: Optional[Dict[str, Any]] = Field(None, description="FHIR encounter class", alias="class")
+    subject: Optional[Dict[str, Any]] = Field(None, description="Patient reference")
+    participant: Optional[List[Dict[str, Any]]] = Field(None, description="Participants")
+    period: Optional[Dict[str, Any]] = Field(None, description="Encounter period")
+    serviceProvider: Optional[Dict[str, Any]] = Field(None, description="Organization reference")
+    reasonCode: Optional[List[Dict[str, Any]]] = Field(None, description="Reason for visit")
+    priority: Optional[Dict[str, Any]] = Field(None, description="Priority")
+    identifier: Optional[List[Dict[str, Any]]] = Field(None, description="Encounter identifiers")
+
+    class Config:
+        allow_population_by_field_name = True
+
+
+class EncounterSyncResponse(BaseModel):
+    """Schema for encounter sync operation response."""
+
+    success: bool = Field(..., description="Sync success status")
+    message: str = Field(..., description="Sync response message")
+    encounter_id: int = Field(..., description="Internal encounter ID")
+    satusehat_encounter_id: Optional[str] = Field(None, description="SATUSEHAT Encounter resource ID")
+    action: Optional[str] = Field(None, description="Action performed (create or update)")
+    synced_at: Optional[datetime] = Field(default_factory=datetime.now, description="Sync timestamp")
+    error: Optional[str] = Field(None, description="Error message if sync failed")
+
+
+class EncounterValidationResult(BaseModel):
+    """Schema for encounter validation result."""
+
+    is_valid: bool = Field(..., description="Whether encounter data is valid for sync")
+    errors: List[str] = Field(default_factory=list, description="List of validation errors")
+    warnings: Optional[List[str]] = Field(None, description="List of validation warnings")

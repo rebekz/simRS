@@ -1,8 +1,9 @@
 """Consultation Workflow API endpoints for STORY-016
 
 This module provides API endpoints for the doctor consultation workflow.
+"""
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user, get_db
@@ -33,6 +34,7 @@ router = APIRouter()
 @router.post("/consultation/start", response_model=ConsultationSessionResponse)
 async def start_consultation(
     consultation_data: ConsultationSessionCreate,
+    background_tasks: BackgroundTasks = None,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> ConsultationSessionResponse:
@@ -45,6 +47,11 @@ async def start_consultation(
         department=consultation_data.department,
         chief_complaint=consultation_data.chief_complaint,
     )
+
+    # Trigger SATUSEHAT sync in background (STORY-035)
+    if background_tasks and encounter:
+        from app.services.encounter_sync import trigger_encounter_sync_on_create
+        background_tasks.add_task(trigger_encounter_sync_on_create, db, encounter.id)
 
     return ConsultationSessionResponse(
         encounter_id=encounter.id,
@@ -224,6 +231,7 @@ async def add_treatment(
 @router.post("/consultation/complete", response_model=ConsultationCompletionResponse)
 async def complete_consultation(
     completion_data: ConsultationCompletion,
+    background_tasks: BackgroundTasks = None,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> ConsultationCompletionResponse:
@@ -244,6 +252,11 @@ async def complete_consultation(
 
     if not encounter:
         raise HTTPException(status_code=404, detail="Consultation session not found")
+
+    # Trigger SATUSEHAT sync in background (STORY-035)
+    if background_tasks and encounter:
+        from app.services.encounter_sync import trigger_encounter_sync_on_completion
+        background_tasks.add_task(trigger_encounter_sync_on_completion, db, encounter.id)
 
     # Calculate duration
     duration_minutes = None
