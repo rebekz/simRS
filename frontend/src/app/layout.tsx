@@ -10,6 +10,7 @@ const plus_jakarta = Plus_Jakarta_Sans({
 
 const ibm_plex = IBM_Plex_Mono({
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
   variable: "--font-ibm-plex",
   display: "swap",
 });

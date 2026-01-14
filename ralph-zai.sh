@@ -33,6 +33,7 @@ for ((i=1; i<=$1; i++)); do
 @_bmad-output/epics.md \
 @_bmad-output/stories.md \
 @_bmad-output/ux-design-system.md \
+@_bmad-output/web-stories.md \
 @docs/plans \
 @progress.txt \
 

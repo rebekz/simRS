@@ -72,6 +72,7 @@ class Patient(Base):
     # Relationships
     emergency_contacts = relationship("EmergencyContact", back_populates="patient", cascade="all, delete-orphan")
     insurance_policies = relationship("PatientInsurance", back_populates="patient", cascade="all, delete-orphan")
+    encounters = relationship("Encounter", back_populates="patient", cascade="all, delete-orphan")
 
 
 class EmergencyContact(Base):

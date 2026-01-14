@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "types": ["node", "@storybook/react", "@testing-library/jest-dom"],
+    "jsx": "react-jsx"
+  },
+  "include": ["./**/*.ts", "./**/*.tsx"],
+  "exclude": ["node_modules"]
+}

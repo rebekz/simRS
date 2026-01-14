@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SIMRS Component Library Demo</title>
+
+  <!-- Google Fonts - Plus Jakarta Sans (Indonesian-designed) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Component Library CSS -->
+  <link rel="stylesheet" href="../styles/enhanced-simrs-components.css">
+
+  <style>
+    /* Demo Page Specific Styles */
+    .demo-section {
+      margin-bottom: 80px;
+    }
+
+    .demo-section-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--simrs-gray-800);
+      margin-bottom: 8px;
+    }
+
+    .demo-section-description {
+      font-size: 16px;
+      color: var(--simrs-gray-500);
+      margin-bottom: 24px;
+    }
+
+    .demo-showcase {
+      background: white;
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-md);
+      padding: 32px;
+      margin-bottom: 24px;
+    }
+
+    .demo-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .demo-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .demo-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--simrs-gray-500);
+      min-width: 120px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+      color: white;
+      padding: 80px 40px;
+      border-radius: 0 0 var(--radius-2xl) var(--radius-2xl);
+      margin-bottom: 60px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 48px;
+      font-weight: 800;
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+
+    .hero p {
+      font-size: 20px;
+      opacity: 0.9;
+      max-width: 600px;
+      margin: 0 auto 32px;
+    }
+
+    .hero-badges {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .color-swatch-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 16px;
+    }
+
+    .color-swatch {
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+    }
+
+    .color-swatch-preview {
+      height: 80px;
+    }
+
+    .color-swatch-info {
+      padding: 12px;
+      background: white;
+      border: 1px solid var(--simrs-gray-200);
+    }
+
+    .color-swatch-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--simrs-gray-800);
+    }
+
+    .color-swatch-value {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--simrs-gray-500);
+      margin-top: 4px;
+    }
+
+    /* Live Example Card */
+    .live-example {
+      border-left: 4px solid var(--simrs-primary-500);
+      background: var(--simrs-primary-50);
+      padding: 20px;
+      border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+      margin-top: 24px;
+    }
+
+    .live-example-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--simrs-primary-700);
+      margin-bottom: 8px;
+    }
+
+    /* Interactive Demo */
+    .interactive-demo {
+      border: 2px dashed var(--simrs-gray-300);
+      border-radius: var(--radius-xl);
+      padding: 40px;
+      text-align: center;
+    }
+
+    .interactive-demo h4 {
+      color: var(--simrs-gray-600);
+      margin-bottom: 24px;
+    }
+
+    /* Triage Demo Special Styles */
+    .triage-demo-card {
+      padding: 32px;
+      border-radius: var(--radius-xl);
+      color: white;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .triage-demo-card h3 {
+      font-size: 48px;
+      font-weight: 800;
+      margin: 0 0 8px;
+    }
+
+    .triage-demo-card p {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .triage-merah { background: var(--triage-merah); }
+    .triage-kuning { background: var(--triage-kuning); }
+    .triage-hijau { background: var(--triage-hijau); }
+
+    /* Code Block */
+    .code-block {
+      background: var(--simrs-gray-800);
+      color: #e5e7eb;
+      padding: 20px;
+      border-radius: var(--radius-lg);
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.6;
+      margin-top: 16px;
+    }
+
+    .code-block .comment { color: #9ca3af; }
+    .code-block .tag { color: #f97316; }
+    .code-block .attr { color: #14b8a6; }
+    .code-block .string { color: #22c55e; }
+  </style>
+</head>
+<body>
+
+  <!-- Hero Section -->
+  <div class="hero">
+    <h1>SIMRS Component Library</h1>
+    <p>Sistem komponen UI yang dirancang khusus untuk rumah sakit di Indonesia. Menggabungkan estetika profesional dengan kehangatan budaya Indonesia.</p>
+    <div class="hero-badges">
+      <span class="badge" style="background: rgba(255,255,255,0.2);">v1.0</span>
+      <span class="badge" style="background: rgba(255,255,255,0.2);">BPJS Ready</span>
+      <span class="badge" style="background: rgba(255,255,255,0.2);">Accessible</span>
+      <span class="badge" style="background: rgba(255,255,255,0.2);">Offline-First</span>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- Buttons Section -->
+    <section class="demo-section">
+      <h2 class="demo-section-title">Buttons</h2>
+      <p class="demo-section-description">Sistem tombol dengan berbagai varian untuk kebutuhan yang berbeda.</p>
+
+      <div class="demo-showcase">
+        <div class="demo-row">
+          <span class="demo-label">Primary:</span>
+          <button class="btn btn-primary">Simpan Data</button>
+          <button class="btn btn-primary">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            Dengan Icon
+          </button>
+          <button class="btn btn-primary btn-lg">Large Button</button>
+        </div>
+
+        <div class="demo-row">
+          <span class="demo-label">Secondary:</span>
+          <button class="btn btn-secondary">Batal</button>
+          <button class="btn btn-secondary">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            Refresh
+          </button>
+          <button class="btn btn-secondary" disabled>Disabled</button>
+        </div>
+
+        <div class="demo-row">
+          <span class="demo-label">Coral (Urgent):</span>
+          <button class="btn btn-coral">Kode Biru</button>
+          <button class="btn btn-coral btn-lg">Aktivasi Darurat</button>
+        </div>
+
+        <div class="demo-row">
+          <span class="demo-label">Ghost:</span>
+          <button class="btn btn-ghost">Tutup</button>
+          <button class="btn btn-ghost">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+            </svg>
+            Lihat
+          </button>
+        </div>
+
+        <div class="demo-row">
+          <span class="demo-label">Icon Buttons:</span>
+          <button class="btn btn-icon" aria-label="Edit">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+            </svg>
+          </button>
+          <button class="btn btn-icon" aria-label="Delete">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+          </button>
+          <button class="btn btn-icon" aria-label="More options">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Cards Section -->
+    <section class="demo-section">
+      <h2 class="demo-section-title">Cards</h2>
+      <p class="demo-section-description">Komponen kartu untuk menampilkan informasi pasien dan data medis.</p>
+
+      <div class="demo-showcase">
+        <div class="grid grid-cols-2 gap-6">
+          <!-- Patient Card -->
+          <div class="card card-patient">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title">Budi Santoso</h3>
+                <p class="text-sm text-secondary">No. RM: 2024-001234</p>
+              </div>
+              <span class="badge badge-bpjs">BPJS</span>
+            </div>
+            <div class="card-body">
+              <div class="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <span class="text-secondary">NIK</span>
+                  <p class="font-medium">3201010101010001</p>
+                </div>
+                <div>
+                  <span class="text-secondary">Umur</span>
+                  <p class="font-medium">45 tahun</p>
+                </div>
+                <div>
+                  <span class="text-secondary">Jenis Kelamin</span>
+                  <p class="font-medium">Laki-laki</p>
+                </div>
+                <div>
+                  <span class="text-secondary">Poli</span>
+                  <p class="font-medium">Penyakit Dalam</p>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <button class="btn btn-secondary btn-sm">Detail</button>
+              <button class="btn btn-primary btn-sm">Mulai Periksa</button>
+            </div>
+          </div>
+
+          <!-- Stats Card -->
+          <div class="card">
+            <div class="card-body">
+              <div class="flex items-center gap-4">
+                <div style="width: 60px; height: 60px; background: var(--simrs-primary-50); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                  <svg width="28" height="28" fill="none" stroke="var(--simrs-primary-600)" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                  </svg>
+                </div>
+                <div>
+                  <div style="font-size: 32px; font-weight: 700; color: var(--simrs-gray-800); line-height: 1;">127</div>
+                  <div style="font-size: 14px; color: var(--simrs-gray-500);">Pasien Hari Ini</div>
+                  <div style="font-size: 12px; color: var(--simrs-success); margin-top: 4px;">↑ 12% dari kemarin</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Form Elements Section -->
+    <section class="demo-section">
+      <h2 class="demo-section-title">Form Elements</h2>
+      <p class="demo-section-description">Elemen formulir dengan fokus pada kemudahan penggunaan dan aksesibilitas.</p>
+
+      <div class="demo-showcase">
+        <form style="max-width: 500px;">
+          <!-- Text Input -->
+          <div class="form-group">
+            <label class="form-label">Nama Lengkap <span class="required">*</span></label>
+            <input type="text" class="form-input" placeholder="Masukkan nama lengkap pasien">
+            <div class="form-hint">Sesuai dengan kartu identitas (KTP/Paspor)</div>
+          </div>
+
+          <!-- Search Input with Icon -->
+          <div class="form-group">
+            <label class="form-label">Cari Pasien</label>
+            <div style="position: relative;">
+              <svg style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--simrs-gray-400);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>
+              <input type="text" class="form-input" style="padding-left: 40px;" placeholder="Cari berdasarkan nama, No. RM, atau NIK">
+              <div style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 11px; color: var(--simrs-gray-400); background: var(--simrs-gray-100); padding: 2px 6px; border-radius: 4px;">⌘K</div>
+            </div>
+          </div>
+
+          <!-- Select -->
+          <div class="form-group">
+            <label class="form-label">Poli Tujuan <span class="required">*</span></label>
+            <select class="form-select">
+              <option value="">Pilih poli tujuan</option>
+              <option value="INT">Penyakit Dalam</option>
+              <option value="ANA">Anak</option>
+              <option value="BED">Bedah</option>
+              <option value="OBG">Obstetri & Ginekologi</option>
+              <option value="MATA">Mata</option>
+              <option value="THT">THT</option>
+            </select>
+          </div>
+
+          <!-- Checkbox Group -->
+          <div class="form-group">
+            <label class="form-label">Alergi Obat</label>
+          </div>
+
+          <label class="flex items-center gap-3 mb-3">
+            <input type="checkbox" class="form-checkbox">
+            <span>Penisilin</span>
+          </label>
+
+          <label class="flex items-center gap-3 mb-3">
+            <input type="checkbox" class="form-checkbox" checked>
+            <span>Sulfonamid</span>
+          </label>
+
+          <label class="flex items-center gap-3">
+            <input type="checkbox" class="form-checkbox">
+            <span>NSAID</span>
+          </label>
+
+          <!-- Radio Group -->
+          <div class="form-group" style="margin-top: 24px;">
+            <label class="form-label">Jenis Kelamin <span class="required">*</span></label>
+          </div>
+
+          <label class="flex items-center gap-3 mb-3">
+            <input type="radio" name="gender" class="form-radio" checked>
+            <span>Laki-laki</span>
+          </label>
+
+          <label class="flex items-center gap-3">
+            <input type="radio" name="gender" class="form-radio">
+            <span>Perempuan</span>
+          </label>
+
+          <!-- Textarea -->
+          <div class="form-group" style="margin-top: 24px;">
+            <label class="form-label">Catatan Tambahan</label>
+            <textarea class="form-textarea" rows="3" placeholder="Masukkan catatan tambahan..."></textarea>
+          </div>
+
+          <!-- Switch -->
+          <div class="form-group">
+            <label class="flex items-center gap-3">
+              <span class="form-switch">
+                <input type="checkbox" checked>
+              </span>
+              <span>Pasien BPJS</span>
+            </label>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- Badges Section -->
+    <section class="demo-section">
+      <h2 class="demo-section-title">Badges</h2>
+      <p class="demo-section-description">Label untuk status, kategori, dan penanda penting lainnya.</p>
+
+      <div class="demo-showcase">
+        <div class="demo-row">
+          <span class="demo-label">Status:</span>
+          <span class="badge badge-success">Aktif</span>
+          <span class="badge badge-warning">Proses</span>
+          <span class="badge badge-error">Gagal</span>
+          <span class="badge badge-info">Info</span>
+        </div>
+
+        <div class="demo-row">
+          <span class="demo-label">BPJS:</span>
+          <span class="badge badge-bpjs">BPJS</span>
+          <span class="badge badge-bpjs badge-dot">PBI</span>
+          <span class="badge badge-bpjs badge-dot">Non-PBI</span>
+        </div>
+
+        <div class="demo-row">
+          <span class="demo-label">Triage IGD:</span>
+          <span class="badge badge-triage-merah">MERAH</span>
+          <span class="badge badge-triage-kuning">KUNING</span>
+          <span class="badge badge-triage-hijau">HIJAU</span>
+        </div>
+
+        <div class="demo-row">
+          <span class="demo-label">Department:</span>
+          <span class="badge badge-primary">Rawat Inap</span>
+          <span class="badge badge-neutral">Rawat Jalan</span>
+          <span class="badge badge-info">IGD</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Alerts Section -->
+    <section class="demo-section">
+      <h2 class="demo-section-title">Alerts</h2>
+      <p class="demo-section-description">Notifikasi dan pesan penting untuk pengguna.</p>
+
+      <div class="demo-showcase">
+        <div class="alert alert-info" style="margin-bottom: 16px;">
+          <svg class="alert-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <div class="alert-content">
+            <div class="alert-title">Informasi BPJS</div>
+            <div class="alert-message">Pasien telah terverifikasi eligibility-nya. SEP dapat dibuat.</div>
+          </div>
+          <button type="button" style="background: none; border: none; cursor: pointer; color: inherit;">✕</button>
+        </div>
+
+        <div class="alert alert-success" style="margin-bottom: 16px;">
+          <svg class="alert-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <div class="alert-content">
+            <div class="alert-title">Berhasil</div>
+            <div class="alert-message">Data pasien berhasil disimpan ke dalam sistem.</div>
+          </div>
+        </div>
+
+        <div class="alert alert-warning" style="margin-bottom: 16px;">
+          <svg class="alert-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+          <div class="alert-content">
+            <div class="alert-title">Interaksi Obat</div>
+            <div class="alert-message">Pasien memiliki alergi terhadap penisilin. Obat yang diresepkan mengandung amoxicillin (penisilin).</div>
+          </div>
+        </div>
+
+        <div class="alert alert-error">
+          <svg class="alert-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <div class="alert-content">
+            <div class="alert-title">Gagal Menyimpan</div>
+            <div class="alert-message">Terjadi kesalahan saat menyimpan data. Silakan coba lagi atau hubungi administrator sistem.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Critical Medical Alert Example -->
+      <div class="live-example">
+        <div class="live-example-title">Contoh Nyata: Alert Kritis Medis</div>
+        <div class="alert alert-critical">
+          <svg class="alert-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+          <div class="alert-content">
+            <div class="alert-title">NILAI KRITIS - KALIUM</div>
+            <div class="alert-message" style="font-size: 14px;">
+              <strong>K+ serum: 2.8 mmol/L</strong> (Normal: 3.5-5.0)<br>
+              Pasien: Budi Santoso (RM: 2024-001234)<br>
+              <strong>Segera hubungi dokter penanggung jawab.</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Triage Cards Section -->
+    <section class="demo-section">
+      <h2 class="demo-section-title">Triage IGD</h2>
+      <p class="demo-section-description">Sistem triase dengan kode warna untuk penilaian cepat pasien IGD.</p>
+
+      <div class="grid grid-cols-3 gap-4">
+        <div class="triage-demo-card triage-merah">
+          <h3>MERAH</h3>
+          <p>Gawat Darurat</p>
+          <div style="font-size: 13px; margin-top: 12px; opacity: 0.9;">Segera tangani</div>
+        </div>
+
+        <div class="triage-demo-card triage-kuning">
+          <h3>KUNING</h3>
+          <p>Semi-Urgent</p>
+          <div style="font-size: 13px; margin-top: 12px; opacity: 0.9;">Perlu perhatian</div>
+        </div>
+
+        <div class="triage-demo-card triage-hijau">
+          <h3>HIJAU</h3>
+          <p>Non-Urgent</p>
+          <div style="font-size: 13px; margin-top: 12px; opacity: 0.9;">Tunggu giliran</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Table Section -->
+    <section class="demo-section">
+      <h2 class="demo-section-title">Tables</h2>
+      <p class="demo-section-description">Tabel data untuk menampilkan daftar pasien dan informasi medis.</p>
+
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>No. RM</th>
+              <th>Nama Pasien</th>
+              <th>NIK</th>
+              <th>Jenis Kelamin</th>
+              <th>Umur</th>
+              <th>Poli Tujuan</th>
+              <th>Status BPJS</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="table-cell-code">2024-001234</td>
+              <td>
+                <div style="font-weight: 500;">Budi Santoso</div>
+                <div style="font-size: 12px; color: var(--simrs-gray-500);">Jakarta Selatan</div>
+              </td>
+              <td class="table-cell-code">3201010101010001</td>
+              <td>Laki-laki</td>
+              <td>45 th</td>
+              <td>Penyakit Dalam</td>
+              <td><span class="badge badge-success">Aktif</span></td>
+              <td>
+                <div class="flex gap-2">
+                  <button class="btn btn-icon btn-sm" aria-label="View">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                    </svg>
+                  </button>
+                  <button class="btn btn-icon btn-sm" aria-label="Edit">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td class="table-cell-code">2024-001235</td>
+              <td>
+                <div style="font-weight: 500;">Siti Rahayu</div>
+                <div style="font-size: 12px; color: var(--simrs-gray-500);">Bandung</div>
+              </td>
+              <td class="table-cell-code">3201010101010002</td>
+              <td>Perempuan</td>
+              <td>32 th</td>
+              <td>Anak</td>
+              <td><span class="badge badge-warning">Proses</span></td>
+              <td>
+                <div class="flex gap-2">
+                  <button class="btn btn-icon btn-sm" aria-label="View">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                    </svg>
+                  </button>
+                  <button class="btn btn-icon btn-sm" aria-label="Edit">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Modal Section -->
+    <section class="demo-section">
+      <h2 class="demo-section-title">Modal</h2>
+      <p class="demo-section-description">Dialog modal untuk konfirmasi dan formulir lengkap.</p>
+
+      <button class="btn btn-primary" onclick="document.getElementById('demoModal').classList.remove('hidden')">Buka Modal Demo</button>
+
+      <div id="demoModal" class="modal-overlay hidden">
+        <div class="modal modal-md">
+          <div class="modal-header">
+            <h3 class="modal-title">Konfirmasi Pembuatan SEP</h3>
+            <button class="modal-close" onclick="document.getElementById('demoModal').classList.add('hidden')">✕</button>
+          </div>
+          <div class="modal-body">
+            <p style="margin-bottom: 16px;">Anda akan membuat SEP untuk pasien berikut:</p>
+
+            <div style="background: var(--simrs-gray-50); padding: 16px; border-radius: 8px;">
+              <div style="font-weight: 600; font-size: 16px; margin-bottom: 8px;">Budi Santoso</div>
+              <div style="font-size: 14px; color: var(--simrs-gray-600); line-height: 1.6;">
+                No. BPJS: 0001R00101XXXX<br>
+                Poli: Penyakit Dalam<br>
+                Diagnosis: J18.9 - Pneumonia, unspecified
+              </div>
+            </div>
+
+            <div class="alert alert-warning" style="margin-top: 16px;">
+              <svg class="alert-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+              </svg>
+              <div class="alert-content">
+                <div class="alert-message">Pastikan semua data sudah benar. SEP yang sudah dibuat tidak dapat dihapus.</div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="document.getElementById('demoModal').classList.add('hidden')">Batal</button>
+            <button class="btn btn-primary">Buat SEP</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Color Palette Section -->
+    <section class="demo-section">
+      <h2 class="demo-section-title">Color Palette</h2>
+      <p class="demo-section-description">Palet warna khusus SIMRS dengan nuansa profesional namun hangat.</p>
+
+      <div class="demo-showcase">
+        <h4 style="margin: 0 0 16px;">Primary - Medical Teal</h4>
+        <div class="color-swatch-grid" style="margin-bottom: 32px;">
+          <div class="color-swatch">
+            <div class="color-swatch-preview" style="background: #0d9488;"></div>
+            <div class="color-swatch-info">
+              <div class="color-swatch-name">Primary 600</div>
+              <div class="color-swatch-value">#0d9488</div>
+            </div>
+          </div>
+          <div class="color-swatch">
+            <div class="color-swatch-preview" style="background: #14b8a6;"></div>
+            <div class="color-swatch-info">
+              <div class="color-swatch-name">Primary 500</div>
+              <div class="color-swatch-value">#14b8a6</div>
+            </div>
+          </div>
+          <div class="color-swatch">
+            <div class="color-swatch-preview" style="background: #5eead4;"></div>
+            <div class="color-swatch-info">
+              <div class="color-swatch-name">Primary 300</div>
+              <div class="color-swatch-value">#5eead4</div>
+            </div>
+          </div>
+          <div class="color-swatch">
+            <div class="color-swatch-preview" style="background: #ccfbf1;"></div>
+            <div class="color-swatch-info">
+              <div class="color-swatch-name">Primary 100</div>
+              <div class="color-swatch-value">#ccfbf1</div>
+            </div>
+          </div>
+        </div>
+
+        <h4 style="margin: 0 0 16px;">Accent - Coral Warmth</h4>
+        <div class="color-swatch-grid" style="margin-bottom: 32px;">
+          <div class="color-swatch">
+            <div class="color-swatch-preview" style="background: #ea580c;"></div>
+            <div class="color-swatch-info">
+              <div class="color-swatch-name">Coral 600</div>
+              <div class="color-swatch-value">#ea580c</div>
+            </div>
+          </div>
+          <div class="color-swatch">
+            <div class="color-swatch-preview" style="background: #f97316;"></div>
+            <div class="color-swatch-info">
+              <div class="color-swatch-name">Coral 500</div>
+              <div class="color-swatch-value">#f97316</div>
+            </div>
+          </div>
+          <div class="color-swatch">
+            <div class="color-swatch-preview" style="background: #fdba74;"></div>
+            <div class="color-swatch-info">
+              <div class="color-swatch-name">Coral 300</div>
+              <div class="color-swatch-value">#fdba74</div>
+            </div>
+          </div>
+          <div class="color-swatch">
+            <div class="color-swatch-preview" style="background: #ffedd5;"></div>
+            <div class="color-swatch-info">
+              <div class="color-swatch-name">Coral 100</div>
+              <div class="color-swatch-value">#ffedd5</div>
+            </div>
+          </div>
+        </div>
+
+        <h4 style="margin: 0 0 16px;">BPJS Brand Colors</h4>
+        <div class="color-swatch-grid">
+          <div class="color-swatch">
+            <div class="color-swatch-preview" style="background: #1e3a8a;"></div>
+            <div class="color-swatch-info">
+              <div class="color-swatch-name">BPJS Blue</div>
+              <div class="color-swatch-value">#1e3a8a</div>
+            </div>
+          </div>
+          <div class="color-swatch">
+            <div class="color-swatch-preview" style="background: #3b82f6;"></div>
+            <div class="color-swatch-info">
+              <div class="color-swatch-name">BPJS Light</div>
+              <div class="color-swatch-value">#3b82f6</div>
+            </div>
+          </div>
+          <div class="color-swatch">
+            <div class="color-swatch-preview" style="background: #eff6ff;"></div>
+            <div class="color-swatch-info">
+              <div class="color-swatch-name">BPJS Background</div>
+              <div class="color-swatch-value">#eff6ff</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Footer -->
+  <footer style="text-align: center; padding: 60px 20px; border-top: 1px solid var(--simrs-gray-200); margin-top: 80px;">
+    <p style="color: var(--simrs-gray-500); font-size: 14px;">
+      SIMRS Component Library v1.0 • Dirancang untuk rumah sakit di Indonesia
+    </p>
+    <p style="color: var(--simrs-gray-400); font-size: 12px; margin-top: 8px;">
+      © 2026 SIMRS Project. Open source license.
+    </p>
+  </footer>
+
+</body>
+</html>

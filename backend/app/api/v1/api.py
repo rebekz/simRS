@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import health, auth, audit, monitoring, patients
+from app.api.v1.endpoints import health, auth, audit, monitoring, patients, encounters
 
 api_router = APIRouter()
 
@@ -17,3 +17,6 @@ api_router.include_router(monitoring.router, tags=["monitoring"])
 
 # Include patient registration endpoints
 api_router.include_router(patients.router, prefix="/patients", tags=["patients"])
+
+# Include encounter endpoints
+api_router.include_router(encounters.router, prefix="/encounters", tags=["encounters"])
