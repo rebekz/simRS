@@ -2542,3 +2542,172 @@ Implemented comprehensive drug interaction database management system with admin
 - Custom rules can be added per hospital policy
 - Interaction database can be expanded with more interactions
 
+
+## [2025-01-14] STORY-017: Electronic Prescriptions - COMPLETED
+
+### Summary
+Implemented comprehensive electronic prescription system with drug search, interaction checking, BPJS coverage status, dose calculation helpers, compound prescription (racikan) support, and pharmacy transmission.
+
+### What was implemented:
+
+1. **Prescription Schemas** (backend/app/schemas/prescription.py)
+   - PrescriptionStatus enum (draft, active, on_hold, completed, cancelled, entered_in_error)
+   - PrescriptionItemType enum (simple, compound/racikan, supply)
+   - DispenseStatus enum (pending, partial, dispensed, not_dispensed)
+   - PrescriptionCreate, PrescriptionUpdate, PrescriptionResponse schemas
+   - PrescriptionItemCreate, PrescriptionItemUpdate, PrescriptionItemResponse schemas
+   - DrugSearchResult, DrugSearchResponse schemas
+   - PrescriptionInteractionCheck schema
+   - DoseCalculationRequest, DoseCalculationResponse schemas
+   - BPJSCoverageStatus schema
+   - PrescriptionTransmissionRequest, PrescriptionTransmissionResponse schemas
+   - PrescriptionPrintRequest, PrescriptionPrintResponse schemas
+
+2. **Prescription Models** (backend/app/models/prescription.py)
+   - Prescription model with prescription_number and barcode
+   - PrescriptionItem model with simple and compound support
+   - PrescriptionTransmission model for pharmacy tracking
+   - PrescriptionVerificationLog model for audit trail
+   - PrescriptionPrintLog model for tracking print events
+   - Foreign keys to patients, encounters, users, drugs tables
+   - JSON fields for compound components and verification issues
+
+3. **Prescription CRUD** (backend/app/crud/prescription.py)
+   - get_prescription - Get single prescription with relationships
+   - list_prescriptions - List with filtering and pagination
+   - create_prescription - Create new prescription with items
+   - update_prescription - Update prescription (draft only)
+   - delete_prescription - Delete prescription (draft only)
+   - submit_prescription_to_pharmacy - Submit for dispensing
+   - search_drugs - Drug search with auto-complete
+   - check_prescription_interactions - Interaction checking
+   - verify_prescription - Pharmacist/supervisor verification
+   - create_prescription_transmission - Send to pharmacy
+   - acknowledge_prescription_transmission - Pharmacy acknowledgment
+   - log_prescription_print - Track print events
+   - get_bpjs_coverage_status - Check BPJS coverage
+   - calculate_dose - Dose calculation helper
+   - _generate_prescription_number - Generate RX-YYYY-XXXXXX format
+   - _generate_prescription_barcode - Generate barcode
+
+4. **Prescription API Endpoints** (backend/app/api/v1/endpoints/prescriptions.py)
+   - GET /api/v1/prescriptions/drugs/search - Drug search with auto-complete
+   - GET /api/v1/prescriptions/drugs/{drug_id}/bpjs-coverage - BPJS coverage status
+   - POST /api/v1/prescriptions/calculate-dose - Dose calculation helper
+   - POST /api/v1/prescriptions - Create prescription
+   - GET /api/v1/prescriptions - List prescriptions with filtering
+   - GET /api/v1/prescriptions/{prescription_id} - Get prescription
+   - PUT /api/v1/prescriptions/{prescription_id} - Update prescription
+   - DELETE /api/v1/prescriptions/{prescription_id} - Delete prescription
+   - POST /api/v1/prescriptions/{prescription_id}/submit - Submit to pharmacy
+   - PUT /api/v1/prescriptions/items/{item_id} - Update prescription item
+   - POST /api/v1/prescriptions/check-interactions - Check interactions
+   - POST /api/v1/prescriptions/{prescription_id}/verify - Verify prescription
+   - POST /api/v1/prescriptions/{prescription_id}/transmit - Transmit to pharmacy
+   - POST /api/v1/prescriptions/transmissions/{transmission_id}/acknowledge - Acknowledge transmission
+   - POST /api/v1/prescriptions/{prescription_id}/print - Generate printable document
+
+5. **Prescription Writing UI** (frontend/src/components/clinical/PrescriptionWriter.tsx)
+   - Drug search with auto-complete dropdown
+   - Add/remove prescription items
+   - Dosage, unit, frequency, route selection
+   - Duration and quantity input
+   - Indication (reason for use) field
+   - Special instructions field
+   - PRN (pro re nata) checkbox
+   - Real-time drug interaction checking
+   - Color-coded interaction alerts (contraindicated, severe, moderate, mild)
+   - Draft save option
+   - Priority selection (routine, urgent, stat)
+   - Narcotic and antibiotic indicators
+   - Indonesian language UI
+   - Responsive design with TailwindCSS
+
+6. **Database Migration** (backend/alembic/versions/20250114000011_create_prescription_tables.py)
+   - Created prescriptions table
+   - Created prescription_items table
+   - Created prescription_transmissions table
+   - Created prescription_verification_logs table
+   - Created prescription_print_logs table
+   - Enums: PrescriptionStatus, PrescriptionItemType, DispenseStatus
+
+7. **API Router Registration** (backend/app/api/v1/api.py)
+   - Added prescriptions router with tags=["prescriptions"]
+
+### Acceptance Criteria Met:
+
+- [x] AC-001: Electronic prescribing interface (PrescriptionWriter component)
+- [x] AC-002: Drug search with auto-complete (search endpoint with debounce)
+- [x] AC-003: Dose and frequency selection (dosage, unit, frequency fields)
+- [x] AC-004: Quantity calculation (quantity field, duration-based)
+- [x] AC-005: Route of administration (route enum with 11 options)
+- [x] AC-006: Special instructions (special_instructions field)
+- [x] AC-007: Check interactions in <3 seconds (async with debouncing)
+- [x] AC-008: Alert for all interaction types (drug-drug, drug-disease, drug-allergy)
+- [x] AC-009: Display BPJS coverage status (bpjs_coverage endpoint)
+- [x] AC-010: Print prescriptions with barcode (print endpoint with barcode generation)
+- [x] AC-011: Support compound prescriptions (racikan) (compound item type with components)
+- [x] AC-012: Electronic prescription to pharmacy (transmission model and endpoints)
+
+### Technical Implementation:
+
+- Prescription number generation (RX-YYYY-XXXXXX format)
+- Barcode generation for tracking
+- FHIR MedicationRequest status compliance
+- Drug search with fuzzy matching on name and generic_name
+- Real-time interaction checking with severity classification
+- Draft prescription support (editable before submission)
+- Prescription verification workflow (pharmacist/supervisor)
+- Pharmacy transmission with acknowledgment tracking
+- Print logging with secure URL generation
+- Dose calculation helper (weight-based, concentration-based)
+- BPJS coverage status checking
+- Compound prescription (racikan) support with component JSON storage
+- Refill tracking (refills_allowed, refills_used)
+- Special drug flags (narcotic, antibiotic) with warnings
+- Priority handling (routine, urgent, stat)
+- Cost estimation fields for future billing integration
+
+### Features:
+
+- Electronic prescription writing interface
+- Drug search with auto-complete
+- Real-time drug interaction checking
+- Color-coded interaction alerts by severity
+- BPJS coverage status display
+- Dose calculation helper
+- Compound prescription (racikan) support
+- Draft prescription save
+- Prescription verification workflow
+- Pharmacy transmission tracking
+- Prescription printing with barcode
+- Print logging for audit
+- Narcotic and antibiotic tracking
+- Priority prescription handling
+- Indonesian language UI
+- Responsive design
+
+### Files Created:
+- backend/app/schemas/prescription.py
+- backend/app/models/prescription.py
+- backend/app/crud/prescription.py
+- backend/app/api/v1/endpoints/prescriptions.py
+- frontend/src/components/clinical/PrescriptionWriter.tsx
+- backend/alembic/versions/20250114000011_create_prescription_tables.py
+
+### Files Modified:
+- backend/app/api/v1/api.py - Added prescriptions router
+
+### Notes:
+- Requires STORY-014 (Medication List) - completed
+- Requires STORY-026 (Drug Interaction Database) - completed
+- Unblocks STORY-025 (Prescription Dispensing)
+- Prescription number format: RX-YYYY-XXXXXX
+- Barcode format: RX-YYYY-XXXXXX-TIMESTAMP
+- Compound prescriptions (racikan) require min 2 components
+- Draft prescriptions can be edited, active prescriptions cannot
+- Pharmacy transmission includes acknowledgment workflow
+- Print URLs expire after 1 hour for security
+- BPJS coverage based on drug.bpjs_code presence
+- Interaction checking uses existing drug_interactions module
+
