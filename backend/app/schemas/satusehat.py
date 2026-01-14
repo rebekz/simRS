@@ -229,3 +229,71 @@ class FHIRAddress(BaseModel):
     postal_code: Optional[str] = Field(None, description="Postal code for area")
     country: Optional[str] = Field(None, description="Country name")
     period: Optional[Dict[str, Any]] = Field(None, description="Time period when address was/is in use")
+
+
+# =============================================================================
+# Patient Schemas (STORY-034)
+# =============================================================================
+
+class FHIRHumanName(BaseModel):
+    """FHIR HumanName component."""
+
+    use: Optional[str] = Field(None, description="usual | official | temp | nickname | anonymous | old | maiden")
+    text: Optional[str] = Field(None, description="Text representation of the full name")
+    family: Optional[str] = Field(None, description="Family name (often called surname)")
+    given: Optional[List[str]] = Field(None, description="Given names")
+    prefix: Optional[List[str]] = Field(None, description="Parts that come before the name")
+    suffix: Optional[List[str]] = Field(None, description="Parts that come after the name")
+    period: Optional[Dict[str, Any]] = Field(None, description="Time period when name was/is in use")
+
+
+class FHIRPatientCreate(BaseModel):
+    """Schema for creating Patient in SATUSEHAT."""
+
+    patient_id: int = Field(..., description="Internal patient ID")
+    organization_id: Optional[str] = Field(None, description="SATUSEHAT Organization resource ID")
+    force_update: bool = Field(default=False, description="Force update even if data unchanged")
+
+
+class FHIRPatientResponse(BaseModel):
+    """Schema for Patient response from SATUSEHAT."""
+
+    resource_type: str = Field(default="Patient", description="FHIR resource type")
+    id: str = Field(..., description="FHIR resource ID")
+    identifier: List[Dict[str, Any]] = Field(default_factory=list, description="Patient identifiers")
+    active: bool = Field(default=True, description="Whether patient record is active")
+    name: Optional[List[Dict[str, Any]]] = Field(None, description="Patient names")
+    telecom: Optional[List[Dict[str, Any]]] = Field(None, description="Contact information")
+    gender: str = Field(..., description="male | female | other | unknown")
+    birthDate: Optional[str] = Field(None, description="Patient birth date (ISO 8601)")
+    address: Optional[List[Dict[str, Any]]] = Field(None, description="Patient addresses")
+    maritalStatus: Optional[Dict[str, Any]] = Field(None, description="Marital status")
+    managingOrganization: Optional[Dict[str, Any]] = Field(None, description="Managing organization reference")
+
+
+class FHIRPatientSearchResponse(BaseModel):
+    """Schema for Patient search response (FHIR Bundle)."""
+
+    resource_type: str = Field(default="Bundle", description="FHIR resource type")
+    total: int = Field(..., description="Total number of matching resources")
+    entry: Optional[List[Dict[str, Any]]] = Field(None, description="Search results")
+
+
+class PatientSyncResponse(BaseModel):
+    """Schema for patient sync operation response."""
+
+    success: bool = Field(..., description="Sync success status")
+    message: str = Field(..., description="Sync response message")
+    patient_id: int = Field(..., description="Internal patient ID")
+    satusehat_patient_id: Optional[str] = Field(None, description="SATUSEHAT Patient resource ID")
+    action: Optional[str] = Field(None, description="Action performed (create or update)")
+    synced_at: Optional[datetime] = Field(default_factory=datetime.now, description="Sync timestamp")
+    error: Optional[str] = Field(None, description="Error message if sync failed")
+
+
+class PatientValidationResult(BaseModel):
+    """Schema for patient validation result."""
+
+    is_valid: bool = Field(..., description="Whether patient data is valid for sync")
+    errors: List[str] = Field(default_factory=list, description="List of validation errors")
+    warnings: Optional[List[str]] = Field(None, description="List of validation warnings")

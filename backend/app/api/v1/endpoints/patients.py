@@ -3,7 +3,7 @@
 This module provides REST API endpoints for patient registration and management.
 All endpoints require authentication and appropriate permissions.
 """
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
 
@@ -27,6 +27,7 @@ router = APIRouter()
 @router.post("/", response_model=PatientResponse, status_code=status.HTTP_201_CREATED)
 async def register_patient(
     patient_in: PatientCreate,
+    background_tasks: BackgroundTasks = None,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_permission("patient", "create"))
 ):
@@ -35,6 +36,7 @@ async def register_patient(
 
     Args:
         patient_in: Patient registration data
+        background_tasks: FastAPI background tasks
         db: Database session
         current_user: Authenticated user with patient:create permission
 
@@ -46,6 +48,12 @@ async def register_patient(
     """
     try:
         patient = await patient_crud.create_patient(db, patient_in)
+
+        # Trigger SATUSEHAT sync in background (STORY-034)
+        if background_tasks and patient:
+            from app.services.patient_sync import trigger_patient_sync_on_create
+            background_tasks.add_task(trigger_patient_sync_on_create, db, patient.id)
+
         return patient
     except ValueError as e:
         raise HTTPException(
@@ -245,6 +253,7 @@ async def search_patients(
 async def update_patient(
     patient_id: int,
     patient_in: PatientUpdate,
+    background_tasks: BackgroundTasks = None,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_permission("patient", "update"))
 ):
@@ -254,6 +263,7 @@ async def update_patient(
     Args:
         patient_id: Patient ID
         patient_in: Patient update data
+        background_tasks: FastAPI background tasks
         db: Database session
         current_user: Authenticated user with patient:update permission
 
@@ -271,6 +281,12 @@ async def update_patient(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Patient with ID {patient_id} not found"
             )
+
+        # Trigger SATUSEHAT sync in background (STORY-034)
+        if background_tasks and patient:
+            from app.services.patient_sync import trigger_patient_sync_on_update
+            background_tasks.add_task(trigger_patient_sync_on_update, db, patient_id)
+
         return patient
     except ValueError as e:
         raise HTTPException(

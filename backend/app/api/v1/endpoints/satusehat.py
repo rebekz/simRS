@@ -1,30 +1,44 @@
-"""SATUSEHAT FHIR R4 API endpoints for STORY-033: Organization Registration.
+"""SATUSEHAT FHIR R4 API endpoints for STORY-033 & STORY-034.
 
 This module provides REST API endpoints for:
-- SATUSEHAT facility/organization registration
+- SATUSEHAT facility/organization registration (STORY-033)
+- Patient demographics sync (STORY-034)
 - OAuth token management and testing
 - Connectivity verification
-- Organization CRUD operations
 """
 from typing import Optional
 from datetime import datetime
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user, get_db
 from app.models.user import User
+from app.models.patient import Patient
 from app.schemas.satusehat import (
     SATUSEHATOrganizationCreate,
     SATUSEHATOrganizationUpdate,
     SATUSEHATOrganizationResponse,
     SATUSEHATOrganizationSearchResponse,
     SATUSEHATConnectivityTestResponse,
+    FHIRPatientCreate,
+    FHIRPatientResponse,
+    FHIRPatientSearchResponse,
+    PatientSyncResponse,
+    PatientValidationResult,
 )
 from app.services.satusehat import (
     SATUSEHATClient,
     SATUSEHATError,
     SATUSEHATAuthError,
     get_satusehat_client,
+)
+from app.services.patient_sync import (
+    sync_patient_to_satusehat,
+    get_patient_from_satusehat,
+    search_patient_by_identifier,
+    trigger_patient_sync_on_create,
+    trigger_patient_sync_on_update,
+    validate_patient_for_sync,
 )
 
 
@@ -429,3 +443,251 @@ async def get_token_info(
             status_code=500,
             detail=f"Failed to retrieve token information: {str(e)}"
         )
+
+
+# =============================================================================
+# Patient Sync Endpoints (STORY-034)
+# =============================================================================
+
+@router.post("/patients/sync/{patient_id}", response_model=PatientSyncResponse)
+async def sync_patient_to_satusehat_endpoint(
+    patient_id: int,
+    organization_id: Optional[str] = Query(None, description="SATUSEHAT Organization resource ID"),
+    force_update: bool = Query(default=False, description="Force update even if data unchanged"),
+    background_tasks: BackgroundTasks = None,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Sync a patient's demographics to SATUSEHAT.
+
+    This endpoint manually triggers a sync of patient data to SATUSEHAT
+    for national health data exchange.
+
+    Args:
+        patient_id: Internal patient ID to sync
+        organization_id: SATUSEHAT Organization resource ID
+        force_update: Force update even if data unchanged
+        background_tasks: FastAPI background tasks
+        current_user: Authenticated user (admin/nurse/doctor)
+        db: Database session
+
+    Returns:
+        Sync result
+
+    Raises:
+        HTTPException 403: If user lacks permission
+        HTTPException 404: If patient not found
+        HTTPException 502: If SATUSEHAT API error
+    """
+    # Verify user has permission
+    if current_user.role not in ["admin", "nurse", "doctor"]:
+        raise HTTPException(
+            status_code=403,
+            detail="Only admin, nurse, and doctor roles can sync patient data"
+        )
+
+    # Verify patient exists
+    from sqlalchemy import select
+    patient_result = await db.execute(select(Patient).filter(Patient.id == patient_id))
+    patient = patient_result.scalar_one_or_none()
+
+    if not patient:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Patient {patient_id} not found"
+        )
+
+    # Validate patient data
+    is_valid, errors = validate_patient_for_sync(patient)
+    if not is_valid:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Patient data validation failed: {', '.join(errors)}"
+        )
+
+    # Perform sync
+    try:
+        async with SATUSEHATClient() as client:
+            result = await sync_patient_to_satusehat(
+                db,
+                patient_id,
+                client,
+                organization_id,
+                force_update
+            )
+
+        return PatientSyncResponse(
+            success=result["success"],
+            message=result["message"],
+            patient_id=patient_id,
+            satusehat_patient_id=result.get("satusehat_patient_id"),
+            action=result.get("action"),
+            synced_at=datetime.now() if result["success"] else None,
+            error=result.get("error"),
+        )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to sync patient: {str(e)}"
+        )
+
+
+@router.get("/patients/satusehat/{satusehat_patient_id}", response_model=FHIRPatientResponse)
+async def get_satusehat_patient(
+    satusehat_patient_id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Retrieve a patient from SATUSEHAT.
+
+    This endpoint fetches a patient's FHIR resource from SATUSEHAT.
+
+    Args:
+        satusehat_patient_id: SATUSEHAT Patient resource ID
+        current_user: Authenticated user
+        db: Database session
+
+    Returns:
+        FHIR Patient resource
+
+    Raises:
+        HTTPException 404: If patient not found
+        HTTPException 502: If SATUSEHAT API error
+    """
+    try:
+        async with SATUSEHATClient() as client:
+            result = await get_patient_from_satusehat(client, satusehat_patient_id)
+
+            if not result:
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"Patient {satusehat_patient_id} not found in SATUSEHAT"
+                )
+
+            return FHIRPatientResponse(**result)
+
+    except HTTPException:
+        raise
+
+    except SATUSEHATAuthError as e:
+        raise HTTPException(
+            status_code=502,
+            detail=f"SATUSEHAT authentication error: {e.message}"
+        )
+
+    except SATUSEHATError as e:
+        raise HTTPException(
+            status_code=502,
+            detail=f"SATUSEHAT API error: {e.message}"
+        )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to retrieve patient: {str(e)}"
+        )
+
+
+@router.get("/patients/search", response_model=FHIRPatientSearchResponse)
+async def search_satusehat_patient(
+    identifier_system: str = Query(..., description="Identifier system URL"),
+    identifier_value: str = Query(..., description="Identifier value"),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Search for a patient by identifier in SATUSEHAT.
+
+    This endpoint searches for a patient using their identifier
+    (NIK, MRN, BPJS card number, etc.) in SATUSEHAT.
+
+    Args:
+        identifier_system: Identifier system URL
+        identifier_value: Identifier value
+        current_user: Authenticated user
+        db: Database session
+
+    Returns:
+        FHIR Bundle with search results
+
+    Raises:
+        HTTPException 502: If SATUSEHAT API error
+    """
+    try:
+        async with SATUSEHATClient() as client:
+            result = await search_patient_by_identifier(
+                client,
+                identifier_system,
+                identifier_value
+            )
+            return FHIRPatientSearchResponse(**result)
+
+    except SATUSEHATAuthError as e:
+        raise HTTPException(
+            status_code=502,
+            detail=f"SATUSEHAT authentication error: {e.message}"
+        )
+
+    except SATUSEHATError as e:
+        raise HTTPException(
+            status_code=502,
+            detail=f"SATUSEHAT API error: {e.message}"
+        )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to search patient: {str(e)}"
+        )
+
+
+@router.get("/patients/{patient_id}/validate", response_model=PatientValidationResult)
+async def validate_patient_for_satusehat(
+    patient_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Validate patient data for SATUSEHAT sync.
+
+    This endpoint checks if a patient's data meets SATUSEHAT requirements
+    before attempting to sync.
+
+    Args:
+        patient_id: Internal patient ID to validate
+        current_user: Authenticated user
+        db: Database session
+
+    Returns:
+        Validation result
+
+    Raises:
+        HTTPException 404: If patient not found
+    """
+    # Get patient
+    from sqlalchemy import select
+    patient_result = await db.execute(select(Patient).filter(Patient.id == patient_id))
+    patient = patient_result.scalar_one_or_none()
+
+    if not patient:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Patient {patient_id} not found"
+        )
+
+    # Validate patient data
+    is_valid, errors = validate_patient_for_sync(patient)
+
+    # Add warnings
+    warnings = []
+    if not patient.bpjs_card_number:
+        warnings.append("BPJS card number not provided - patient may not be linked to BPJS")
+
+    return PatientValidationResult(
+        is_valid=is_valid,
+        errors=errors,
+        warnings=warnings if warnings else None,
+    )
