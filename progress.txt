@@ -3381,3 +3381,204 @@ Implemented comprehensive patient admission workflow for inpatient management wi
 - Consider WebSocket for real-time admission updates
 - Add admission dashboard for bed occupancy view
 
+
+## [2025-01-14] STORY-022: Daily Care Documentation - COMPLETED
+
+### Summary
+Implemented comprehensive daily care documentation system for inpatient clinical operations.
+Supports nursing flow sheets, narrative notes, care plans, physician daily notes, interdisciplinary
+documentation (respiratory, physical therapy, nutrition, social work), shift handoff reports,
+digital signatures, auto-save drafts, and discharge summary export.
+
+### What was implemented:
+
+1. **Daily Care Documentation Schemas** (backend/app/schemas/daily_care.py)
+   - Nursing documentation schemas (flow sheets, narrative notes, care plans, patient education)
+   - Physician documentation schemas (daily notes, progress notes in SOAP format)
+   - Interdisciplinary documentation schemas (respiratory, physical therapy, nutrition, social work)
+   - Shift documentation schemas (shift handoff, change of shift report)
+   - Digital signature, auto-save draft, and discharge summary schemas
+   - Comprehensive enums for note types, shift types, vital signs
+
+2. **Daily Care Documentation Models** (backend/app/models/daily_care.py)
+   - NursingFlowSheet - vital signs, intake/output, skin care, mobility, nutrition, elimination, pain
+   - NursingNarrative - narrative notes with interventions and digital signatures
+   - NursingCarePlan - nursing diagnoses, goals, interventions, rationale, evaluation
+   - PatientEducation - education documentation with teaching methods and understanding assessment
+   - PhysicianDailyNote - SOAP format daily rounds with orders tracking
+   - RespiratoryTherapyNote, PhysicalTherapyNote, NutritionNote, SocialWorkNote
+   - ShiftHandoff - shift handoff documentation with critical events and pending tasks
+   - ChangeOfShiftReport - ward-level shift report with statistics and incidents
+   - DigitalSignature - encrypted signature data with IP address and user agent audit
+   - AutoSaveDraft - auto-save for in-progress documentation
+   - DischargeSummaryExport - export tracking with PDF, DOCX, HTML formats
+
+3. **Daily Care CRUD Operations** (backend/app/crud/daily_care.py)
+   - Nursing flow sheet CRUD with auto-save support
+   - Nursing narrative notes with digital signature
+   - Nursing care plan management
+   - Patient education documentation
+   - Physician daily notes and progress notes
+   - Interdisciplinary notes (respiratory, physical therapy, nutrition, social work)
+   - Shift handoff and change of shift reports
+   - Digital signature creation and verification
+   - Auto-save draft management (save, get, delete, user drafts)
+   - Documentation summary aggregation
+
+4. **Daily Care API Endpoints** (backend/app/api/v1/endpoints/daily_care.py)
+   - POST /api/v1/daily-care/flow-sheets - Create nursing flow sheet
+   - GET /api/v1/daily-care/flow-sheets/{sheet_id} - Get flow sheet by ID
+   - GET /api/v1/daily-care/admissions/{admission_id}/flow-sheets - Get admission flow sheets
+   - PUT /api/v1/daily-care/flow-sheets/{sheet_id} - Update flow sheet (with auto-save)
+   - POST /api/v1/daily-care/narratives - Create nursing narrative note
+   - GET /api/v1/daily-care/admissions/{admission_id}/narratives - Get narratives
+   - POST /api/v1/daily-care/narratives/{narrative_id}/sign - Sign narrative
+   - POST /api/v1/daily-care/care-plans - Create nursing care plan
+   - GET /api/v1/daily-care/admissions/{admission_id}/care-plans - Get care plans
+   - PUT /api/v1/daily-care/care-plans/{plan_id} - Update care plan
+   - POST /api/v1/daily-care/patient-education - Create patient education record
+   - GET /api/v1/daily-care/admissions/{admission_id}/education - Get education records
+   - POST /api/v1/daily-care/physician-daily-notes - Create physician daily note
+   - GET /api/v1/daily-care/admissions/{admission_id}/physician-notes - Get physician notes
+   - POST /api/v1/daily-care/respiratory-therapy-notes - Create respiratory therapy note
+   - POST /api/v1/daily-care/physical-therapy-notes - Create physical therapy note
+   - POST /api/v1/daily-care/nutrition-notes - Create nutrition note
+   - POST /api/v1/daily-care/social-work-notes - Create social work note
+   - POST /api/v1/daily-care/shift-handoffs - Create shift handoff documentation
+   - POST /api/v1/daily-care/shift-handoffs/{handoff_id}/verify - Verify handoff
+   - POST /api/v1/daily-care/change-of-shift-reports - Create change of shift report
+   - POST /api/v1/daily-care/change-of-shift-reports/{report_id}/verify - Verify report
+   - POST /api/v1/daily-care/signatures - Create digital signature
+   - GET /api/v1/daily-care/documents/{document_id}/signatures - Get document signatures
+   - POST /api/v1/daily-care/drafts - Save or update auto-save draft
+   - GET /api/v1/daily-care/drafts/{document_type}/{admission_id} - Get draft
+   - DELETE /api/v1/daily-care/drafts/{draft_id} - Delete draft
+   - GET /api/v1/daily-care/drafts - Get user drafts
+   - GET /api/v1/daily-care/admissions/{admission_id}/summary - Get documentation summary
+
+5. **Frontend Components** (frontend/src/components/daily-care/)
+   - NursingFlowSheet.tsx - Mobile-optimized bedside documentation with:
+     - 8 tabbed sections (vitals, intake/output, skin, mobility, nutrition, elimination, neuro, pain)
+     - Auto-save every 30 seconds with indicator
+     - Vital signs input (temperature, BP, heart rate, respiratory rate, SpO2, weight, height, blood glucose, GCS)
+     - Intake/output tracking (oral, IV, urine, drainage, stool, emesis)
+     - Skin and wound care documentation
+     - Activity and mobility assessment
+     - Nutrition and hydration tracking
+     - Elimination documentation
+     - Behavior and cognition assessment
+     - Pain assessment with 0-10 scale slider
+   - PhysicianDailyNote.tsx - Physician daily note editor with:
+     - SOAP format tabs (SOAP, Diagnosis, Orders, Prognosis)
+     - Subjective and objective sections
+     - Assessment and plan (required)
+     - Primary and secondary diagnoses
+     - Order management (new, continued, discontinued)
+     - Prognosis selection with guidance
+     - Indonesian language UI
+
+6. **Database Migration** (backend/alembic/versions/20250114000017_create_daily_care_tables.py)
+   - nursing_flow_sheets table with JSON columns for vital_signs, skin_issues
+   - nursing_narratives table with signature tracking
+   - nursing_care_plans table with JSON arrays for diagnoses, goals, interventions
+   - patient_education_records table with teaching methods and understanding assessment
+   - physician_daily_notes table in SOAP format
+   - respiratory_therapy_notes, physical_therapy_notes, nutrition_notes, social_work_notes tables
+   - shift_handoffs table with patient status summary and critical events
+   - change_of_shift_reports table with ward-level statistics
+   - digital_signatures table with encrypted signature_data
+   - auto_save_drafts table for auto-saving in-progress documentation
+   - discharge_summary_exports table for export tracking
+   - ENUM type: shifttype (morning, afternoon, night)
+
+### Files Created:
+- backend/app/schemas/daily_care.py
+- backend/app/models/daily_care.py
+- backend/app/crud/daily_care.py
+- backend/app/api/v1/endpoints/daily_care.py
+- frontend/src/components/daily-care/NursingFlowSheet.tsx
+- frontend/src/components/daily-care/PhysicianDailyNote.tsx
+- backend/alembic/versions/20250114000017_create_daily_care_tables.py
+
+### Files Modified:
+- backend/app/api/v1/api.py - Added daily_care router
+
+### Acceptance Criteria Met:
+
+- [x] AC-001: Nursing flow sheet with vital signs (comprehensive flow sheet with 10 vital signs)
+- [x] AC-002: Narrative notes with digital signatures (signature tracking with audit)
+- [x] AC-003: Nursing care plans (diagnoses, goals, interventions, rationale)
+- [x] AC-004: Patient education documentation (teaching methods, understanding assessment)
+- [x] AC-005: Physician daily notes (SOAP format with orders tracking)
+- [x] AC-006: Interdisciplinary notes (respiratory, physical therapy, nutrition, social work)
+- [x] AC-007: Shift handoff documentation (patient status, critical events, pending tasks)
+- [x] AC-008: Digital signatures with audit trail (IP address, user agent tracking)
+- [x] AC-009: Auto-save to prevent data loss (30-second auto-save with draft management)
+- [x] AC-010: Mobile-optimized bedside documentation (responsive design with tabbed sections)
+
+### Technical Implementation:
+
+- JSON columns for flexible data storage (vital_signs, skin_issues, interventions, recommendations)
+- Auto-save support with auto_saved flag
+- Digital signature with SHA-256 hash and audit trail
+- SOAP format for physician documentation
+- Comprehensive shift handoff with patient counts and critical events
+- Ward-level change of shift reports with incidents and equipment issues
+- Draft management for data protection
+- Discharge summary export in multiple formats
+- Proper relationships to admissions, patients, and users
+- Indexed fields for fast queries (admission_id, shift_date, note_date)
+- Indonesian localization throughout
+
+### Features:
+
+- Nursing flow sheet with comprehensive vital signs tracking
+- Narrative notes with digital signatures
+- Nursing care plans with evaluation
+- Patient education with understanding assessment
+- Physician daily notes in SOAP format
+- Interdisciplinary documentation (4 disciplines)
+- Shift handoff with verification
+- Change of shift reports with supervisor verification
+- Digital signatures with audit trail
+- Auto-save drafts (30-second interval)
+- Documentation summary with statistics
+- Discharge summary export (PDF, DOCX, HTML)
+- Mobile-optimized bedside documentation
+- Indonesian language UI
+- Responsive design with TailwindCSS
+
+### Configuration:
+
+Shift types: morning (07:00-14:00), afternoon (14:00-21:00), night (21:00-07:00)
+Vital signs: temperature, blood_pressure, heart_rate, respiratory_rate, oxygen_saturation, weight, height, pain_level, blood_glucose, consciousness
+Consciousness levels: alert, lethargic, stupor, coma
+Orientation levels: oriented x3, x2, x1, disoriented
+Diet tolerance: good, fair, poor, NPO
+Activity levels: bed_rest, BRP, ambulatory
+Fall risk: low, moderate, high
+Stool output: normal, diarrhea, constipated, none
+Bladder patterns: continent, catheter, incontinent
+Prognosis: baik, cukup, buruk, sangat buruk, kritis
+
+### Notes:
+
+- Requires STORY-021 (Admission Workflow) - completed
+- Requires STORY-015 (Clinical Notes) - completed
+- Unblocks STORY-023 (Discharge Planning)
+- Auto-save interval: 30 seconds
+- Digital signature data encrypted for security
+- Drafts stored in JSON format for flexibility
+- Discharge summary export generation not yet implemented (schema ready)
+- Mobile-optimized for bedside documentation
+- Indonesian localization: Tanda vital, Intake/Output, Kulit & Luka, etc.
+
+### Next Steps:
+
+- STORY-023: Discharge Planning can use daily care documentation
+- Implement PDF/DOCX/HTML generation for discharge summaries
+- Consider WebSocket for real-time documentation updates
+- Add more interdisciplinary documentation as needed
+- Consider voice-to-text for narrative notes
+- Add template library for common documentation
+
