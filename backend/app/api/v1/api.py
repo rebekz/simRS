@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import health, auth, audit, monitoring, patients, encounters, bpjs
+from app.api.v1.endpoints import health, auth, audit, monitoring, patients, encounters, bpjs, bpjs_verification
 
 api_router = APIRouter()
 
@@ -23,3 +23,6 @@ api_router.include_router(encounters.router, prefix="/encounters", tags=["encoun
 
 # Include BPJS endpoints
 api_router.include_router(bpjs.router, prefix="/bpjs", tags=["bpjs"])
+
+# Include BPJS verification endpoints
+api_router.include_router(bpjs_verification.router, prefix="/bpjs-verification", tags=["bpjs-verification"])

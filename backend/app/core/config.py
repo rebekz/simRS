@@ -39,8 +39,11 @@ class Settings(BaseSettings):
     # BPJS Integration
     BPJS_CONSUMER_ID: Optional[str] = Field(default="", env="BPJS_CONSUMER_ID")
     BPJS_CONSUMER_SECRET: Optional[str] = Field(default="", env="BPJS_CONSUMER_SECRET")
+    BPJS_USER_KEY: Optional[str] = Field(default="", env="BPJS_USER_KEY")
+    BPJS_SERVICE_NAME: str = Field(default="SIMRS", env="BPJS_SERVICE_NAME")
     BPJS_BASE_URL: str = "https://apijkn.bpjs-kesehatan.go.id"
     BPJS_BASE_URL_VCLAIM: str = "https://new-api.bpjs-kesehatan.go.id:8080"
+    BPJS_API_URL: str = "https://apijkn.bpjs-kesehatan.go.id/vclaim-rest"
 
     # SATUSEHAT Integration
     SATUSEHAT_CLIENT_ID: Optional[str] = Field(default="", env="SATUSEHAT_CLIENT_ID")
