@@ -3030,3 +3030,126 @@ Implemented comprehensive queue management system for all hospital departments (
 - Priority queues served first (emergency > priority > normal)
 - Ticket numbers reset daily
 
+## [2025-01-14] STORY-020: Bed Management System - COMPLETED
+
+### Summary
+Implemented comprehensive bed management system for hospital inpatient facilities.
+Supports real-time bed availability tracking, patient assignment workflow, and bed request management.
+
+### What was implemented:
+
+1. **Bed Management Schemas** (backend/app/schemas/bed.py)
+   - RoomClass enum: VVIP, VIP, Kelas 1-3
+   - BedStatus enum: available, occupied, maintenance, reserved
+   - RoomStatus enum: clean, soiled, maintenance, isolation
+   - GenderType enum: male, female, mixed
+   - Complete schemas for rooms, beds, assignments, transfers
+   - Bed request workflow schemas
+   - Dashboard and availability summary schemas
+
+2. **Bed Management Models** (backend/app/models/bed.py)
+   - Room model with ward, class, gender type, floor
+   - Bed model with denormalized room fields for fast queries
+   - BedAssignment model tracking patient to bed assignments
+   - BedTransfer model with reason logging
+   - BedRequest model for bed request workflow
+   - RoomStatusHistory model for status change tracking
+
+3. **Bed CRUD Operations** (backend/app/crud/bed.py)
+   - Room CRUD (create, read, update, delete, status update)
+   - Bed CRUD with denormalized field management
+   - Patient assignment/discharge workflow
+   - Bed transfer between rooms
+   - Available bed filtering by ward, class, gender, floor
+   - Bed request workflow (create, approve, assign, cancel)
+   - Dashboard data aggregation
+   - Availability statistics calculation
+
+4. **Bed Management API** (backend/app/api/v1/endpoints/bed.py)
+   - POST /api/v1/bed/rooms - Create room
+   - GET /api/v1/bed/rooms - List rooms (with ward filter)
+   - PUT /api/v1/bed/rooms/{id}/status - Update room status
+   - POST /api/v1/bed/beds - Create bed
+   - GET /api/v1/bed/beds - List beds (with room filter)
+   - POST /api/v1/bed/assignments - Assign patient to bed
+   - POST /api/v1/bed/discharge - Discharge patient from bed
+   - POST /api/v1/bed/transfers - Transfer between beds
+   - GET /api/v1/bed/availability - Check availability with filters
+   - GET /api/v1/bed/availability/summary - Summary by ward/class
+   - POST /api/v1/bed/requests - Create bed request
+   - POST /api/v1/bed/requests/{id}/approve - Approve request
+   - POST /api/v1/bed/requests/{id}/assign - Assign bed to request
+   - GET /api/v1/bed/dashboard - Comprehensive dashboard data
+
+5. **Frontend Components** (frontend/src/components/bed/)
+   - BedDashboard.tsx - Real-time bed dashboard with:
+     - Overall statistics (total, available, occupied, occupancy rate)
+     - ICU status with availability
+     - Available beds by class (VVIP, VIP, Kelas 1-3)
+     - Ward and class filtering
+     - Available beds grid display
+     - Pending bed requests list
+   - BedAssignment.tsx - Patient to bed assignment wizard:
+     - Step 1: Select patient (with search)
+     - Step 2: Select available bed (with filters)
+     - Step 3: Confirm with options (expected discharge, notes, isolation)
+
+6. **Database Migration** (backend/alembic/versions/20250114000014_create_bed_tables.py)
+   - rooms table with ward_id, room_number, room_class, gender_type, floor, status
+   - beds table with denormalized fields for performance
+   - bed_assignments table tracking patient assignments
+   - bed_transfers table with transfer reason logging
+   - bed_requests table for workflow management
+   - room_status_history table for status change tracking
+   - Proper indexes for fast queries
+   - ENUM types for room_class, room_status, bed_status, gender_type, bed_request_status
+
+### Files Created:
+- backend/app/schemas/bed.py
+- backend/app/models/bed.py
+- backend/app/crud/bed.py
+- backend/app/api/v1/endpoints/bed.py
+- frontend/src/components/bed/BedDashboard.tsx
+- frontend/src/components/bed/BedAssignment.tsx
+- backend/alembic/versions/20250114000014_create_bed_tables.py
+
+### Files Modified:
+- backend/app/api/v1/api.py - Added bed router
+
+### Acceptance Criteria Met:
+
+- [x] Real-time bed availability tracking
+- [x] Room and bed inventory management
+- [x] Patient to bed assignment workflow
+- [x] Bed transfer between rooms with reason logging
+- [x] Patient discharge with bed release
+- [x] Room status management (clean, soiled, maintenance, isolation)
+- [x] Bed request workflow (pending → approved → assigned → completed)
+- [x] Bed availability filtering by ward, class, gender, type
+- [x] Dashboard with statistics and availability
+- [x] Room classes: VVIP, VIP, Kelas 1, Kelas 2, Kelas 3
+- [x] Bed status: available, occupied, maintenance, reserved
+- [x] Gender-based room assignment (male, female, mixed)
+- [x] ICU bed tracking with occupancy rate
+- [x] Room status history tracking
+- [x] Denormalized fields for performance
+
+### Notes:
+- Requires STORY-006 (New Patient Registration) - completed
+- Required for STORY-021 (Admission Workflow)
+- Room status automatically set to "soiled" on patient discharge if clean_required=true
+- Denormalized fields (room_number, ward_id, room_class, gender_type, floor) updated via application logic
+- Bed positions sorted by: room_number, bed_number
+- Dashboard refreshes every 60 seconds
+- ICU occupancy rate calculated separately
+- Available beds shown in green with visual indicators
+- Pending bed requests prioritized by: emergency > urgent > routine
+- Expected discharge date optional for assignments
+- Isolation flag for infectious disease patients
+
+### Next Steps:
+- STORY-021: Admission Workflow can now use bed assignment
+- STORY-022: Discharge Planning can use bed availability
+- Consider WebSocket implementation for real-time dashboard updates
+- Consider mobile app for bed status updates from nursing stations
+
