@@ -40,6 +40,19 @@ from app.models.billing import (
     ApprovalStatus,
     PaymentMethod,
 )
+from app.models.bpjs_claims import (
+    BPJSClaim,
+    BPJSClaimItem,
+    BPJSClaimDocument,
+    BPJSSubmissionLog,
+    BPJSVerificationQuery,
+    BPJSClaimType,
+    BPJSClaimStatus,
+    BPJSClaimItemType,
+    BPJSDocumentType,
+    BPJSSubmissionStatus,
+    BPJSQueryStatus,
+)
 
 __all__ = [
     "User",
@@ -79,4 +92,15 @@ __all__ = [
     "BillingRuleType",
     "ApprovalStatus",
     "PaymentMethod",
+    "BPJSClaim",
+    "BPJSClaimItem",
+    "BPJSClaimDocument",
+    "BPJSSubmissionLog",
+    "BPJSVerificationQuery",
+    "BPJSClaimType",
+    "BPJSClaimStatus",
+    "BPJSClaimItemType",
+    "BPJSDocumentType",
+    "BPJSSubmissionStatus",
+    "BPJSQueryStatus",
 ]

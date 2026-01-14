@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import health, auth, audit, monitoring, patients, encounters, bpjs, bpjs_verification, bpjs_aplicare, icd10, allergies, clinical_notes, consultation, sep, inventory, user_management, medications, drug_interactions, prescriptions, dispensing, queue, bed, hospital, admission, daily_care, discharge, satusehat, lab_orders, radiology_orders, procedure_codes, training, appointments, billing, payments
+from app.api.v1.endpoints import health, auth, audit, monitoring, patients, encounters, bpjs, bpjs_verification, bpjs_aplicare, bpjs_claims, icd10, allergies, clinical_notes, consultation, sep, inventory, user_management, medications, drug_interactions, prescriptions, dispensing, queue, bed, hospital, admission, daily_care, discharge, satusehat, lab_orders, radiology_orders, procedure_codes, training, appointments, billing, payments
 
 api_router = APIRouter()
 
@@ -29,6 +29,9 @@ api_router.include_router(bpjs_verification.router, prefix="/bpjs-verification",
 
 # Include BPJS Aplicare endpoints
 api_router.include_router(bpjs_aplicare.router, prefix="/bpjs-aplicare", tags=["bpjs-aplicare"])
+
+# Include BPJS Claims endpoints
+api_router.include_router(bpjs_claims.router, prefix="/bpjs-claims", tags=["BPJS Claims"])
 
 # Include ICD-10 and Problem List endpoints
 api_router.include_router(icd10.router, tags=["icd10", "problems"])
