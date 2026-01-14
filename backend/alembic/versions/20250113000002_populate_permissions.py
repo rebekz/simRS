@@ -26,6 +26,10 @@ PREDEFINED_PERMISSIONS = [
     {"role": "admin", "resource": "user", "action": "delete", "granted": True},
     {"role": "admin", "resource": "config", "action": "update", "granted": True},
     {"role": "admin", "resource": "audit_log", "action": "read", "granted": True},
+    {"role": "admin", "resource": "patient", "action": "create", "granted": True},
+    {"role": "admin", "resource": "patient", "action": "read", "granted": True},
+    {"role": "admin", "resource": "patient", "action": "update", "granted": True},
+    {"role": "admin", "resource": "patient", "action": "delete", "granted": True},
 
     # Doctor permissions
     {"role": "doctor", "resource": "patient", "action": "read", "granted": True},
