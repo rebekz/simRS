@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import health, auth, audit, monitoring, patients, encounters, bpjs, bpjs_verification, icd10
+from app.api.v1.endpoints import health, auth, audit, monitoring, patients, encounters, bpjs, bpjs_verification, icd10, allergies
 
 api_router = APIRouter()
 
@@ -29,3 +29,6 @@ api_router.include_router(bpjs_verification.router, prefix="/bpjs-verification",
 
 # Include ICD-10 and Problem List endpoints
 api_router.include_router(icd10.router, tags=["icd10", "problems"])
+
+# Include Allergy Tracking endpoints
+api_router.include_router(allergies.router, tags=["allergies"])
