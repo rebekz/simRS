@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import health, auth, audit, monitoring, patients, encounters, bpjs, bpjs_verification, icd10, allergies, clinical_notes, consultation, sep, inventory, user_management, medications, drug_interactions, prescriptions, dispensing
+from app.api.v1.endpoints import health, auth, audit, monitoring, patients, encounters, bpjs, bpjs_verification, icd10, allergies, clinical_notes, consultation, sep, inventory, user_management, medications, drug_interactions, prescriptions, dispensing, queue
 
 api_router = APIRouter()
 
@@ -59,3 +59,6 @@ api_router.include_router(prescriptions.router, tags=["prescriptions"])
 
 # Include Prescription Dispensing endpoints
 api_router.include_router(dispensing.router, tags=["dispensing"])
+
+# Include Queue Management endpoints
+api_router.include_router(queue.router, tags=["queue"])
