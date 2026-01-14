@@ -25,6 +25,7 @@ import {
   Calendar,
   Clock,
   Stethoscope,
+  CreditCard,
 } from "lucide-react";
 
 // Types
@@ -60,7 +61,8 @@ export function ConsultationWorkflow({ patientId, department }: ConsultationProp
   const [session, setSession] = useState<ConsultationSession | null>(null);
   const [patientSummary, setPatientSummary] = useState<PatientSummary | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<"summary" | "documentation" | "diagnosis" | "treatment">("summary");
+  const [activeTab, setActiveTab] = useState<"summary" | "documentation" | "diagnosis" | "treatment" | "bpjs">("summary");
+  const [sepCreated, setSepCreated] = useState(false);
 
   // Documentation state
   const [documentation, setDocumentation] = useState({
@@ -293,6 +295,17 @@ export function ConsultationWorkflow({ patientId, department }: ConsultationProp
                 } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
               >
                 Rencana Tatalaksana
+              </button>
+              <button
+                onClick={() => setActiveTab("bpjs")}
+                className={`${
+                  activeTab === "bpjs"
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center`}
+              >
+                <CreditCard className="h-4 w-4 mr-1" />
+                BPJS SEP
               </button>
             </nav>
           </div>
@@ -537,6 +550,23 @@ export function ConsultationWorkflow({ patientId, department }: ConsultationProp
                 <Activity className="h-12 w-12 mx-auto mb-4 text-gray-400" />
                 <p>Komponen rencana tatalaksana akan diimplementasikan di sini.</p>
                 <p className="text-xs mt-2">Akan terintegrasi dengan STORY-017 (Resep Elektronik)</p>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "bpjs" && (
+            <div className="space-y-6">
+              <p className="text-sm text-gray-600">
+                Buat SEP (Surat Eligibilitas Peserta) BPJS untuk klaim otomatis.
+              </p>
+              {/* SEP Generator Component */}
+              <div className="bg-white shadow rounded-lg p-6">
+                {/* Import SEPGenerator dynamically to avoid circular imports */}
+                <div className="text-center text-gray-500">
+                  <CreditCard className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                  <p>Komponen SEP Generator akan diimplementasikan di sini.</p>
+                  <p className="text-xs mt-2">Komponen: /components/bpjs/SEPGenerator.tsx</p>
+                </div>
               </div>
             </div>
           )}

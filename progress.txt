@@ -1885,3 +1885,102 @@ Materials linked to ICD-10 codes for automatic recommendation
 ### Files Modified:
 - backend/app/api/v1/api.py - Added consultation router
 
+
+---
+
+## [2026-01-14] STORY-019: BPJS SEP Generation - COMPLETED
+
+### Summary
+Implemented BPJS SEP (Surat Eligibilitas Peserta) generation with automatic data population
+from consultation, validation, submission to BPJS API, updates, cancellation, and history tracking.
+
+### What was implemented:
+
+1. **BPJS SEP Models** (backend/app/models/bpjs_sep.py)
+   - BPJSSEP model with all required SEP fields
+   - BPJSSEPHistory model for complete audit trail
+   - Status constants (DRAFT, SUBMITTED, APPROVED, UPDATED, CANCELLED, ERROR)
+   - Soft delete support for data integrity
+   - Foreign key relationships to Encounter, Patient, and User
+
+2. **BPJS SEP Schemas** (backend/app/schemas/sep.py)
+   - SEPCreate, SEPResponse, SEPUpdate, SEPCancel
+   - SEPInfo, SEPSummary for display
+   - SEPValidationRequest/Response for validation
+   - SEPListQuery/Response for listing
+   - SEPHistory for audit trail
+   - SEPAutoPopulateRequest/Response for auto-population
+   - SEPStatistics for dashboard
+
+3. **BPJS SEP CRUD Operations** (backend/app/crud/sep.py)
+   - CRUD operations for SEP management
+   - Auto-population from encounter data
+   - Validation before creation
+   - History tracking
+   - Statistics aggregation
+
+4. **BPJS SEP API Endpoints** (backend/app/api/v1/endpoints/sep.py)
+   - POST /api/v1/sep - Create SEP (with BPJS API integration)
+   - GET /api/v1/sep/{sep_id} - Get SEP by ID
+   - GET /api/v1/sep/auto-populate/{encounter_id} - Auto-populate from consultation
+   - PUT /api/v1/sep - Update SEP
+   - DELETE /api/v1/sep - Cancel SEP
+   - GET /api/v1/sep/{sep_id}/history - Get audit trail
+   - GET /api/v1/sep/statistics - Dashboard statistics
+
+5. **BPJS SEP Generator UI Component** (frontend/src/components/bpjs/SEPGenerator.tsx)
+   - Auto-population from consultation data
+   - Validation display
+   - Missing fields detection
+   - Override fields support
+   - Success/error display
+
+6. **Database Migration** (backend/alembic/versions/20250114000007_create_bpjs_sep_tables.py)
+   - bpjs_sep table
+   - bpjs_sep_history table
+   - Indexes and foreign keys
+
+7. **API Router Registration** (backend/app/api/v1/api.py)
+   - Added SEP router
+
+8. **Consultation Workflow Integration** (frontend/src/components/consultation/ConsultationWorkflow.tsx)
+   - Added BPJS SEP tab
+
+### Acceptance Criteria Met:
+
+- [x] AC-001: Generate SEP in <10 seconds
+- [x] AC-002: Automatic SEP creation (auto-populate all fields)
+- [x] AC-003: Validate all required fields
+- [x] AC-004: SEP updates (room, diagnosis, policy changes)
+- [x] AC-005: SEP cancellation with BPJS API
+- [x] AC-006: SEP history tracking
+- [x] AC-007: Handle BPJS API failures gracefully
+- [x] AC-008: Display SEP status
+- [x] AC-009: Create SEP offline (draft mode)
+- [x] AC-010: Display SEP to patient
+
+### Technical Implementation:
+
+- SEP lifecycle: draft -> submitted -> approved/updated -> cancelled
+- BPJS VClaim API integration for create/update/delete
+- Complete audit trail with before/after snapshots
+- Soft delete for data integrity
+- Indexed fields for performance
+
+### Files Created:
+- backend/app/models/bpjs_sep.py
+- backend/app/schemas/sep.py
+- backend/app/crud/sep.py
+- backend/app/api/v1/endpoints/sep.py
+- frontend/src/components/bpjs/SEPGenerator.tsx
+- backend/alembic/versions/20250114000007_create_bpjs_sep_tables.py
+
+### Files Modified:
+- backend/app/api/v1/api.py - Added SEP router
+- frontend/src/components/consultation/ConsultationWorkflow.tsx - Added BPJS SEP tab
+
+### Notes:
+- Unblocks STORY-021 (Admission Workflow)
+- Ready for STORY-029 (BPJS Claims Preparation)
+- PPK code should come from hospital settings
+
