@@ -452,3 +452,80 @@
 1. Complete remaining EPIC-022 stories (02, 03, 04, 07, 08)
 2. Integrate preference checking into notification delivery pipeline
 3. Consider creating frontend UI for preference management
+
+- [x] STORY-022-02: Appointment Reminders and Confirmations (commit: TBD - already implemented)
+  - AppointmentReminderService with scheduling and management
+  - Send confirmation immediately after booking
+  - Schedule reminders (24 hours, 2 hours before)
+  - Send cancellation and reschedule notifications
+  - Process patient replies (YES, CANCEL, RESCHEDULE)
+  - Bulk reminder operations
+  - Reminder statistics and monitoring
+  - Template management
+  - API endpoints: /appointment-reminders/*
+  - Files: backend/app/services/appointment_reminder_service.py, backend/app/api/v1/endpoints/appointment_reminders.py
+
+**Epic Status:** IN PROGRESS (4+ stories completed, more to implement)
+
+---
+
+## CURRENT ITERATION (2026-01-16) - Update 2
+
+**Story Status Update:** STORY-022-02: Appointment Reminders
+- **Already Implemented:** Appointment reminder service and API endpoints already exist
+- **Files Found:** appointment_reminder_service.py (24KB), appointment_reminders.py endpoints (650 lines)
+- **Action:** Cleaned up duplicate files created during implementation attempt
+
+**EPIC-022 Completed Stories:**
+- ✓ STORY-022-01: Multi-Channel Notification Delivery
+- ✓ STORY-022-02: Appointment Reminders and Confirmations (already implemented)
+- ✓ STORY-022-05: Critical Value Alerts to Physicians
+- ✓ STORY-022-09: Notification Preference Management
+
+**Remaining Stories:**
+- STORY-022-03: Medication Reminders
+- STORY-022-04: Lab Result Notifications
+- STORY-022-06: System Alerts (partially done - has API endpoints)
+- STORY-022-07: Queue Status Notifications
+- STORY-022-08: Payment Due Reminders
+
+- [x] STORY-022-03: Medication Reminders (commit: TBD)
+  - MedicationReminderService with scheduling and adherence tracking
+  - Schedule reminders based on frequency (daily, bid, tid, qid, prn)
+  - Multiple daily reminder times (morning, afternoon, evening)
+  - Medication interaction warnings
+  - Allergy alerts for medications
+  - Adherence tracking with doctor alerts (80% threshold)
+  - Refill reminders when supply is low (3 days)
+  - Cancel reminders for discontinued prescriptions
+  - API endpoints: /medication-reminders/schedule-reminders, /medication-reminders/interaction-warning, /medication-reminders/allergy-alert, /medication-reminders/adherence-alert, /medication-reminders/cancel-reminders/{id}, /medication-reminders/prescription/{id}/reminders, /medication-reminders/patient/{id}/reminders
+  - Python 3.5 compatible service layer
+  - Files: backend/app/services/medication_reminders.py, backend/app/api/v1/endpoints/medication_reminders.py
+
+**Epic Status:** IN PROGRESS (5+ stories completed, more to implement)
+
+---
+
+## CURRENT ITERATION (2026-01-16) - Update 3
+
+**Working On:** STORY-022-03: Medication Reminders
+
+**Implementation Summary:**
+- Created MedicationReminderService with flexible scheduling
+- Supports multiple daily reminders based on medication frequency
+- Implemented interaction warnings for drug-drug interactions
+- Created critical allergy alerts (always sent, multi-channel)
+- Added adherence tracking with automatic doctor alerts below 80%
+- Refill reminders when medication supply is low
+- Comprehensive API endpoints for all medication reminder operations
+
+**Technical Notes:**
+- Service layer (medication_reminders.py): Python 3.5 compatible using .format()
+- Frequency-based reminder times: daily (8am), bid (8am, 8pm), tid (8am, 1pm, 8pm), qid (8am, 1pm, 8pm, 11:59pm)
+- Allergy alerts always sent via SMS + Push + In-App regardless of preferences
+- Doctor notified for low adherence and allergy alerts
+
+**Next Steps:**
+1. Complete remaining EPIC-022 stories (04, 06, 07, 08)
+2. Integrate with prescription workflow for automatic reminder scheduling
+3. Consider frontend components for medication reminder display and acknowledgment
