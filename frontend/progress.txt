@@ -258,27 +258,38 @@
   - Draft/Signed status tracking with visual badges
   - File: src/components/consultation/SOAPNotesEditor.tsx
 
-- [ ] WEB-S-4.3: e-Prescription Integration
-- [ ] WEB-S-4.4: Physical Examination Form
-- [ ] WEB-S-4.5: Medical Orders (Lab, Radiology)
-- [ ] WEB-S-4.6: Treatment Plan Builder
-- [ ] WEB-S-4.7: Discharge Summary
+- [x] WEB-S-4.3: ICD-10 Diagnosis Search (commit: TBD)
+  - Autocomplete search with <2 second response (debounced 300ms)
+  - Keyboard shortcut (Ctrl+K/Cmd+K) to focus search input
+  - Favorites/frequently used diagnoses (quick chips for selection)
+  - Recently used diagnoses (quick chips for selection)
+  - Selected diagnosis chips with remove button (X icon)
+  - Primary vs secondary diagnosis designation (radio button)
+  - Max selections limit (default 10) with visual indicator
+  - Fuzzy matching algorithm for search (code + description)
+  - Mock database with 70+ ICD-10 codes across categories
+  - File: src/components/consultation/DiagnosisSearch.tsx
 
-**Epic Status:** IN PROGRESS (2/7 stories complete - 29%)
+- [ ] WEB-S-4.4: Electronic Prescription Writer
+- [ ] WEB-S-4.5: Lab/Radiology Ordering
+- [ ] WEB-S-4.6: Patient History Timeline
+- [ ] WEB-S-4.7: Allergy & Medication Alerts
+
+**Epic Status:** IN PROGRESS (3/7 stories complete - 43%)
 
 ---
 
 ## BLOCKERS / NOTES
 
 ### Current Iteration (2026-01-16)
-- **Completed:** WEB-S-4.2: SOAP Notes Editor
+- **Completed:** WEB-S-4.3: ICD-10 Diagnosis Search
 - **Blockers:** None
-- **Notes:** Comprehensive SOAP notes editor with 4 sections (Subjective, Objective, Assessment, Plan). Auto-save every 30s with visual status. 3 templates for common cases (UMUM, DEMAM, BATUK). Rich text formatting (bold, italic, lists). Character counters with color indicators. Digital signature with confirmation modal. Version control display. ICD-10 code management in Assessment section.
+- **Notes:** Comprehensive ICD-10 diagnosis search component for consultation workspace. Autocomplete search with 300ms debounce (<2s target). Keyboard shortcut Ctrl+K/Cmd+K to focus. 10 favorite diagnoses as quick chips (starred). 3 recent diagnoses as quick chips. Selected diagnoses shown as chips with remove button. Primary/secondary designation via radio button. Max 10 selections. Fuzzy matching on code and description. 70+ mock ICD-10 codes.
 
 ### Next Steps
-1. Continue WEB-EPIC-4: WEB-S-4.3 e-Prescription Integration (HIGH priority)
-2. Then WEB-S-4.4: Physical Examination Form (MEDIUM priority)
-3. Then WEB-S-4.5: Medical Orders (Lab, Radiology) (MEDIUM priority)
+1. Continue WEB-EPIC-4: WEB-S-4.4 Electronic Prescription Writer (HIGH priority)
+2. Then WEB-S-4.5: Lab/Radiology Ordering (MEDIUM priority)
+3. Then WEB-S-4.6: Patient History Timeline (MEDIUM priority)
 
 ---
 
@@ -290,8 +301,8 @@
 **Blocked:** 0
 
 **Total Stories:** 34
-**Completed:** 28
+**Completed:** 29
 **In Progress:** 0
-**Remaining:** 6
+**Remaining:** 5
 
-**Overall Progress:** ~82% complete (28/34 stories)
+**Overall Progress:** ~85% complete (29/34 stories)
