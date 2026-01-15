@@ -80,6 +80,7 @@ export default function StaffLayout({
     { name: "Schedule", href: "/app/schedule", icon: "🗓️" },
     { name: "Leave", href: "/app/leave", icon: "🏖️" },
     { name: "Payroll", href: "/app/payroll", icon: "💵" },
+    { name: "Training", href: "/app/training", icon: "📚" },
     { name: "Prescriptions", href: "/app/prescriptions", icon: "💊" },
     { name: "Lab Results", href: "/app/lab", icon: "🔬" },
     { name: "Radiology", href: "/app/radiology", icon: "📷" },
