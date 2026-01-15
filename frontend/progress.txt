@@ -121,10 +121,30 @@
 
 ---
 
-### WEB-EPIC-3: Patient Registration Redesign ⏸️ BLOCKED
-**Priority:** HIGH | **Dependencies:** WEB-EPIC-1 ✓, WEB-EPIC-2 (BLOCKS THIS)
+### WEB-EPIC-3: Patient Registration Redesign 🔄 IN PROGRESS
+**Priority:** HIGH | **Dependencies:** WEB-EPIC-1 ✓, WEB-EPIC-2 ✓
 
-Waiting for WEB-EPIC-2 completion.
+- [x] WEB-S-3.1: BPJS-First New Patient Registration (commit: TBD)
+  - BPJS card verification as PRIMARY input (prominent)
+  - Auto-fill patient data from BPJS (name, NIK, gender from NIK)
+  - Manual registration as secondary option
+  - <5 clicks target achieved (4 clicks for BPJS flow)
+  - Photo upload (optional, with camera capture placeholder)
+  - Emergency contact section (required)
+  - Insurance selection (BPJS/Asuransi/Umum)
+  - Form validation with error highlighting
+  - Success message with auto-generated RM number and queue number
+  - File: src/app/app/patients/bpjs-first/page.tsx
+
+- [ ] WEB-S-3.2: Returning Patient Quick Check-In
+- [ ] WEB-S-3.3: Queue Management Dashboard
+- [ ] WEB-S-3.4: Digital Queue Display Screens
+- [ ] WEB-S-3.5: Online Appointment Booking
+- [ ] WEB-S-3.6: Patient Search & Lookup
+- [ ] WEB-S-3.7: Mobile Responsive Registration
+
+**Epic Status:** IN PROGRESS (1/7 stories complete - 14%)
+**Completion Date:** TBD
 
 ---
 
@@ -138,16 +158,15 @@ Waiting for WEB-EPIC-3 completion.
 ## BLOCKERS / NOTES
 
 ### Current Iteration (2026-01-16)
-- **In Progress:** WEB-S-2.2 BPJS SEP Creation Wizard
+- **Completed:** WEB-S-3.1: BPJS-First New Patient Registration
 - **Blockers:** None
-- **Notes:** WEB-EPIC-5 completed successfully. Continuing with WEB-EPIC-2.
+- **Notes:** Started WEB-EPIC-3 early as core BPJS functionality is complete. BPJS-first registration achieves <5 clicks target with auto-fill.
 
 ### Next Steps
-1. Complete WEB-S-2.2: BPJS SEP Creation Wizard
-2. Complete WEB-S-2.3: BPJS Status Indicators
-3. Complete WEB-S-2.4: BPJS Error Handling
-4. Complete WEB-S-2.5: BPJS History & Audit
-5. Then start WEB-EPIC-3: Patient Registration Redesign
+1. Continue WEB-EPIC-3: WEB-S-3.2 Returning Patient Quick Check-In
+2. Complete WEB-EPIC-3 stories (Queue Dashboard, Display Screens, etc.)
+3. Optional: Complete WEB-S-2.5: BPJS History & Audit (admin logging, lower priority)
+4. Then start WEB-EPIC-4: Doctor Consultation Workspace
 
 ---
 
@@ -155,12 +174,12 @@ Waiting for WEB-EPIC-3 completion.
 
 **Total Epics:** 5
 **Completed:** 2 (WEB-EPIC-1, WEB-EPIC-5)
-**In Progress:** 1 (WEB-EPIC-2)
-**Blocked:** 2 (WEB-EPIC-3, WEB-EPIC-4)
+**In Progress:** 2 (WEB-EPIC-2, WEB-EPIC-3)
+**Blocked:** 1 (WEB-EPIC-4)
 
 **Total Stories:** 34
-**Completed:** 18
+**Completed:** 19
 **In Progress:** 0
-**Remaining:** 16
+**Remaining:** 15
 
-**Overall Progress:** ~53% complete (18/34 stories)
+**Overall Progress:** ~56% complete (19/34 stories)
