@@ -77,6 +77,7 @@ export default function StaffLayout({
     { name: "Patients", href: "/app/patients", icon: "👥" },
     { name: "Appointments", href: "/app/appointments", icon: "📅" },
     { name: "Queue", href: "/app/queue", icon: "🔢" },
+    { name: "Schedule", href: "/app/schedule", icon: "🗓️" },
     { name: "Prescriptions", href: "/app/prescriptions", icon: "💊" },
     { name: "Lab Results", href: "/app/lab", icon: "🔬" },
     { name: "Radiology", href: "/app/radiology", icon: "📷" },
