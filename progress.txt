@@ -5195,3 +5195,130 @@ Implemented comprehensive BPJS claims preparation system with e-Claim generation
 - Implement claim status polling
 - Add claim approval workflow
 - Implement automatic document generation
+
+
+---
+
+## [2026-01-15] STORY-031: BPJS Antrean API Integration - COMPLETED
+
+### Summary
+Implemented BPJS Antrean (Queue) API integration with Mobile JKN support.
+Provides queue booking, status updates, check-in, task management, and real-time sync.
+
+### What was implemented:
+
+1. **Database Models** (backend/app/models/bpjs_antrean.py)
+   - BPJSAntreanSyncLog: API call audit with request/response tracking, retry count
+   - BPJSAntreanBooking: Booking with BPJS task ID, referral/SEP numbers, sync tracking
+   - BPJSAntreanTask: Task management with status, queue numbers, time tracking
+   - BPJSAntreanStatusUpdate: Status change history with BPJS sync
+   - Enums: BPJSSyncStatus, BPJSBookingStatus, BPJSTaskType, BPJSTaskStatus
+
+2. **Pydantic Schemas** (backend/app/schemas/bpjs_antrean.py)
+   - Antrean API schemas: UpdateRequest, SisaRequest, BatalRequest, CheckinRequest, KesimpulanRequest
+   - Booking schemas: BookingCreate, BookingResponse, BookingUpdate
+   - Task schemas: TaskCreate, TaskResponse
+   - Statistics schemas: BookingStatistics, QueueStatistics, DashboardSummary
+   - Sync schemas: SyncLogCreate, SyncLogResponse, StatusUpdateResponse
+
+3. **CRUD Operations** (backend/app/crud/bpjs_antrean.py)
+   - Booking CRUD: create, get (by ID, code, patient, date range), update status, cancel
+   - Task CRUD: create, get (by ID, booking), update status, get active tasks
+   - Status tracking: create updates, get latest, get by booking
+   - Sync logging: create logs with execution time tracking
+   - Statistics: booking counts, statistics, active counts
+   - Booking code generation: BPJS-YYYYMMDD-XXXXX format
+
+4. **BPJS API Client Service** (backend/app/services/bpjs_antrean.py)
+   - BPJSAntreanClient: HTTP client with HMAC-SHA256 authentication
+   - Timestamp and signature generation for BPJS API
+   - API methods: update queue, check-in patient, get remaining, get list
+   - Error handling with BPJSAntreanError
+   - BPJSAntreanClientWithRetry: Automatic retry with exponential backoff
+   - Retry on: TimeoutException, RequestError, 5xx errors
+   - Backoff delays: 1s, 2s, 4s, max 10s
+
+5. **API Endpoints** (backend/app/api/v1/endpoints/bpjs_antrean.py)
+   - POST /bpjs-antrean/bookings - Create booking
+   - GET /bpjs-antrean/bookings/{id} - Get booking by ID
+   - GET /bpjs-antrean/bookings/patient/{patient_id} - List patient bookings
+   - PATCH /bpjs-antrean/bookings/{id}/status - Update booking status
+   - POST /bpjs-antrean/bookings/{id}/cancel - Cancel booking
+   - GET /bpjs-antrean/bookings/date/{date} - Get bookings by date
+   - GET /bpjs-antrean/tasks/booking/{booking_id} - Get booking tasks
+   - GET /bpjs-antrean/statistics - Get booking statistics
+   - GET /bpjs-antrean/dashboard - Dashboard summary
+   - Total: 9 REST API endpoints
+
+6. **Database Migration** (backend/alembic/versions/20250115000019_create_bpjs_antrean_tables.py)
+   - bpjs_antrean_sync_logs table with API call tracking
+   - bpjs_antrean_bookings table with BPJS integration
+   - bpjs_antrean_tasks table with task management
+   - bpjs_antrean_status_updates table with status history
+   - Proper indexes for performance
+
+### Acceptance Criteria Met:
+- [x] AC-001: Online booking via Mobile JKN ✅ (booking creation endpoint)
+- [x] AC-002: Queue status updates ✅ (status update endpoint with BPJS sync)
+- [x] AC-003: Queue list publication ✅ (date-based booking query)
+- [x] AC-004: Real-time queue sync ✅ (sync status tracking, retry logic)
+- [x] AC-005: Handle API failures gracefully ✅ (error logging, sync_error_message)
+- [x] AC-006: Retry failed requests ✅ (BPJSAntreanClientWithRetry with exponential backoff)
+- [x] AC-007: Log all API calls ✅ (BPJSAntreanSyncLog with full audit trail)
+
+### Technical Implementation:
+- BPJS Antrean API: https://apijkn.bpjs-kesehatan.go.id/aplicarews
+- Authentication: HMAC-SHA256 with cons_id + timestamp
+- Booking code format: BPJS-YYYYMMDD-XXXXX
+- Booking status: booked, checked-in, serving, completed, cancelled
+- Task types: registration, consultation, pharmacy, lab
+- Task status: waiting, active, completed
+- Sync status: success, failed, pending
+- Retry logic: 1s → 2s → 4s → 8s, max 10s
+- Max retries: 3 (configurable)
+- Auto-sync on status changes (background tasks)
+
+### API Endpoints Created:
+- POST /bpjs-antrean/bookings - Create BPJS booking
+- GET /bpjs-antrean/bookings/{id} - Get booking by ID
+- GET /bpjs-antrean/bookings/patient/{patient_id} - List patient bookings
+- PATCH /bpjs-antrean/bookings/{id}/status - Update booking status
+- POST /bpjs-antrean/bookings/{id}/cancel - Cancel booking
+- GET /bpjs-antrean/bookings/date/{date} - Get bookings by date
+- GET /bpjs-antrean/tasks/booking/{booking_id} - Get booking tasks
+- GET /bpjs-antrean/statistics - Get booking statistics
+- GET /bpjs-antrean/dashboard - Get dashboard summary
+
+### Files Created:
+- backend/app/models/bpjs_antrean.py (existing, completed)
+- backend/app/schemas/bpjs_antrean.py (existing, completed)
+- backend/app/services/bpjs_antrean.py (existing, completed)
+- backend/app/crud/bpjs_antrean.py (existing, completed with actual implementations)
+- backend/app/api/v1/endpoints/bpjs_antrean.py (existing, completed with actual endpoints)
+- backend/alembic/versions/20250115000019_create_bpjs_antrean_tables.py (new)
+
+### Files Modified:
+- backend/app/api/v1/api.py - Added bpjs_antrean router
+
+### Dependencies:
+- Requires STORY-002 (User Authentication) ✅ completed
+- Requires STORY-009 (Online Appointment Booking) ✅ completed
+- Requires STORY-010 (Queue Management) ✅ completed
+
+### Notes:
+- Implementation completed CRUD operations and API endpoints that were previously placeholders
+- Fixed Python 3.5 compatibility by replacing f-strings with .format()
+- All files pass syntax validation
+- BPJS API credentials required (BPJS_CONSUMER_ID, BPJS_CONSUMER_SECRET)
+- HMAC-SHA256 signature: hash(cons_id + timestamp, secret_key)
+- Mobile JKN integration ready (booking_code, BPJS task IDs)
+- Retry logic reduces transient API failures
+- Sync status tracking for all bookings and tasks
+- Comprehensive audit logging for compliance
+
+### Next Steps:
+- Integrate with appointment booking workflow
+- Add real-time queue display integration
+- Implement SMS notifications for queue updates
+- Add BPJS Antrean monitoring dashboard
+- Consider webhook integration for Mobile JKN callbacks
