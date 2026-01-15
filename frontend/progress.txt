@@ -162,12 +162,27 @@
   - Mock queue data: 12 patients across 3 departments (IGD, Anak, Penyakit Dalam)
   - File: src/app/app/admin/queue/page.tsx
 
-- [ ] WEB-S-3.4: Digital Queue Display Screens
+- [x] WEB-S-3.4: Digital Queue Display Screens (commit: TBD)
+  - Full-screen TV-optimized layout (16:9 aspect ratio support)
+  - Department tabs with auto-rotate every 30 seconds
+  - Current queue number display (LARGE, prominent - 9xl font size)
+  - Next 5 patients in queue list
+  - Estimated wait time display
+  - Hospital branding with SIMRS colors (gradient blue theme)
+  - Auto-refresh every 10 seconds
+  - Marquee for announcements (rotates every 15 seconds)
+  - Audio alert when queue number changes (Web Audio API + Speech Synthesis)
+  - Sound toggle button for enabling/disabling audio
+  - Progress bar showing auto-rotate countdown
+  - Mock queue data: 6 departments with 5 upcoming patients each
+  - File: src/app/app/display/queue/page.tsx
+
+- [ ] WEB-S-3.5: Online Appointment Booking
 - [ ] WEB-S-3.5: Online Appointment Booking
 - [ ] WEB-S-3.6: Patient Search & Lookup
 - [ ] WEB-S-3.7: Mobile Responsive Registration
 
-**Epic Status:** IN PROGRESS (3/7 stories complete - 43%)
+**Epic Status:** IN PROGRESS (4/7 stories complete - 57%)
 **Completion Date:** TBD
 
 ---
@@ -182,14 +197,14 @@ Waiting for WEB-EPIC-3 completion.
 ## BLOCKERS / NOTES
 
 ### Current Iteration (2026-01-16)
-- **Completed:** WEB-S-3.3: Queue Management Dashboard
+- **Completed:** WEB-S-3.4: Digital Queue Display Screens
 - **Blockers:** None
-- **Notes:** Queue dashboard provides real-time visibility into patient flow across all departments. Includes priority indicators for elderly, pregnant, and disabled patients. Emergency queue (IGD) always shows at top with triage levels. Mock data includes 12 patients across IGD, Poli Anak, and Penyakit Dalam.
+- **Notes:** TV-optimized queue display with auto-rotate between departments every 30 seconds. Features large current queue display, upcoming 5 patients, audio alerts with text-to-speech (Indonesian), and auto-refresh every 10 seconds. Completes the queue management workflow (check-in → dashboard → display screens).
 
 ### Next Steps
-1. Continue WEB-EPIC-3: WEB-S-3.4 Digital Queue Display Screens (recommending next - complements dashboard)
-2. Complete WEB-EPIC-3 stories (Appointment Booking, Patient Search, Mobile Responsive)
-3. Optional: Complete WEB-S-2.5: BPJS History & Audit (admin logging, lower priority)
+1. Continue WEB-EPIC-3: WEB-S-3.6 Patient Search & Lookup (HIGH priority - recommends next)
+2. Complete WEB-EPIC-3 stories (Appointment Booking, Mobile Responsive)
+3. Optional: Complete WEB-S-2.5: BPJS History & Audit (admin logging, lower priority - completes WEB-EPIC-2)
 4. Then start WEB-EPIC-4: Doctor Consultation Workspace
 
 ---
@@ -206,4 +221,4 @@ Waiting for WEB-EPIC-3 completion.
 **In Progress:** 0
 **Remaining:** 15
 
-**Overall Progress:** ~62% complete (21/34 stories)
+**Overall Progress:** ~65% complete (22/34 stories)
