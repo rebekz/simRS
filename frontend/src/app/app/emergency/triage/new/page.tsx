@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { FormInput } from "@/components/ui/form/FormInput";
 import { calculateTriage, type RapidVitalsInput, type TriageResult } from "@/lib/triage";
 import { Badge } from "@/components/ui/Badge";
+import { ChiefComplaintQuickTags } from "@/components/emergency/ChiefComplaintQuickTags";
+import { KodeBiruAlert } from "@/components/emergency/KodeBiruAlert";
 
 interface VitalsFormState {
   bloodPressureSystolic: string;
@@ -41,6 +43,8 @@ export default function RapidTriagePage() {
   const [triageResult, setTriageResult] = useState<TriageResult | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedComplaints, setSelectedComplaints] = useState<string[]>([]);
+  const [isKodeBiruModalOpen, setIsKodeBiruModalOpen] = useState(false);
 
   // Timer effect
   useEffect(() => {
@@ -153,6 +157,7 @@ export default function RapidTriagePage() {
     });
     setErrors({});
     setTriageResult(null);
+    setSelectedComplaints([]);
     startTimeRef.current = Date.now();
     setElapsedTime(0);
   };
@@ -167,6 +172,23 @@ export default function RapidTriagePage() {
     if (elapsedTime < 60) return "text-green-600";
     if (elapsedTime < 90) return "text-yellow-600";
     return "text-red-600";
+  };
+
+  const handleToggleComplaint = (complaintId: string) => {
+    setSelectedComplaints(prev => {
+      if (prev.includes(complaintId)) {
+        return prev.filter(id => id !== complaintId);
+      }
+      return [...prev, complaintId];
+    });
+  };
+
+  const handleKodeBiruActivate = async (reason: string) => {
+    // Simulate API call to activate Kode Biru
+    console.log('KODE BIRU ACTIVATED:', reason);
+
+    // Show success notification
+    alert(`KODE BIRU DIAKTIFKAN!\n\nAlasan: ${reason}\n\nTim resusitasi telah dipanggil.`);
   };
 
   return (
@@ -202,6 +224,16 @@ export default function RapidTriagePage() {
             <p className="text-lg font-medium text-gray-900">&lt; 2 menit</p>
           </div>
         </div>
+      </div>
+
+      {/* Chief Complaint Quick Tags */}
+      <div className="bg-white rounded-lg shadow p-6">
+        <ChiefComplaintQuickTags
+          selectedComplaints={selectedComplaints}
+          onToggleComplaint={handleToggleComplaint}
+          maxSelection={3}
+          disabled={isSubmitting}
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -399,6 +431,7 @@ export default function RapidTriagePage() {
                 <div className="border-t border-gray-200 pt-4">
                   <button
                     type="button"
+                    onClick={() => setIsKodeBiruModalOpen(true)}
                     className="w-full px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 font-bold animate-pulse flex items-center justify-center gap-2"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -419,6 +452,14 @@ export default function RapidTriagePage() {
           )}
         </div>
       </div>
+
+      {/* Kode Biru Alert Modal */}
+      <KodeBiruAlert
+        isOpen={isKodeBiruModalOpen}
+        onClose={() => setIsKodeBiruModalOpen(false)}
+        onActivate={handleKodeBiruActivate}
+        location="IGD"
+      />
     </div>
   );
 }

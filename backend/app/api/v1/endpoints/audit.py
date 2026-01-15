@@ -1,9 +1,22 @@
-"""Audit log API endpoints - admin only access."""
-from fastapi import APIRouter, Depends, HTTPException, status, Query, Request
+"""Audit log API endpoints - admin only access.
+
+STORY-003: Audit Logging System
+
+Provides endpoints for:
+- Querying and filtering audit logs
+- Exporting audit logs to CSV
+- Audit log statistics
+- Sensitive operation alerting
+- Retention policy management
+
+Python 3.5+ compatible
+"""
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Request, Body
 from fastapi.responses import StreamingResponse
+from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, and_
-from typing import Optional
+from typing import Optional, Dict, Any
 from datetime import datetime
 import csv
 import io
@@ -17,9 +30,39 @@ from app.schemas.audit import (
     AuditLogQueryParams,
     AuditLogStatsResponse,
 )
-from app.core.deps import get_current_user
+from app.core.deps import get_current_user, get_current_admin_user
+from app.services.audit import (
+    get_query_service,
+    get_stats_service,
+    get_export_service,
+    get_alert_service,
+    get_retention_service,
+)
 
 router = APIRouter()
+
+
+# =============================================================================
+# Pydantic Models
+# =============================================================================
+
+class ManualAuditLogRequest(BaseModel):
+    """Request model for manual audit log creation"""
+    action: str = Field(..., description="Action performed (CREATE, READ, UPDATE, DELETE)")
+    resource_type: str = Field(..., description="Type of resource affected")
+    resource_id: Optional[str] = Field(None, description="ID of specific resource")
+    details: Optional[Dict[str, Any]] = Field(None, description="Additional details")
+    success: bool = Field(True, description="Whether operation succeeded")
+    failure_reason: Optional[str] = Field(None, description="Reason for failure")
+
+
+class RetentionCleanupResponse(BaseModel):
+    """Response model for retention cleanup operation"""
+    cutoff_date: str
+    retention_years: int
+    logs_to_delete: int
+    logs_deleted: int
+    dry_run: bool
 
 
 @router.get("/logs", response_model=AuditLogListResponse, status_code=status.HTTP_200_OK)
@@ -272,6 +315,124 @@ async def export_audit_logs(
             "Content-Disposition": f"attachment; filename={filename}",
         },
     )
+
+
+@router.post("/logs/manual", status_code=status.HTTP_201_CREATED)
+async def create_manual_audit_log(
+    request: ManualAuditLogRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Create a manual audit log entry (admin only).
+
+    Use this for operations that aren't automatically logged by the middleware.
+    Requires audit:write permission.
+    """
+    from app.core.deps import require_permission
+    from app.core.audit_middleware import get_audit_logger
+
+    await require_permission(db, current_user, "audit:write")
+
+    try:
+        audit_logger = get_audit_logger(db)
+
+        audit_log = await audit_logger.create_audit_log(
+            user_id=current_user.id,
+            username=current_user.username,
+            action=request.action,
+            resource_type=request.resource_type,
+            resource_id=request.resource_id,
+            ip_address=None,  # Manual logs don't have request context
+            user_agent="Manual Entry",
+            request_path=None,
+            request_method=None,
+            request_body=str(request.details) if request.details else None,
+            response_status=200 if request.success else 400,
+            success=request.success,
+            failure_reason=request.failure_reason,
+            additional_data=request.details,
+        )
+
+        if not audit_log:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to create audit log"
+            )
+
+        # Commit the transaction
+        await db.commit()
+
+        # Check for sensitive operation alerting
+        alert_service = get_alert_service(db)
+        await alert_service.check_and_alert_sensitive_operation(audit_log)
+        await db.commit()
+
+        return {
+            "id": audit_log.id,
+            "message": "Audit log created successfully",
+            "timestamp": audit_log.timestamp.isoformat() if audit_log.timestamp else None,
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to create audit log: {}".format(str(e))
+        )
+
+
+@router.post("/logs/cleanup", response_model=RetentionCleanupResponse)
+async def cleanup_old_audit_logs(
+    dry_run: bool = Query(True, description="If true, only report what would be deleted"),
+    current_user: User = Depends(get_current_admin_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Clean up audit logs older than retention period (admin only).
+
+    Default retention is 6 years per UU 27/2022 requirements.
+    Requires admin privileges.
+    """
+    try:
+        retention_service = get_retention_service(db)
+        result = await retention_service.cleanup_old_logs(dry_run=dry_run)
+
+        # Commit if not dry run
+        if not dry_run:
+            await db.commit()
+
+        return RetentionCleanupResponse(**result)
+
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to cleanup audit logs: {}".format(str(e))
+        )
+
+
+@router.get("/logs/retention-info")
+async def get_retention_info(
+    current_user: User = Depends(get_current_admin_user),
+):
+    """
+    Get audit log retention policy information (admin only).
+
+    Returns retention periods for different types of audit logs.
+    """
+    from app.services.audit import AuditRetentionService
+
+    return {
+        "retention_policies": AuditRetentionService.RETENTION_POLICIES,
+        "description": "Audit log retention periods in years per UU 27/2022 compliance",
+        "default_retention_years": AuditRetentionService.RETENTION_POLICIES["default"],
+        "patient_data_retention_years": AuditRetentionService.RETENTION_POLICIES["patient_data"],
+        "financial_retention_years": AuditRetentionService.RETENTION_POLICIES["financial"],
+        "system_retention_years": AuditRetentionService.RETENTION_POLICIES["system"],
+    }
 
 
 from fastapi import Request  # Add at top of file if not already imported
