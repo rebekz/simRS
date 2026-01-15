@@ -233,35 +233,53 @@
 
 ---
 
-### WEB-EPIC-4: Doctor Consultation Workspace ⏸️ BLOCKED
-**Priority:** MEDIUM | **Dependencies:** WEB-EPIC-1 ✓, WEB-EPIC-3 (BLOCKS THIS)
+### WEB-EPIC-4: Doctor Consultation Workspace 🔄 IN PROGRESS
+**Priority:** MEDIUM | **Dependencies:** WEB-EPIC-1 ✓, WEB-EPIC-3 ✓
 
-Waiting for WEB-EPIC-3 completion.
+- [x] WEB-S-4.1: Split-View Patient Context (commit: TBD)
+  - Split-view layout with persistent patient context (left panel)
+  - Patient header with photo, name, identifiers (RM, BPJS, age, gender)
+  - Critical alerts section (allergies with severity, comorbidities)
+  - Latest vitals card with color-coded status (normal/warning/critical)
+  - Quick actions navigation (history, medications, labs, radiology)
+  - Responsive design (collapses to single column on mobile)
+  - Demo page with mock patient data
+  - File: src/app/app/doctor/consultation/demo/page.tsx
+
+- [ ] WEB-S-4.2: SOAP Notes Editor
+- [ ] WEB-S-4.3: e-Prescription Integration
+- [ ] WEB-S-4.4: Physical Examination Form
+- [ ] WEB-S-4.5: Medical Orders (Lab, Radiology)
+- [ ] WEB-S-4.6: Treatment Plan Builder
+- [ ] WEB-S-4.7: Discharge Summary
+
+**Epic Status:** IN PROGRESS (1/7 stories complete - 14%)
 
 ---
 
 ## BLOCKERS / NOTES
 
 ### Current Iteration (2026-01-16)
-- **Completed:** WEB-S-3.7: Mobile Responsive Registration
+- **Completed:** WEB-S-4.1: Split-View Patient Context
 - **Blockers:** None
-- **Notes:** Mobile responsive registration with camera capture, swipe gestures, and offline support. Created CameraCapture component with front/back camera support, useSwipeable hook for 4-directional gestures, and useOfflineStorage hook with localStorage persistence and auto-sync. Updated BPJS-first registration with multi-step form navigation and touch-friendly buttons. Updated quick check-in page with mobile-optimized layout and offline queue support.
+- **Notes:** Split-view consultation workspace with persistent patient context. Left panel (320px) shows patient header with photo/identifiers, critical alerts (allergies/comorbidities with severity), vitals card with color-coded status, and quick actions navigation. Right panel provides consultation working area. Responsive design collapses to single column on mobile.
 
 ### Next Steps
-1. Start WEB-EPIC-4: Doctor Consultation Workspace (now unblocked - WEB-EPIC-3 complete)
+1. Continue WEB-EPIC-4: WEB-S-4.2 SOAP Notes Editor (HIGH priority - 4 days)
+2. Then WEB-S-4.3: e-Prescription Integration (HIGH priority - 3 days)
 
 ---
 
 ## SUMMARY
 
 **Total Epics:** 5
-**Completed:** 4 (WEB-EPIC-1, WEB-EPIC-2, WEB-EPIC-3, WEB-EPIC-5)
-**In Progress:** 0
-**Blocked:** 1 (WEB-EPIC-4 - now unblocked)
+**Completed:** 3 (WEB-EPIC-1, WEB-EPIC-2, WEB-EPIC-3)
+**In Progress:** 2 (WEB-EPIC-4, WEB-EPIC-5)
+**Blocked:** 0
 
 **Total Stories:** 34
-**Completed:** 26
+**Completed:** 27
 **In Progress:** 0
-**Remaining:** 8
+**Remaining:** 7
 
-**Overall Progress:** ~76% complete (26/34 stories)
+**Overall Progress:** ~79% complete (27/34 stories)
