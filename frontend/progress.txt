@@ -112,11 +112,21 @@
   - Retry attempt tracking
   - File: src/lib/bpjs-errors.ts, src/components/bpjs/BPJSErrorDisplay.tsx
 
-- [ ] WEB-S-2.5: BPJS History & Audit
-  - Admin logs
-  - Success rate tracking
+- [x] WEB-S-2.5: BPJS History & Audit (commit: TBD)
+  - BPJS eligibility check log with timestamp, action, status
+  - SEP creation history by patient
+  - API call success/failure statistics (success rate, total calls, failed calls, avg response time)
+  - Daily statistics breakdown
+  - Export to CSV (admin only)
+  - Date range filtering (by action, status)
+  - Sortable columns (timestamp, response time)
+  - Detailed error messages for failed calls
+  - Color-coded response time indicators (green <500ms, yellow <1000ms, red ≥1000ms)
+  - Mock data: 20 log entries across 2 days
+  - File: src/app/app/admin/bpjs-history/page.tsx
 
-**Epic Status:** IN PROGRESS (4/5 stories complete - 80%)
+**Epic Status:** ✓ COMPLETE
+**Completion Date:** 2026-01-16
 **Completion Date:** TBD
 
 ---
@@ -197,28 +207,27 @@ Waiting for WEB-EPIC-3 completion.
 ## BLOCKERS / NOTES
 
 ### Current Iteration (2026-01-16)
-- **Completed:** WEB-S-3.4: Digital Queue Display Screens
+- **Completed:** WEB-S-2.5: BPJS History & Audit (WEB-EPIC-2 now COMPLETE ✓)
 - **Blockers:** None
-- **Notes:** TV-optimized queue display with auto-rotate between departments every 30 seconds. Features large current queue display, upcoming 5 patients, audio alerts with text-to-speech (Indonesian), and auto-refresh every 10 seconds. Completes the queue management workflow (check-in → dashboard → display screens).
+- **Notes:** Admin-only BPJS audit log with 20 mock entries across 2 days. Features include eligibility/SEP logs, success rate tracking (98.5%), response time monitoring, and CSV export. Completes the BPJS Integration Suite epic (5/5 stories - 100%).
 
 ### Next Steps
 1. Continue WEB-EPIC-3: WEB-S-3.6 Patient Search & Lookup (HIGH priority - recommends next)
 2. Complete WEB-EPIC-3 stories (Appointment Booking, Mobile Responsive)
-3. Optional: Complete WEB-S-2.5: BPJS History & Audit (admin logging, lower priority - completes WEB-EPIC-2)
-4. Then start WEB-EPIC-4: Doctor Consultation Workspace
+3. Then start WEB-EPIC-4: Doctor Consultation Workspace (now unblocked after WEB-EPIC-3 completes)
 
 ---
 
 ## SUMMARY
 
 **Total Epics:** 5
-**Completed:** 2 (WEB-EPIC-1, WEB-EPIC-5)
-**In Progress:** 2 (WEB-EPIC-2, WEB-EPIC-3)
+**Completed:** 3 (WEB-EPIC-1, WEB-EPIC-2, WEB-EPIC-5)
+**In Progress:** 1 (WEB-EPIC-3)
 **Blocked:** 1 (WEB-EPIC-4)
 
 **Total Stories:** 34
-**Completed:** 19
+**Completed:** 23
 **In Progress:** 0
-**Remaining:** 15
+**Remaining:** 11
 
-**Overall Progress:** ~65% complete (22/34 stories)
+**Overall Progress:** ~68% complete (23/34 stories)
