@@ -8,10 +8,9 @@ from sqlalchemy import select, and_, or_, func
 from datetime import datetime, time
 from typing import Optional, List, Dict, Any
 
-from app.models.notification import (
+from app.models.notifications import (
     Notification,
     NotificationTemplate,
-    NotificationTemplateVersion,
     NotificationLog,
     NotificationPreference,
 )

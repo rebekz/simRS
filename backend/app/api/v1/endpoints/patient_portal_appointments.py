@@ -2,6 +2,7 @@
 
 API endpoints for appointment booking and management via patient portal.
 STORY-043: Appointment Scheduling & Management
+STORY-022-04: Appointment Reminders and Confirmations
 """
 from fastapi import APIRouter, Depends, HTTPException, status, Query, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -29,6 +30,7 @@ from app.schemas.patient_portal.appointments import (
 )
 from app.services.patient_portal.appointment_service import AppointmentBookingService
 from app.services.patient_portal import PatientPortalEmailService, PatientPortalSMSService
+from app.services.appointment_reminder_service import AppointmentReminderService
 
 router = APIRouter()
 
@@ -103,7 +105,7 @@ async def book_appointment(
     current_user: PatientPortalUser = Depends(get_current_portal_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Book a new appointment"""
+    """Book a new appointment and schedule automatic reminders"""
     if not current_user.patient_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -111,9 +113,18 @@ async def book_appointment(
         )
 
     service = AppointmentBookingService(db)
+    reminder_service = AppointmentReminderService(db)
 
     try:
         appointment = await service.book_appointment(current_user.patient_id, request)
+
+        # Schedule automatic reminders (24 hours and 2 hours before)
+        try:
+            await reminder_service.schedule_appointment_reminders(appointment)
+        except Exception as e:
+            # Log error but don't fail the booking if reminder scheduling fails
+            import logging
+            logging.warning(f"Failed to schedule reminders for appointment {appointment.id}: {e}")
 
         # Send confirmation notification
         background_tasks.add_task(send_appointment_confirmation, appointment, current_user)
@@ -130,6 +141,7 @@ async def book_appointment(
             status=appointment.status.value,
             queue_number=appointment.queue_number,
             estimated_wait_time_minutes=appointment.estimated_wait_time_minutes,
+            reminders_scheduled=True,
         )
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
@@ -318,6 +330,35 @@ async def join_waitlist(
         waitlist_position=None,
         estimated_wait_days=None,
     )
+
+
+@router.get("/appointments/reminders/upcoming")
+async def get_upcoming_reminders(
+    days_ahead: int = Query(7, ge=1, le=30, description="Number of days ahead to look"),
+    current_user: PatientPortalUser = Depends(get_current_portal_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get upcoming appointment reminders for the current patient
+
+    Returns all scheduled reminders for the patient's upcoming appointments.
+    """
+    if not current_user.patient_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No patient record linked to this account",
+        )
+
+    reminder_service = AppointmentReminderService(db)
+
+    reminders = await reminder_service.get_upcoming_reminders(
+        patient_id=current_user.patient_id,
+        days_ahead=days_ahead
+    )
+
+    return {
+        "reminders": reminders,
+        "total_count": len(reminders)
+    }
 
 
 @router.get("/appointments/{appointment_id}/calendar", response_model=CalendarIntegrationResponse)

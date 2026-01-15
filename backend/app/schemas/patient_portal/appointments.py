@@ -125,6 +125,7 @@ class AppointmentResponse(BaseModel):
     status: str
     queue_number: Optional[str] = None
     estimated_wait_time_minutes: Optional[int] = None
+    reminders_scheduled: bool = True
 
     model_config = ConfigDict(from_attributes=True)
 
