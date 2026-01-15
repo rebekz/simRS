@@ -246,27 +246,39 @@
   - Demo page with mock patient data
   - File: src/app/app/doctor/consultation/demo/page.tsx
 
-- [ ] WEB-S-4.2: SOAP Notes Editor
+- [x] WEB-S-4.2: SOAP Notes Editor (commit: TBD)
+  - SOAP sections: Subjective, Objective, Assessment, Plan with structured inputs
+  - Auto-save every 30 seconds with debouncing and visual save status
+  - Templates for common cases: UMUM (general), DEMAM (fever), BATUK (cough)
+  - Rich text formatting: bold (**text**), italic (_text_), bullet lists (• items)
+  - Character counter for each section with color-coded indicators (green/yellow/red)
+  - Digital signature with confirmation modal (prevents accidental signing)
+  - Version control display showing modification history (version, timestamp, author, changes)
+  - ICD-10 code support in Assessment section with tag-based management
+  - Draft/Signed status tracking with visual badges
+  - File: src/components/consultation/SOAPNotesEditor.tsx
+
 - [ ] WEB-S-4.3: e-Prescription Integration
 - [ ] WEB-S-4.4: Physical Examination Form
 - [ ] WEB-S-4.5: Medical Orders (Lab, Radiology)
 - [ ] WEB-S-4.6: Treatment Plan Builder
 - [ ] WEB-S-4.7: Discharge Summary
 
-**Epic Status:** IN PROGRESS (1/7 stories complete - 14%)
+**Epic Status:** IN PROGRESS (2/7 stories complete - 29%)
 
 ---
 
 ## BLOCKERS / NOTES
 
 ### Current Iteration (2026-01-16)
-- **Completed:** WEB-S-4.1: Split-View Patient Context
+- **Completed:** WEB-S-4.2: SOAP Notes Editor
 - **Blockers:** None
-- **Notes:** Split-view consultation workspace with persistent patient context. Left panel (320px) shows patient header with photo/identifiers, critical alerts (allergies/comorbidities with severity), vitals card with color-coded status, and quick actions navigation. Right panel provides consultation working area. Responsive design collapses to single column on mobile.
+- **Notes:** Comprehensive SOAP notes editor with 4 sections (Subjective, Objective, Assessment, Plan). Auto-save every 30s with visual status. 3 templates for common cases (UMUM, DEMAM, BATUK). Rich text formatting (bold, italic, lists). Character counters with color indicators. Digital signature with confirmation modal. Version control display. ICD-10 code management in Assessment section.
 
 ### Next Steps
-1. Continue WEB-EPIC-4: WEB-S-4.2 SOAP Notes Editor (HIGH priority - 4 days)
-2. Then WEB-S-4.3: e-Prescription Integration (HIGH priority - 3 days)
+1. Continue WEB-EPIC-4: WEB-S-4.3 e-Prescription Integration (HIGH priority)
+2. Then WEB-S-4.4: Physical Examination Form (MEDIUM priority)
+3. Then WEB-S-4.5: Medical Orders (Lab, Radiology) (MEDIUM priority)
 
 ---
 
@@ -278,8 +290,8 @@
 **Blocked:** 0
 
 **Total Stories:** 34
-**Completed:** 27
+**Completed:** 28
 **In Progress:** 0
-**Remaining:** 7
+**Remaining:** 6
 
-**Overall Progress:** ~79% complete (27/34 stories)
+**Overall Progress:** ~82% complete (28/34 stories)
