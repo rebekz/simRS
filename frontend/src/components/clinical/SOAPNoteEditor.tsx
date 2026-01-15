@@ -83,7 +83,7 @@ export function SOAPNoteEditor({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${localStorage.getItem("staff_access_token")}`,
         },
         body: JSON.stringify({
           ...note,
@@ -120,7 +120,7 @@ export function SOAPNoteEditor({
         method,
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${localStorage.getItem("staff_access_token")}`,
         },
         body: JSON.stringify({
           ...note,
@@ -157,7 +157,7 @@ export function SOAPNoteEditor({
       const response = await fetch(`/api/v1/clinical-notes/${note.id}/sign`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${localStorage.getItem("staff_access_token")}`,
         },
       });
 

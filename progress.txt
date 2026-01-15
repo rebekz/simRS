@@ -7997,3 +7997,137 @@ components for problem list display, ICD-10 code selection, and problem manageme
 5. EPIC-003 Progress: 2/5 stories complete (40%)
 
 =============================================================================
+
+=============================================================================
+STORY-015: Clinical Notes (SOAP) - COMPLETED (2026-01-15)
+=============================================================================
+
+### Summary:
+Implemented comprehensive clinical documentation system with SOAP notes.
+Backend was already complete (models, schemas, API, CRUD). Created frontend UI
+components for clinical note management with SOAP structure.
+
+### Implementation Details:
+
+#### Backend Verification:
+All backend components already existed and were complete:
+- **Models**: ClinicalNote, ClinicalNoteAttachment, ClinicalNoteSignature, ClinicalNoteShare
+- **Schemas**: ClinicalNoteCreate, ClinicalNoteUpdate, ClinicalNoteResponse, SOAPNoteCreate
+- **API Endpoints**: Complete CRUD operations in clinical_notes.py (492 lines)
+- **CRUD Operations**: Full functionality in clinical_note.py (423 lines)
+
+#### Frontend Components Created:
+1. **ClinicalNotesList Component** (ClinicalNotesList.tsx - 350+ lines)
+   - Lists all patient clinical notes with filtering
+   - Status filter: Draft, Signed, Amended
+   - Note type filter: SOAP, Admission, Progress, Discharge, Consultation
+   - Color-coded badges for status and note types
+   - Preview of SOAP sections (Subjective, Objective, Assessment, Plan)
+   - View and edit actions (edit only for draft notes)
+   - Integration with SOAP note editor
+
+2. **SOAPNoteEditor Component** (Enhanced - already existed)
+   - Fixed authentication token (staff_access_token)
+   - Auto-save functionality every 30 seconds
+   - Digital signature support
+   - Status tracking (draft, signed, amended)
+   - Version control with amendment support
+   - Structured SOAP sections with color coding
+   - Character count for each section
+   - Warning for signed notes
+
+3. **Patient History Page Integration** (patients/[id]/page.tsx - modified)
+   - Added "Clinical Notes" tab to patient history view
+   - Integrated ClinicalNotesList component
+   - Positioned before Problems tab for clinical workflow
+
+#### API Integration:
+- **Create Note**: POST /api/v1/clinical-notes
+- **Create SOAP**: POST /api/v1/clinical-notes/soap
+- **Auto-Save**: POST /api/v1/clinical-notes/autosave
+- **Get Patient Notes**: GET /api/v1/clinical-notes/patient/{id}
+- **Get Note**: GET /api/v1/clinical-notes/{id}
+- **Update Note**: PUT /api/v1/clinical-notes/{id}
+- **Delete Note**: DELETE /api/v1/clinical-notes/{id}
+- **Sign Note**: POST /api/v1/clinical-notes/{id}/sign
+- **Get Versions**: GET /api/v1/clinical-notes/{id}/versions
+- **Amend Note**: POST /api/v1/clinical-notes/{id}/amend
+
+### Features Implemented:
+✅ AC-001: SOAP note structure (Subjective, Objective, Assessment, Plan)
+✅ AC-002: Create clinical notes for patients
+✅ AC-003: Link notes to encounters
+✅ AC-004: Digital signature support (SHA-256 hash)
+✅ AC-005: Version control with amendments
+✅ AC-006: Auto-save every 30 seconds
+✅ AC-007: Note status tracking (draft, pending, signed, amended)
+✅ AC-008: Audit trail with signature metadata (IP, user agent)
+✅ AC-009: Multiple note types (SOAP, admission, progress, discharge, etc.)
+✅ AC-010: Filter notes by type and status
+✅ AC-011: View and edit draft notes
+✅ AC-012: Prevent editing signed notes (require amendment)
+✅ AC-013: Soft delete for draft notes
+✅ AC-014: Amendment system for signed notes
+
+### Files Created:
+1. frontend/src/components/clinical/ClinicalNotesList.tsx (350+ lines)
+
+### Files Modified:
+1. frontend/src/components/clinical/SOAPNoteEditor.tsx - Fixed token consistency
+2. frontend/src/app/app/patients/[id]/page.tsx - Added Clinical Notes tab
+
+### Backend Files (Already Existed):
+1. backend/app/models/clinical_note.py (180 lines) - Complete data models
+2. backend/app/schemas/clinical_note.py (175 lines) - Pydantic schemas
+3. backend/app/api/v1/endpoints/clinical_notes.py (492 lines) - Full API
+4. backend/app/crud/clinical_note.py (423 lines) - CRUD operations
+
+### Authentication:
+- Fixed token inconsistency: All components now use staff_access_token
+- Consistent with patient history and problem list implementations
+
+### TypeScript Verification:
+- All new files compile without errors
+- No TypeScript issues in ClinicalNotesList or patient history page
+
+### UI/UX Features:
+- Color-coded SOAP sections (Blue=S, Green=O, Yellow=A, Purple=P)
+- Status badges (Gray=Draft, Green=Signed, Yellow=Amended)
+- Note type badges with distinctive colors
+- Auto-save indicator with last saved time
+- Filter controls for status and note type
+- Preview cards with truncated content
+- Inline view and edit actions
+- Warning for signed notes (cannot edit, must amend)
+- Version indicator for amendments
+
+### Clinical Workflow:
+1. **Documentation**: Create SOAP notes during patient encounters
+2. **Auto-Save**: Automatic saving every 30 seconds to prevent data loss
+3. **Review**: View notes with formatted SOAP sections
+4. **Sign**: Digitally sign notes to lock them from further edits
+5. **Amend**: Create amendments to signed notes if changes are needed
+6. **Version Control**: Full audit trail with version history
+
+### Integration Points:
+- Patient History Page (STORY-011): Clinical Notes tab now available
+- Problem List (STORY-012): Can reference problems in assessments
+- Encounters: Notes can be linked to specific encounters
+- User Management: Tracks author, signer, and co-signer information
+- Audit Trail: Full signature metadata for legal compliance
+
+### Security Features:
+- Digital signatures with SHA-256 cryptographic hash
+- IP address and user agent tracking
+- Prevents modification of signed notes
+- Amendment system for corrections
+- Soft delete for audit compliance
+- Role-based access control ready
+
+### Next Steps:
+1. STORY-013: Allergy Tracking (enhance allergy section)
+2. STORY-014: Medication List (enhance medication section)
+3. STORY-016: Doctor Consultation Workflow (requires STORY-011, STORY-012, STORY-015)
+4. EPIC-003 Progress: 3/5 stories complete (60%)
+
+=============================================================================

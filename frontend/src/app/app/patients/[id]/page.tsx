@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ProblemList } from "@/components/patients/ProblemList";
+import { ClinicalNotesList } from "@/components/clinical/ClinicalNotesList";
 
 interface PatientHistory {
   patient_id: number;
@@ -254,7 +255,7 @@ export default function PatientHistoryPage() {
       {/* Tabs */}
       <div className="border-b border-gray-200">
         <nav className="flex space-x-8">
-          {["overview", "problems", "encounters", "allergies", "medications", "timeline"].map((tab) => (
+          {["overview", "clinical-notes", "problems", "encounters", "allergies", "medications", "timeline"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -352,6 +353,10 @@ export default function PatientHistoryPage() {
               </div>
             )}
           </div>
+        )}
+
+                {activeTab === "clinical-notes" && (
+          <ClinicalNotesList patientId={parseInt(patientId)} />
         )}
 
         {activeTab === "problems" && (
