@@ -12274,3 +12274,167 @@ Notes:
 - Can be extended for radiology orders and other diagnostic tests
 
 =============================================================================
+
+=============================================================================
+STORY-054: Radiology Order Creation Form - COMPLETED
+Date: 2026-01-15 18:33:01
+
+Implementation Summary:
+Created comprehensive radiology order creation form for doctors to order
+imaging studies with modality selection, scheduling, and safety checks.
+
+Files Created:
+- frontend/src/app/app/radiology/order/page.tsx (500+ lines)
+
+Key Features Implemented:
+✅ Patient information display
+   - Patient name, medical record number, age, gender
+   - Weight display (important for imaging)
+   - Pregnancy status display (critical for imaging safety)
+   - Allergy warnings in red alert box
+   - Implantable devices warnings (e.g., pacemakers - MRI contraindication)
+   - Patient ID passed via URL params
+
+✅ Clinical information input
+   - Working diagnosis (required field)
+   - Symptoms/complaints
+   - Clinical indication (free text)
+   - Priority selection (routine, urgent, stat)
+   - Requested procedure description
+
+✅ Exam selection interface
+   - Available exams list with comprehensive information
+   - Exam name, code, body part, view
+   - Modality selection (8 types: X-Ray, CT, MRI, USG, Mammography, Fluoroscopy, Nuclear Med, PET)
+   - Modality filter dropdown
+   - Duration display
+   - Price display
+   - BPJS coverage indicator
+   - Contrast requirement indicator
+   - Radio button selection (single exam per order)
+   - Pregnancy contraindication warnings
+
+✅ Modality badges with icons
+   - X-Ray: 📷 (blue)
+   - CT Scan: 🔬 (purple)
+   - MRI: 🧠 (green)
+   - Ultrasound: 🔊 (cyan)
+   - Mammography: 🎀 (pink)
+   - Fluoroscopy: 🎥 (orange)
+   - Nuclear Medicine: ☢️ (yellow)
+   - PET Scan: 💉 (indigo)
+
+✅ Exam details and scheduling
+   - Selected exam details panel
+   - Modality, body part, view, duration
+   - Contrast allergy checkbox (when contrast required)
+   - Claustrophobia checkbox (for MRI)
+   - Preparation instructions display
+   - Price and BPJS tariff breakdown
+   - Scheduler/radiologist selection
+   - Date and time scheduling
+
+✅ Safety checks and warnings
+   - Pregnancy contraindication (exam disabled for pregnant patients)
+   - Contrast allergy warning with premedication reminder
+   - Claustrophobia warning with sedation consideration
+   - Implantable devices warning (MRI incompatibility)
+   - Allergy warnings from patient profile
+   - Visual warning boxes (red, orange, yellow, blue, purple)
+
+✅ Form validation
+   - Exam must be selected
+   - Patient must be selected
+   - Diagnosis is required
+   - Submit button disabled when validation fails
+   - Contraindicated exams cannot be selected
+
+✅ Actions and functionality
+   - Create radiology order
+   - Cancel/back button
+   - Redirect to radiology page after submission
+   - Success notification with order ID
+   - Loading state during submission
+
+✅ Visual enhancements
+   - Selected exam highlighted (indigo border and background)
+   - Hover effects on exam cards
+   - Scrollable exam list (max height)
+   - Modality-specific badges with colors
+   - Contraindicated exams grayed out with warning
+   - Grid layout for exam cards
+   - Multiple warning colors for different alert types
+
+✅ Integration points
+   - Patient ID from URL query params
+   - Encounter ID support (for consultation context)
+   - Link back to patient selection
+   - Redirect to radiology page
+   - Scheduler availability check
+
+✅ Indonesian language interface
+   - All UI text in Indonesian
+   - Exam names and modalities in Indonesian
+
+Testing Considerations:
+- Patient information display accuracy
+- Exam selection functionality
+- Modality filter
+- Price calculations
+- BPJS coverage display
+- Pregnancy contraindication checks
+- Allergy warning display
+- Implantable devices warning
+- Contrast allergy checkbox
+- Claustrophobia checkbox
+- Scheduling functionality
+- Form validation
+- Order submission
+- Success/error handling
+- Redirect after submission
+- Empty state handling
+- Responsive design
+- Indonesian language correctness
+
+Next Steps:
+- Implement recurring order support
+- Add comparison with previous studies
+- Implement clinical decision support (exam recommendations based on diagnosis)
+- Add radiation dose tracking
+- Implement study priority escalation
+- Add automated protocol selection
+- Implement contrast premedication workflow
+- Add sedation scheduling integration
+- Implement implantable device safety database
+- Add MRI safety questionnaire
+- Implement pregnancy screening protocol
+- Add integration with PACS (Picture Archiving and Communication System)
+- Add automated report generation templates
+- Implement critical findings notification
+- Add study accessibility (previous reports, images)
+- Implement modality worklist (DICOM MWL)
+- Add barcode label generation for patient identification
+- Implement mobile-optimized view for bedside ordering
+- Add AI-powered exam recommendations
+- Integration with RIS (Radiology Information System)
+- Implement study cancellation and modification
+- Add radiation risk communication
+
+Notes:
+- Critical for clinical workflow - imaging is a core diagnostic tool
+- Completes the radiology workflow (ordering -> scheduling -> imaging -> results)
+- Pregnancy contraindication checks prevent fetal harm
+- Implantable devices warnings prevent MRI accidents
+- Contrast allergy tracking prevents anaphylaxis
+- Claustrophobia assessment enables proper preparation
+- Modality-specific preparation instructions ensure study quality
+- BPJS coverage display helps patients understand costs
+- Clinical information support ensures proper protocol selection
+- Priority selection enables urgent study processing
+- Scheduling integration enables resource planning
+- Foundation for comprehensive radiology ordering system
+- Indonesian language interface
+- Compliant with local radiology standards
+- Follows similar pattern to lab order form for consistency
+
+=============================================================================
