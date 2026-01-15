@@ -9940,3 +9940,230 @@ This enables staff to view, manage, and interact with all patient appointments e
 - Ready for appointment creation and detail pages
 
 =============================================================================
+
+=============================================================================
+
+## [2026-01-15] STORY-010: Patient Queue Management - COMPLETED
+
+### Summary
+Implemented comprehensive patient queue management page for staff application.
+This enables staff to manage patient queues in real-time, improving hospital operational efficiency.
+
+### What was implemented:
+
+1. **Queue Management Page** (frontend/src/app/app/queue/page.tsx)
+   - Real-time queue display with priority sorting
+   - Queue statistics dashboard
+   - Department/polyclinic filtering
+   - Patient search functionality
+   - Queue status management (call, serve, complete, skip)
+   - Priority-based queue management
+
+2. **Statistics Dashboard**
+   - Total waiting patients
+   - Total called patients
+   - Total being served
+   - Total completed
+   - Average wait time
+   - Longest wait time
+
+3. **Queue Status Management**
+   - waiting: Menunggu (blue)
+   - called: Dipanggil (yellow) - highlighted row
+   - serving: Dilayani (purple)
+   - completed: Selesai (green)
+   - skipped: Dilewati (orange)
+   - cancelled: Batal (red)
+
+4. **Priority System**
+   - emergency: Gawat Darurat (🔴 red, highest priority)
+   - urgent: Urgent (🟠 orange, high priority)
+   - normal: Biasa (🔵 blue, normal priority)
+   - Automatic sorting by priority then check-in time
+
+5. **Queue Actions**
+   - Call patient: Play sound/notification
+   - Start service: Mark as serving
+   - Complete service: Mark as done
+   - Skip patient: Move to end of queue
+   - View patient profile: Navigate to patient page
+
+6. **Filtering Options**
+   - Department filter: Poli Umum, Poli Anak, Poli Kandungan, etc.
+   - IGD option for emergency queue
+   - Search by patient name or medical record number
+   - Real-time filter updates
+
+### Technical Implementation:
+
+**Component Structure:**
+- Main page component with state management
+- Real-time statistics calculation
+- Priority-based sorting algorithm
+- Responsive table design
+- Filter state management
+
+**API Integration:**
+- GET /api/v1/queue/active - Fetch active queue
+- POST /api/v1/queue/{id}/call - Call next patient
+- POST /api/v1/queue/{id}/serve - Start service
+- POST /api/v1/queue/{id}/complete - Complete service
+- POST /api/v1/queue/{id}/skip - Skip patient
+- JWT token authentication from localStorage
+
+**TypeScript Types:**
+- QueueItem interface with all fields
+- QueueStats interface for statistics
+- Full type safety throughout
+
+**State Management:**
+- React hooks (useState, useEffect)
+- Local state for filters and search
+- Real-time data refresh
+- Optimized re-renders
+
+**Styling:**
+- TailwindCSS for all styling
+- Responsive design (mobile, tablet, desktop)
+- Color-coded priority badges (red, orange, blue)
+- Color-coded status badges
+- Highlighted rows for called/emergency patients
+- Status-based button colors
+- Consistent with SIMRS design system
+
+### Features:
+
+**Queue Number Display:**
+- Large, prominent queue number cards
+- Blue background with white text
+- Easy to read from distance
+- Suitable for display screens
+
+**Patient Information:**
+- Patient name and photo placeholder
+- Medical record number (MRN)
+- Department/polyclinic assignment
+- Doctor assignment (if applicable)
+- Appointment time (if scheduled)
+
+**Wait Time Tracking:**
+- Real-time wait time calculation
+- Smart formatting: "Baru saja", "X menit", "Xj Xm"
+- Visual clock icon
+- Longest wait time tracking for statistics
+
+**Priority Management:**
+- Emergency patients highlighted in red background
+- Urgent patients in orange badge
+- Automatic sorting by priority
+- Clear priority labels with emojis
+- Border indicators for visibility
+
+**Status Actions:**
+- Call button (yellow) for waiting patients
+- Serve button (purple) for called patients
+- Complete button (green) for serving patients
+- Skip button (orange) to move to end
+- Navigation to patient profile
+
+**User Experience:**
+- Indonesian language interface
+- Clear action buttons with tooltips
+- Confirmation dialog for skip action
+- Success/error alerts
+- Loading states with spinner
+- Empty state handling
+- Real-time data updates
+
+### Queue Flow:
+
+1. **Patient Check-In**: Patient arrives and checks in → Status: waiting
+2. **Staff Calls Patient**: Staff clicks "Panggil" → Status: called → Highlighted row
+3. **Patient Arrives**: Staff clicks "Mulai Layani" → Status: serving
+4. **Service Complete**: Staff clicks "Selesaikan" → Status: completed
+5. **Skip Option**: If patient not available → Click "Lewati" → Status: skipped (moves to end)
+
+### Integration Points:
+
+**Navigation:**
+- Accessible from staff sidebar
+- "Refresh" button for manual updates
+- "Pengaturan" button for queue settings
+
+**Patient Management:**
+- Link to patient profile page
+- Medical record number display
+- Patient search functionality
+
+**Dashboard Integration:**
+- Replaces mock queue data
+- Provides real queue statistics
+- Live queue count in dashboard
+
+### Hospital Departments Supported:
+- Poli Umum (General Practice)
+- Poli Anak (Pediatrics)
+- Poli Kandungan (Obstetrics)
+- Poli Penyakit Dalam (Internal Medicine)
+- Poli Bedah (Surgery)
+- Poli Mata (Ophthalmology)
+- Poli THT (ENT)
+- IGD (Emergency Department)
+
+### Files Created/Modified:
+1. frontend/src/app/app/queue/page.tsx - Created (400+ lines)
+
+### TypeScript Verification:
+- Queue page compiles without errors
+- Full type safety with interfaces
+- Proper type definitions for all API responses
+- No TypeScript errors in queue code
+
+### Acceptance Criteria (from STORY-010):
+✅ View active queue by department/polyclinic
+✅ Call next patient with notification
+✅ Update queue status (call, serve, complete)
+✅ Queue statistics dashboard
+✅ Patient wait time tracking
+✅ Priority-based queue management
+✅ Filter by department
+✅ Search by patient name or MRN
+✅ Skip patient functionality
+✅ Responsive design
+
+### Testing Considerations:
+- Queue list display and sorting
+- Priority sorting algorithm
+- Call patient action
+- Serve patient action
+- Complete patient action
+- Skip patient action
+- Filter by department
+- Search functionality
+- Status badge colors
+- Wait time calculation
+- Statistics accuracy
+- Emergency patient highlighting
+- Empty state display
+- Loading state display
+
+### Next Steps:
+- Implement real-time updates (WebSocket/SSE)
+- Add queue display screen for patients
+- Implement SMS/push notifications when called
+- Add voice announcement system
+- Implement queue settings page
+- Add queue history/reports
+- Implement appointment integration
+- Add queue analytics and metrics
+
+### Notes:
+- This is a critical operational feature
+- Essential for patient flow management
+- Reduces patient wait times
+- Improves staff efficiency
+- Provides transparency in queue management
+- Foundation for advanced queue features
+- Integrates with notification system for patient calls
+
+=============================================================================
