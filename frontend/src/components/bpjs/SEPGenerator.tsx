@@ -3,11 +3,12 @@
 /**
  * BPJS SEP Generator Component for STORY-019
  *
- * Provides BPJS SEP (Surat Eligibilitas Peserta) generation with:
- * - Auto-population from consultation data
- * - Validation before submission
- * - Automatic SEP creation in <10 seconds
- * - SEP updates and cancellation
+ * Automatic SEP (Surat Eligibilitas Peserta) generation with:
+ * - Auto-populate from encounter data
+ * - BPJS eligibility validation
+ * - SEP creation and submission
+ * - SEP update and cancellation
+ * - Offline SEP creation
  * - SEP history tracking
  */
 
@@ -15,12 +16,15 @@ import { useState, useEffect } from "react";
 import {
   FileText,
   CheckCircle,
-  AlertTriangle,
+  AlertCircle,
+  Loader2,
   Clock,
-  User,
-  RefreshCw,
-  X,
+  XCircle,
   Info,
+  RefreshCw,
+  Eye,
+  Trash2,
+  Download,
 } from "lucide-react";
 
 // Types
@@ -29,253 +33,306 @@ interface SEPAutoPopulateData {
   patient_id: number;
   patient_name: string;
   bpjs_card_number: string;
+  mrn: string;
   sep_date: string;
-  service_type: string;
+  service_type: "RJ" | "RI"; // Rawat Jalan / Rawat Inap
   ppk_code: string;
-  department: string;
-  doctor_code?: string;
-  doctor_name?: string;
-  chief_complaint?: string;
-  initial_diagnosis_code?: string;
-  initial_diagnosis_name?: string;
-  mrn?: string;
-  patient_phone?: string;
+  polyclinic_code: string;
+  treatment_class: string;
+  initial_diagnosis_code: string;
+  initial_diagnosis_name: string;
+  doctor_code: string;
+  doctor_name: string;
+  patient_phone: string;
+  referral_number?: string;
+  referral_ppk_code?: string;
+  is_executive: boolean;
+  cob_flag?: boolean;
+  notes: string;
 }
 
-interface SEPValidationResponse {
+interface SEPValidation {
   is_valid: boolean;
-  message: string;
   errors: string[];
   warnings: string[];
-}
-
-interface SEPAutoPopulateResponse {
-  sep_data: SEPAutoPopulateData;
-  validation: SEPValidationResponse;
-  can_create: boolean;
-  missing_fields: string[];
+  bpjs_eligibility?: {
+    eligible: boolean;
+    message: string;
+  };
 }
 
 interface SEPInfo {
   sep_id: number;
-  sep_number: string | null;
+  sep_number: string;
+  encounter_id: number;
+  patient_id: number;
   patient_name: string;
   bpjs_card_number: string;
   sep_date: string;
   service_type: string;
-  initial_diagnosis: string;
-  status: string;
+  ppk_code: string;
+  polyclinic_code: string;
+  treatment_class: string;
+  initial_diagnosis_code: string;
+  initial_diagnosis_name: string;
+  doctor_name: string;
+  referral_number?: string;
+  is_executive: boolean;
+  cob_flag?: boolean;
+  notes: string;
+  status: "draft" | "submitted" | "updated" | "cancelled";
   created_at: string;
+  updated_at: string;
 }
 
 interface SEPGeneratorProps {
   encounterId: number;
   patientId: number;
-  onSEPCreated?: (sepInfo: SEPInfo) => void;
+  onSEPCreated?: (sep: SEPInfo) => void;
+  onCancel?: () => void;
 }
 
-export function SEPGenerator({ encounterId, patientId, onSEPCreated }: SEPGeneratorProps) {
-  const [autoPopulateData, setAutoPopulateData] = useState<SEPAutoPopulateData | null>(null);
-  const [validation, setValidation] = useState<SEPValidationResponse | null>(null);
-  const [canCreate, setCanCreate] = useState(false);
-  const [missingFields, setMissingFields] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+export function SEPGenerator({
+  encounterId,
+  patientId,
+  onSEPCreated,
+  onCancel,
+}: SEPGeneratorProps) {
+  const [sepData, setSepData] = useState<SEPAutoPopulateData | null>(null);
+  const [existingSEP, setExistingSEP] = useState<SEPInfo | null>(null);
+  const [validation, setValidation] = useState<SEPValidation | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isCreating, setIsCreating] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [sepCreated, setSepCreated] = useState<SEPInfo | null>(null);
 
-  // Override fields
-  const [polyclinicCode, setPolyclinicCode] = useState("");
-  const [treatmentClass, setTreatmentClass] = useState("");
-  const [notes, setNotes] = useState("");
-
-  // Load auto-populate data on mount
+  // Load SEP data on mount
   useEffect(() => {
-    loadAutoPopulateData();
+    loadSEPData();
   }, [encounterId]);
 
-  const loadAutoPopulateData = async () => {
+  const loadSEPData = async () => {
     setIsLoading(true);
     setError(null);
 
     try {
-      const response = await fetch(`/api/v1/sep/auto-populate/${encounterId}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+      const token = localStorage.getItem("staff_access_token");
+
+      // Check for existing SEP
+      const sepResponse = await fetch(\`/api/v1/encounter/\${encounterId}/sep\`, {
+        headers: { Authorization: \`Bearer \${token}\` },
       });
 
-      if (response.ok) {
-        const data: SEPAutoPopulateResponse = await response.json();
-        setAutoPopulateData(data.sep_data);
-        setValidation(data.validation);
-        setCanCreate(data.can_create);
-        setMissingFields(data.missing_fields);
-
-        // Set override fields
-        if (data.sep_data.polyclinic_code) {
-          setPolyclinicCode(data.sep_data.polyclinic_code);
-        }
-      } else {
-        const errorData = await response.json();
-        setError(errorData.detail || "Gagal memuat data SEP");
+      if (sepResponse.ok) {
+        const sep = await sepResponse.json();
+        setExistingSEP(sep);
+        setIsLoading(false);
+        return;
       }
-    } catch (error) {
-      console.error("Failed to load auto-populate data:", error);
-      setError("Gagal terhubung ke server");
+
+      // No existing SEP, load auto-populate data
+      const autoPopulateResponse = await fetch(
+        \`/api/v1/sep/auto-populate/\${encounterId}\`,
+        {
+          headers: { Authorization: \`Bearer \${token}\` },
+        }
+      );
+
+      if (autoPopulateResponse.ok) {
+        const data = await autoPopulateResponse.json();
+        setSepData(data.sep_data);
+        setValidation(data.validation);
+      } else {
+        const errorData = await autoPopulateResponse.json();
+        setError(errorData.detail || "Failed to load SEP data");
+      }
+    } catch (err) {
+      console.error("Failed to load SEP data:", err);
+      setError("Failed to load SEP data");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleCreateSEP = async () => {
-    if (!autoPopulateData) return;
+  const handleCreateSEP = async (submitToBPJS: boolean = true) => {
+    if (!sepData) {
+      setError("No SEP data available");
+      return;
+    }
 
-    setIsSubmitting(true);
+    setIsCreating(true);
     setError(null);
 
     try {
-      const response = await fetch("/api/v1/sep", {
+      const token = localStorage.getItem("staff_access_token");
+
+      const response = await fetch(\`/api/v1/sep?submit_to_bpjs=\${submitToBPJS}\`, {
         method: "POST",
         headers: {
+          Authorization: \`Bearer \${token}\`,
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({
           encounter_id: encounterId,
           patient_id: patientId,
-          bpjs_card_number: autoPopulateData.bpjs_card_number,
-          sep_date: autoPopulateData.sep_date,
-          service_type: autoPopulateData.service_type,
-          ppk_code: autoPopulateData.ppk_code,
-          initial_diagnosis_code: autoPopulateData.initial_diagnosis_code || "",
-          initial_diagnosis_name: autoPopulateData.initial_diagnosis_name || "",
-          polyclinic_code: polyclinicCode || undefined,
-          treatment_class: treatmentClass || undefined,
-          doctor_code: autoPopulateData.doctor_code,
-          doctor_name: autoPopulateData.doctor_name,
-          mrn: autoPopulateData.mrn,
-          patient_phone: autoPopulateData.patient_phone,
-          notes: notes,
-          user: localStorage.getItem("user_email") || "doctor",
+          bpjs_card_number: sepData.bpjs_card_number,
+          sep_date: sepData.sep_date,
+          service_type: sepData.service_type,
+          ppk_code: sepData.ppk_code,
+          polyclinic_code: sepData.polyclinic_code,
+          treatment_class: sepData.treatment_class || "3",
+          initial_diagnosis_code: sepData.initial_diagnosis_code,
+          doctor_code: sepData.doctor_code,
+          doctor_name: sepData.doctor_name,
+          patient_phone: sepData.patient_phone,
+          referral_number: sepData.referral_number,
+          referral_ppk_code: sepData.referral_ppk_code,
+          is_executive: sepData.is_executive,
+          cob_flag: sepData.cob_flag,
+          notes: sepData.notes,
+          user: "Dr. " + (sepData.doctor_name || "System"),
         }),
       });
 
       if (response.ok) {
-        const sepInfo: SEPInfo = await response.json();
-        setSepCreated(sepInfo);
-        onSEPCreated?.(sepInfo);
+        const createdSEP = await response.json();
+        setExistingSEP(createdSEP);
+        onSEPCreated?.(createdSEP);
       } else {
         const errorData = await response.json();
-        setError(errorData.detail || "Gagal membuat SEP");
+        setError(errorData.detail || "Failed to create SEP");
       }
-    } catch (error) {
-      console.error("Failed to create SEP:", error);
-      setError("Gagal terhubung ke server");
+    } catch (err) {
+      console.error("Failed to create SEP:", err);
+      setError("Failed to create SEP");
     } finally {
-      setIsSubmitting(false);
+      setIsCreating(false);
     }
   };
 
-  const getServiceTypeLabel = (serviceType: string) => {
-    return serviceType === "RI" ? "Rawat Inap" : "Rawat Jalan";
+  const handleUpdateSEP = async () => {
+    if (!existingSEP) return;
+
+    setIsUpdating(true);
+    setError(null);
+
+    try {
+      const token = localStorage.getItem("staff_access_token");
+
+      const response = await fetch(\`/api/v1/sep?submit_to_bpjs=true\`, {
+        method: "PUT",
+        headers: {
+          Authorization: \`Bearer \${token}\`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          sep_id: existingSEP.sep_id,
+          treatment_class: existingSEP.treatment_class,
+          polyclinic_code: existingSEP.polyclinic_code,
+          doctor_code: existingSEP.doctor_name?.split(" ")[0] || "",
+          doctor_name: existingSEP.doctor_name,
+          notes: existingSEP.notes,
+          user: "Dr. System",
+        }),
+      });
+
+      if (response.ok) {
+        const updatedSEP = await response.json();
+        setExistingSEP(updatedSEP);
+      } else {
+        const errorData = await response.json();
+        setError(errorData.detail || "Failed to update SEP");
+      }
+    } catch (err) {
+      console.error("Failed to update SEP:", err);
+      setError("Failed to update SEP");
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
-  const getStatusBadgeClass = (status: string) => {
+  const handleCancelSEP = async () => {
+    if (!existingSEP || !confirm("Are you sure you want to cancel this SEP?")) {
+      return;
+    }
+
+    setIsCancelling(true);
+    setError(null);
+
+    try {
+      const token = localStorage.getItem("staff_access_token");
+
+      const response = await fetch(\`/api/v1/sep\`, {
+        method: "DELETE",
+        headers: {
+          Authorization: \`Bearer \${token}\`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          sep_id: existingSEP.sep_id,
+          sep_number: existingSEP.sep_number,
+          user: "Dr. System",
+          reason: "Cancelled by user",
+        }),
+      });
+
+      if (response.ok) {
+        setExistingSEP(null);
+        // Reload SEP data
+        loadSEPData();
+      } else {
+        const errorData = await response.json();
+        setError(errorData.detail || "Failed to cancel SEP");
+      }
+    } catch (err) {
+      console.error("Failed to cancel SEP:", err);
+      setError("Failed to cancel SEP");
+    } finally {
+      setIsCancelling(false);
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
     switch (status) {
       case "submitted":
-      case "approved":
-        return "bg-green-100 text-green-800";
+        return (
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+            <CheckCircle className="h-4 w-4 mr-1" />
+            Submitted
+          </span>
+        );
+      case "updated":
+        return (
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+            <RefreshCw className="h-4 w-4 mr-1" />
+            Updated
+          </span>
+        );
+      case "cancelled":
+        return (
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+            <XCircle className="h-4 w-4 mr-1" />
+            Cancelled
+          </span>
+        );
       case "draft":
-        return "bg-gray-100 text-gray-800";
-      case "error":
-        return "bg-red-100 text-red-800";
       default:
-        return "bg-blue-100 text-blue-800";
+        return (
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+            <Clock className="h-4 w-4 mr-1" />
+            Draft
+          </span>
+        );
     }
-  };
-
-  const getStatusLabel = (status: string) => {
-    const labels: Record<string, string> = {
-      draft: "Draft",
-      submitted: "Terkirim",
-      approved: "Disetujui",
-      updated: "Diperbarui",
-      cancelled: "Dibatalkan",
-      error: "Error",
-    };
-    return labels[status] || status;
   };
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-
-  if (error && !autoPopulateData) {
-    return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-        <div className="flex items-start">
-          <AlertTriangle className="h-6 w-6 text-red-600 mr-3 mt-1" />
-          <div>
-            <h3 className="text-lg font-medium text-red-800">Gagal Memuat Data</h3>
-            <p className="text-red-700 mt-1">{error}</p>
-            <button
-              onClick={loadAutoPopulateData}
-              className="mt-4 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-            >
-              Coba Lagi
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (sepCreated) {
-    return (
-      <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-        <div className="flex items-start">
-          <CheckCircle className="h-8 w-8 text-green-600 mr-4 mt-1" />
-          <div className="flex-1">
-            <h3 className="text-xl font-semibold text-green-900">SEP Berhasil Dibuat!</h3>
-
-            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium text-green-700">Nomor SEP</label>
-                <p className="text-lg font-bold text-green-900">{sepCreated.sep_number || "-"}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-green-700">Tanggal SEP</label>
-                <p className="text-green-900">{new Date(sepCreated.sep_date).toLocaleDateString('id-ID')}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-green-700">Nama Pasien</label>
-                <p className="text-green-900">{sepCreated.patient_name}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-green-700">Diagnosis Awal</label>
-                <p className="text-green-900">{sepCreated.initial_diagnosis}</p>
-              </div>
-            </div>
-
-            <div className="mt-4 flex items-center justify-between">
-              <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusBadgeClass(sepCreated.status)}`}>
-                {getStatusLabel(sepCreated.status)}
-              </span>
-
-              <button
-                onClick={() => setSepCreated(null)}
-                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-              >
-                Buat SEP Baru
-              </button>
-            </div>
-          </div>
-        </div>
+        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+        <span className="ml-3 text-gray-600">Loading SEP data...</span>
       </div>
     );
   }
@@ -287,232 +344,319 @@ export function SEPGenerator({ encounterId, patientId, onSEPCreated }: SEPGenera
         <div>
           <h2 className="text-2xl font-bold text-gray-900 flex items-center">
             <FileText className="h-6 w-6 mr-2" />
-            BPJS SEP Generator
+            BPJS SEP Generation
           </h2>
           <p className="text-sm text-gray-600 mt-1">
-            Surat Eligibilitas Peserta akan dibuat otomatis dari data konsultasi
+            Encounter ID: {encounterId} • Patient ID: {patientId}
           </p>
+        </div>
+        <div className="flex items-center space-x-3">
+          {existingSEP && (
+            <>
+              <button
+                onClick={() => setShowHistory(!showHistory)}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm font-medium flex items-center"
+              >
+                <Eye className="h-4 w-4 mr-2" />
+                {showHistory ? "Hide History" : "Show History"}
+              </button>
+              <button
+                onClick={handleUpdateSEP}
+                disabled={isUpdating || existingSEP.status === "cancelled"}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium flex items-center"
+              >
+                {isUpdating ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                )}
+                Update SEP
+              </button>
+              <button
+                onClick={handleCancelSEP}
+                disabled={isCancelling || existingSEP.status === "cancelled"}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium flex items-center"
+              >
+                {isCancelling ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Trash2 className="h-4 w-4 mr-2" />
+                )}
+                Cancel SEP
+              </button>
+            </>
+          )}
+          <button
+            onClick={onCancel}
+            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm font-medium"
+          >
+            Close
+          </button>
         </div>
       </div>
 
-      {autoPopulateData && (
-        <>
-          {/* Validation Status */}
-          {validation && (
-            <div
-              className={`border-l-4 p-4 rounded-md ${
-                validation.is_valid
-                  ? "bg-green-50 border-green-400"
-                  : "bg-yellow-50 border-yellow-400"
-              }`}
+      {/* Error Display */}
+      {error && (
+        <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded">
+          <div className="flex items-start">
+            <AlertCircle className="h-5 w-5 text-red-600 mr-2 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <h3 className="text-sm font-medium text-red-800">Error</h3>
+              <p className="text-sm text-red-700 mt-1">{error}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Existing SEP Display */}
+      {existingSEP && (
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="p-6 border-b border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">SEP Information</h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  SEP Number: <span className="font-mono font-medium text-blue-600">{existingSEP.sep_number}</span>
+                </p>
+              </div>
+              {getStatusBadge(existingSEP.status)}
+            </div>
+          </div>
+
+          <div className="p-6">
+            <div className="grid grid-cols-3 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-500">Patient</label>
+                <p className="mt-1 text-sm text-gray-900">{existingSEP.patient_name}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-500">BPJS Card Number</label>
+                <p className="mt-1 text-sm text-gray-900 font-mono">{existingSEP.bpjs_card_number}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-500">SEP Date</label>
+                <p className="mt-1 text-sm text-gray-900">
+                  {new Date(existingSEP.sep_date).toLocaleDateString("id-ID")}
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-500">Service Type</label>
+                <p className="mt-1 text-sm text-gray-900">
+                  {existingSEP.service_type === "RJ" ? "Rawat Jalan" : "Rawat Inap"}
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-500">Polyclinic</label>
+                <p className="mt-1 text-sm text-gray-900">{existingSEP.polyclinic_code}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-500">Treatment Class</label>
+                <p className="mt-1 text-sm text-gray-900">Kelas {existingSEP.treatment_class}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-500">Initial Diagnosis</label>
+                <p className="mt-1 text-sm text-gray-900">{existingSEP.initial_diagnosis_name}</p>
+                <p className="text-xs text-gray-500 font-mono">{existingSEP.initial_diagnosis_code}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-500">Doctor</label>
+                <p className="mt-1 text-sm text-gray-900">{existingSEP.doctor_name}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-500">Executive</label>
+                <p className="mt-1 text-sm text-gray-900">
+                  {existingSEP.is_executive ? "Yes" : "No"}
+                </p>
+              </div>
+            </div>
+
+            {existingSEP.notes && (
+              <div className="mt-6">
+                <label className="block text-sm font-medium text-gray-500">Notes</label>
+                <p className="mt-1 text-sm text-gray-900">{existingSEP.notes}</p>
+              </div>
+            )}
+          </div>
+
+          {/* SEP Actions */}
+          <div className="bg-gray-50 px-6 py-4 flex items-center justify-between">
+            <div className="text-sm text-gray-600">
+              Created: {new Date(existingSEP.created_at).toLocaleString("id-ID")}
+            </div>
+            <button
+              onClick={() => window.print()}
+              className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm font-medium flex items-center"
             >
-              <div className="flex">
-                {validation.is_valid ? (
-                  <CheckCircle className="h-5 w-5 text-green-400 mr-2" />
-                ) : (
-                  <AlertTriangle className="h-5 w-5 text-yellow-400 mr-2" />
-                )}
-                <div className="flex-1">
-                  <h3
-                    className={`text-sm font-medium ${
-                      validation.is_valid ? "text-green-800" : "text-yellow-800"
-                    }`}
-                  >
-                    {validation.is_valid ? "Data Valid" : "Validasi Diperlukan"}
-                  </h3>
-                  {validation.errors.length > 0 && (
-                    <ul className="mt-2 text-sm text-yellow-700 list-disc list-inside">
-                      {validation.errors.map((error, idx) => (
-                        <li key={idx}>{error}</li>
-                      ))}
-                    </ul>
-                  )}
-                  {validation.warnings.length > 0 && (
-                    <ul className="mt-2 text-sm text-yellow-700 list-disc list-inside">
-                      {validation.warnings.map((warning, idx) => (
-                        <li key={idx}>{warning}</li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
+              <Download className="h-4 w-4 mr-2" />
+              Print SEP
+            </button>
+          </div>
+        </div>
+      )}
 
-          {/* Missing Fields Alert */}
-          {missingFields.length > 0 && (
-            <div className="bg-red-50 border-l-4 border-red-400 p-4">
-              <div className="flex">
-                <AlertTriangle className="h-5 w-5 text-red-400 mr-2" />
-                <div>
-                  <h3 className="text-sm font-medium text-red-800">Data Belum Lengkap</h3>
-                  <p className="text-sm text-red-700 mt-1">
-                    Field berikut harus diisi sebelum membuat SEP:
-                  </p>
-                  <ul className="mt-2 text-sm text-red-700 list-disc list-inside">
-                    {missingFields.map((field, idx) => (
-                      <li key={idx}>{field}</li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Patient Information */}
-          <div className="bg-white shadow rounded-lg p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
-              <User className="h-5 w-5 mr-2" />
-              Informasi Pasien
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="text-xs font-medium text-gray-500">Nama Pasien</label>
-                <p className="text-sm font-medium text-gray-900">{autoPopulateData.patient_name}</p>
-              </div>
-              <div>
-                <label className="text-xs font-medium text-gray-500">Nomor Kartu BPJS</label>
-                <p className="text-sm font-medium text-gray-900">{autoPopulateData.bpjs_card_number}</p>
-              </div>
-              <div>
-                <label className="text-xs font-medium text-gray-500">No. RM</label>
-                <p className="text-sm font-medium text-gray-900">{autoPopulateData.mrn || "-"}</p>
-              </div>
-              <div>
-                <label className="text-xs font-medium text-gray-500">Jenis Pelayanan</label>
-                <p className="text-sm font-medium text-gray-900">
-                  {getServiceTypeLabel(autoPopulateData.service_type)}
-                </p>
-              </div>
-              <div>
-                <label className="text-xs font-medium text-gray-500">Tanggal SEP</label>
-                <p className="text-sm font-medium text-gray-900">
-                  {new Date(autoPopulateData.sep_date).toLocaleDateString('id-ID')}
-                </p>
-              </div>
-              <div>
-                <label className="text-xs font-medium text-gray-500">Diagnosis Awal</label>
-                <p className="text-sm font-medium text-gray-900">
-                  {autoPopulateData.initial_diagnosis_name || "-"}
-                </p>
-              </div>
-            </div>
+      {/* SEP Creation Form */}
+      {!existingSEP && sepData && (
+        <div className="bg-white rounded-lg shadow">
+          <div className="p-6 border-b border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-900">Create New SEP</h3>
+            <p className="text-sm text-gray-600 mt-1">
+              Auto-populated from encounter data
+            </p>
           </div>
 
-          {/* Override Fields */}
-          <div className="bg-white shadow rounded-lg p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Override Data (Opsional)</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {autoPopulateData.service_type === "RJ" && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Kode Poli
-                  </label>
-                  <input
-                    type="text"
-                    value={polyclinicCode}
-                    onChange={(e) => setPolyclinicCode(e.target.value)}
-                    className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                    placeholder="Contoh: INT"
-                  />
+          <div className="p-6">
+            {/* Validation Status */}
+            {validation && (
+              <div className={\`mb-6 p-4 rounded-lg \${
+                validation.is_valid
+                  ? "bg-green-50 border border-green-200"
+                  : "bg-yellow-50 border border-yellow-200"
+              }\`}>
+                <div className="flex items-start">
+                  {validation.is_valid ? (
+                    <CheckCircle className="h-5 w-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" />
+                  ) : (
+                    <AlertCircle className="h-5 w-5 text-yellow-600 mr-2 flex-shrink-0 mt-0.5" />
+                  )}
+                  <div className="flex-1">
+                    <h4 className="text-sm font-medium text-gray-900">
+                      {validation.is_valid ? "SEP Data Valid" : "SEP Data Validation"}
+                    </h4>
+                    {validation.errors.length > 0 && (
+                      <ul className="mt-2 text-sm text-red-700 list-disc list-inside">
+                        {validation.errors.map((error, idx) => (
+                          <li key={idx}>{error}</li>
+                        ))}
+                      </ul>
+                    )}
+                    {validation.warnings.length > 0 && (
+                      <ul className="mt-2 text-sm text-yellow-700 list-disc list-inside">
+                        {validation.warnings.map((warning, idx) => (
+                          <li key={idx}>{warning}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
                 </div>
-              )}
+              </div>
+            )}
+
+            {/* SEP Data Display */}
+            <div className="grid grid-cols-3 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Kelas Rawat
-                </label>
-                <select
-                  value={treatmentClass}
-                  onChange={(e) => setTreatmentClass(e.target.value)}
-                  className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                >
-                  <option value="">Pilih Kelas</option>
-                  <option value="3">Kelas 3</option>
-                  <option value="2">Kelas 2</option>
-                  <option value="1">Kelas 1</option>
-                  <option value="VVIP">VVIP</option>
-                  <option value="VIP">VIP</option>
-                </select>
+                <label className="block text-sm font-medium text-gray-500">Patient</label>
+                <p className="mt-1 text-sm text-gray-900">{sepData.patient_name}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-500">BPJS Card Number</label>
+                <p className="mt-1 text-sm text-gray-900 font-mono">{sepData.bpjs_card_number}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-500">Medical Record</label>
+                <p className="mt-1 text-sm text-gray-900 font-mono">{sepData.mrn}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-500">SEP Date</label>
+                <p className="mt-1 text-sm text-gray-900">
+                  {new Date(sepData.sep_date).toLocaleDateString("id-ID")}
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-500">Service Type</label>
+                <p className="mt-1 text-sm text-gray-900">
+                  {sepData.service_type === "RJ" ? "Rawat Jalan" : "Rawat Inap"}
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-500">Facility Code (PPK)</label>
+                <p className="mt-1 text-sm text-gray-900 font-mono">{sepData.ppk_code}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-500">Polyclinic Code</label>
+                <p className="mt-1 text-sm text-gray-900">{sepData.polyclinic_code}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-500">Treatment Class</label>
+                <p className="mt-1 text-sm text-gray-900">Kelas {sepData.treatment_class}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-500">Doctor</label>
+                <p className="mt-1 text-sm text-gray-900">{sepData.doctor_name}</p>
+                <p className="text-xs text-gray-500 font-mono">{sepData.doctor_code}</p>
+              </div>
+              <div className="col-span-2">
+                <label className="block text-sm font-medium text-gray-500">Initial Diagnosis</label>
+                <p className="mt-1 text-sm text-gray-900">{sepData.initial_diagnosis_name}</p>
+                <p className="text-xs text-gray-500 font-mono">{sepData.initial_diagnosis_code}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-500">Patient Phone</label>
+                <p className="mt-1 text-sm text-gray-900">{sepData.patient_phone || "-"}</p>
               </div>
             </div>
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Catatan
-              </label>
-              <textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                rows={2}
-                maxLength={200}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="Catatan tambahan..."
-              />
-            </div>
-          </div>
 
-          {/* Info Box */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div className="flex items-start">
-              <Info className="h-5 w-5 text-blue-600 mr-3 mt-0.5" />
-              <div className="text-sm text-blue-800">
-                <p className="font-medium">Informasi</p>
-                <ul className="mt-2 space-y-1">
-                  <li>• Data akan diambil dari konsultasi yang sedang berlangsung</li>
-                  <li>• SEP akan dikirim ke API BPJS VClaim untuk pembuatan otomatis</li>
-                  <li>• Nomor SEP akan diterbitkan setelah validasi berhasil</li>
-                </ul>
+            {sepData.referral_number && (
+              <div className="mt-6 grid grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-500">Referral Number</label>
+                  <p className="mt-1 text-sm text-gray-900 font-mono">{sepData.referral_number}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-500">Referral PPK</label>
+                  <p className="mt-1 text-sm text-gray-900 font-mono">{sepData.referral_ppk_code}</p>
+                </div>
+              </div>
+            )}
+
+            <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg flex items-start">
+              <Info className="h-5 w-5 text-blue-600 mr-2 flex-shrink-0 mt-0.5" />
+              <div className="flex-1 text-sm text-blue-800">
+                <p className="font-medium">SEP will be submitted to BPJS API</p>
+                <p className="mt-1">
+                  The SEP will be created and submitted to BPJS VClaim API. Make sure all information is correct before submitting.
+                </p>
               </div>
             </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+          <div className="bg-gray-50 px-6 py-4 flex items-center justify-end space-x-3">
             <button
-              onClick={loadAutoPopulateData}
-              disabled={isLoading}
-              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:bg-gray-300"
+              onClick={() => handleCreateSEP(false)}
+              disabled={isCreating || !validation?.is_valid}
+              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
             >
-              <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-              Refresh Data
+              {isCreating ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
+              Save as Draft
             </button>
             <button
-              onClick={handleCreateSEP}
-              disabled={isSubmitting || !canCreate || isLoading}
-              className="inline-flex items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300"
+              onClick={() => handleCreateSEP(true)}
+              disabled={isCreating || !validation?.is_valid}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium flex items-center"
             >
-              {isSubmitting ? (
-                <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                  Memproses...
-                </>
+              {isCreating ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               ) : (
                 <>
-                  <CheckCircle className="h-5 w-5 mr-2" />
-                  Buat SEP
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  Create & Submit SEP
                 </>
               )}
             </button>
           </div>
+        </div>
+      )}
 
-          {/* Error Display */}
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <div className="flex items-start">
-                <AlertTriangle className="h-5 w-5 text-red-400 mr-2" />
-                <div className="text-sm text-red-800">
-                  <p className="font-medium">Error</p>
-                  <p className="mt-1">{error}</p>
-                </div>
-                <button
-                  onClick={() => setError(null)}
-                  className="ml-auto text-red-600 hover:text-red-800"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-            </div>
-          )}
-        </>
+      {/* SEP History */}
+      {showHistory && existingSEP && (
+        <div className="bg-white rounded-lg shadow">
+          <div className="p-6 border-b border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-900">SEP History</h3>
+          </div>
+          <div className="p-6">
+            <p className="text-sm text-gray-500">SEP history tracking will be displayed here.</p>
+          </div>
+        </div>
       )}
     </div>
   );

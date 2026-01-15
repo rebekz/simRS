@@ -16,6 +16,7 @@ import { User, FileText, Pills, AlertCircle, CheckCircle, Clock, Video, AlertTri
 import { SOAPNoteEditor } from "../clinical/SOAPNoteEditor";
 import { ICD10Selector } from "../patients/ICD10Selector";
 import { PrescriptionWriter } from "../prescriptions/PrescriptionWriter";
+import { SEPGenerator } from "../bpjs/SEPGenerator";
 
 // Types
 interface PatientSummary {
@@ -54,6 +55,8 @@ export function ConsultationWorkspace({ patientId, encounterId, onComplete }: Co
   const [patientSummary, setPatientSummary] = useState<PatientSummary | null>(null);
   const [consultationSession, setConsultationSession] = useState<ConsultationSession | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showSEPGenerator, setShowSEPGenerator] = useState(false);
+  const [sepCreated, setSepCreated] = useState(false);
 
   useEffect(() => {
     if (encounterId) {
@@ -103,6 +106,7 @@ export function ConsultationWorkspace({ patientId, encounterId, onComplete }: Co
     { id: "soap", label: "SOAP Note", icon: FileText },
     { id: "diagnosis", label: "Diagnosis", icon: AlertCircle },
     { id: "treatment", label: "Treatment", icon: Pills },
+    { id: "sep", label: "BPJS SEP", icon: CheckCircle },
     { id: "education", label: "Education", icon: Video },
   ];
 
@@ -244,6 +248,10 @@ export function ConsultationWorkspace({ patientId, encounterId, onComplete }: Co
 
           {activeTab === "treatment" && encounterId && (
             <TreatmentTab encounterId={encounterId} />
+          )}
+
+          {activeTab === "sep" && encounterId && (
+            <SEPTab encounterId={encounterId} patientId={patientId} />
           )}
 
           {activeTab === "education" && (
@@ -459,6 +467,75 @@ function TreatmentTab({ encounterId }: { encounterId: number }) {
             ))}
           </div>
         )
+      )}
+    </div>
+  );
+}
+
+function SEPTab({ encounterId, patientId }: { encounterId: number; patientId: number }) {
+  const [showSEPGenerator, setShowSEPGenerator] = useState(false);
+  const [sepCreated, setSepCreated] = useState(false);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-semibold text-gray-900">BPJS SEP Management</h2>
+        <button
+          onClick={() => setShowSEPGenerator(true)}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm flex items-center"
+        >
+          <CheckCircle className="h-4 w-4 mr-2" />
+          {sepCreated ? "Manage SEP" : "Create SEP"}
+        </button>
+      </div>
+
+      {showSEPGenerator && (
+        <SEPGenerator
+          encounterId={encounterId}
+          patientId={patientId}
+          onSEPCreated={(sep) => {
+            setSepCreated(true);
+            setShowSEPGenerator(false);
+          }}
+          onCancel={() => setShowSEPGenerator(false)}
+        />
+      )}
+
+      {!showSEPGenerator && !sepCreated && (
+        <div className="text-center py-12 text-gray-500">
+          <CheckCircle className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+          <p>No BPJS SEP created for this encounter</p>
+          <div className="mt-4 text-sm text-gray-600 space-y-1">
+            <p>SEP (Surat Eligibilitas Peserta) is required for BPJS claims</p>
+            <p>Create SEP before completing the encounter</p>
+          </div>
+          <button
+            onClick={() => setShowSEPGenerator(true)}
+            className="mt-4 text-blue-600 hover:text-blue-700 text-sm"
+          >
+            Create SEP now
+          </button>
+        </div>
+      )}
+
+      {!showSEPGenerator && sepCreated && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+          <div className="flex items-start">
+            <CheckCircle className="h-6 w-6 text-green-600 mr-3 flex-shrink-0" />
+            <div className="flex-1">
+              <h3 className="text-lg font-medium text-green-900">SEP Created</h3>
+              <p className="text-sm text-green-700 mt-1">
+                BPJS SEP has been created for this encounter. The SEP is required for claims processing.
+              </p>
+              <button
+                onClick={() => setShowSEPGenerator(true)}
+                className="mt-4 text-sm text-green-700 hover:text-green-800 underline"
+              >
+                View SEP Details
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
