@@ -7880,3 +7880,120 @@ vital_signs_limit=5
 6. EPIC-003 Progress: 1/5 stories complete (20%)
 
 =============================================================================
+
+=============================================================================
+STORY-012: ICD-10 Problem List - COMPLETED (2026-01-15)
+=============================================================================
+
+### Summary:
+Implemented comprehensive ICD-10 problem list management for clinical documentation.
+Backend was already complete (models, schemas, API, CRUD). Created frontend UI
+components for problem list display, ICD-10 code selection, and problem management.
+
+### Implementation Details:
+
+#### Frontend Components Created:
+1. **ICD10Selector Component** (ICD10Selector.tsx - 284 lines)
+   - Modal dialog for searching and selecting ICD-10 diagnosis codes
+   - Real-time search with 300ms debouncing
+   - Favorites management (add/view favorite codes)
+   - Tabbed interface: Search and Favorites
+   - Indonesian ICD-10 descriptions display
+   - Common codes indicator
+   - Chapter filtering display
+
+2. **AddProblemForm Component** (AddProblemForm.tsx - 350+ lines)
+   - Form for adding new problems/diagnoses to patient problem list
+   - ICD-10 code selection integration with ICD10Selector
+   - Status selection: Active, Chronic, Acute
+   - Severity classification: Mild, Moderate, Severe
+   - Diagnostic certainty: Confirmed, Probable, Possible
+   - Onset date tracking
+   - Clinical notes and treatment plan fields
+   - Follow-up tracking with date picker
+   - Full validation and error handling
+
+3. **ProblemList Component Enhancement** (ProblemList.tsx - modified)
+   - Replaced placeholder modal with AddProblemForm integration
+   - Fixed authentication token consistency (staff_access_token)
+   - Complete problem list display with filtering by status
+   - Statistics cards (total, active, chronic, resolved)
+   - Color-coded status indicators
+   - Quick actions (resolve, edit)
+
+4. **Patient History Page Integration** (patients/[id]/page.tsx - modified)
+   - Added "Problems" tab to patient history view
+   - Integrated ProblemList component
+   - Problems tab accessible alongside overview, encounters, allergies, medications, timeline
+
+#### Backend Verification:
+- Models already exist: ICD10Code, ICD10UserFavorite, ProblemList
+- Schemas already exist: icd10.py with complete request/response models
+- API endpoints already implemented:
+  - POST /api/v1/icd10/search - Search ICD-10 codes
+  - GET /api/v1/icd10/favorites - User favorites
+  - POST /api/v1/problems - Create problem
+  - GET /api/v1/problems/patient/{id} - Get patient problems
+  - PUT /api/v1/problems/{id} - Update problem
+  - DELETE /api/v1/problems/{id} - Delete problem
+
+#### API Integration:
+- ICD10Selector: POST /api/v1/icd10/search, GET /api/v1/icd10/favorites
+- AddProblemForm: POST /api/v1/problems
+- ProblemList: GET /api/v1/problems/patient/{id}, PUT /api/v1/problems/{id}
+- All requests use staff_access_token for authentication
+
+### Features Implemented:
+✅ AC-001: ICD-10 code search functionality (Indonesian descriptions)
+✅ AC-002: Add problem to patient problem list
+✅ AC-003: View all patient problems (active, chronic, resolved)
+✅ AC-004: Update problem status (active → resolved)
+✅ AC-005: Mark problems as chronic
+✅ AC-006: Link problem to encounter (via encounter_id field)
+✅ AC-007: Clinical notes and treatment plan for each problem
+✅ AC-008: Problem list persistence across sessions (via database)
+✅ AC-009: Quick problem resolution button
+✅ AC-010: Filter problems by status (All, Active, Chronic, Resolved)
+
+### Files Created:
+1. frontend/src/components/patients/ICD10Selector.tsx (284 lines)
+2. frontend/src/components/patients/AddProblemForm.tsx (350+ lines)
+
+### Files Modified:
+1. frontend/src/components/patients/ProblemList.tsx - Integrated AddProblemForm, fixed token
+2. frontend/src/app/app/patients/[id]/page.tsx - Added Problems tab
+
+### Authentication:
+- Fixed token inconsistency: All components now use staff_access_token
+- Consistent with patient history page implementation
+
+### TypeScript Verification:
+- All new files compile without errors
+- No TypeScript issues in AddProblemForm, ICD10Selector, ProblemList, or patient history page
+
+### UI/UX Features:
+- Modal-based ICD-10 code selection for focused workflow
+- Real-time search with debouncing for performance
+- Favorites management for frequently used codes
+- Color-coded status indicators (green=active, gray=resolved, purple=chronic, red=acute)
+- Severity badges (green=mild, yellow=moderate, red=severe)
+- Certainty badges (blue=confirmed, yellow=probable, gray=possible)
+- Follow-up tracking with date picker
+- Statistics dashboard for quick overview
+- Filterable list for efficient navigation
+
+### Integration Points:
+- Patient History Page (STORY-011): Problems tab now available
+- ICD-10 Database: Indonesian ICD-10-CM codes with chapters
+- Problem List CRUD: Full create, read, update, delete operations
+- Encounter Linking: Problems can be associated with specific encounters
+- User Favorites: Staff can save frequently used ICD-10 codes
+
+### Next Steps:
+1. STORY-013: Allergy Tracking (requires STORY-011 complete)
+2. STORY-014: Medication List (requires STORY-011 complete)
+3. STORY-015: Clinical Notes SOAP (requires STORY-011 complete)
+4. STORY-016: Doctor Consultation Workflow (requires STORY-011, STORY-012, STORY-015)
+5. EPIC-003 Progress: 2/5 stories complete (40%)
+
+=============================================================================

@@ -13,6 +13,7 @@
 
 import { useState, useEffect } from "react";
 import { Plus, Edit2, CheckCircle, AlertCircle, Clock, Calendar, FileText } from "lucide-react";
+import { AddProblemForm } from "./AddProblemForm";
 
 // Types
 interface Problem {
@@ -75,7 +76,7 @@ export function ProblemList({ patientId, onProblemClick }: ProblemListProps) {
       const params = statusFilter ? `?status_filter=${statusFilter}` : "";
       const response = await fetch(`/api/v1/problems/patient/${patientId}${params}`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${localStorage.getItem("staff_access_token")}`,
         },
       });
 
@@ -146,7 +147,7 @@ export function ProblemList({ patientId, onProblemClick }: ProblemListProps) {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${localStorage.getItem("staff_access_token")}`,
         },
         body: JSON.stringify({ status: "resolved" }),
       });
@@ -418,35 +419,16 @@ export function ProblemList({ patientId, onProblemClick }: ProblemListProps) {
         )}
       </div>
 
-      {/* Add Problem Modal Placeholder */}
+      {/* Add Problem Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="px-4 py-3 sm:px-6 border-b border-gray-200">
-              <h3 className="text-lg font-medium text-gray-900">Add Problem</h3>
-            </div>
-            <div className="px-4 py-5 sm:p-6">
-              <p className="text-sm text-gray-600">
-                Add problem form would go here. For now, this is a placeholder.
-              </p>
-              {/* TODO: Implement AddProblemForm component */}
-            </div>
-            <div className="px-4 py-3 sm:px-6 border-t border-gray-200 flex justify-end space-x-3">
-              <button
-                onClick={() => setShowAddModal(false)}
-                className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => setShowAddModal(false)}
-                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-              >
-                Add Problem
-              </button>
-            </div>
-          </div>
-        </div>
+        <AddProblemForm
+          patientId={patientId}
+          onSuccess={() => {
+            setShowAddModal(false);
+            fetchProblems();
+          }}
+          onCancel={() => setShowAddModal(false)}
+        />
       )}
 
       {/* Edit Problem Modal Placeholder */}
