@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Bell, Menu, X } from 'lucide-react';
 import { SearchBar } from './SearchBar';
 import { UserAvatar } from './UserAvatar';
+import { NotificationCenter } from '@/components/notifications/NotificationCenter';
 import { User } from '@/types';
 import { cn } from '@/lib/utils';
 
@@ -22,6 +23,8 @@ export const Topbar: React.FC<TopbarProps> = ({
   notificationCount = 0,
   onLogout,
 }) => {
+  const [showNotificationCenter, setShowNotificationCenter] = useState(false);
+
   return (
     <header className="topbar">
       <div className="flex items-center gap-4">
@@ -38,21 +41,18 @@ export const Topbar: React.FC<TopbarProps> = ({
       </div>
 
       <div className="flex items-center gap-3">
-        <button
-          className="relative btn-icon"
-          aria-label="Notifications"
-          style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}
-        >
-          <Bell size={20} />
-          {notificationCount > 0 && (
-            <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-              {notificationCount > 9 ? '9+' : notificationCount}
-            </span>
-          )}
-        </button>
+        <NotificationCenter />
 
         <UserAvatar user={user} onLogout={onLogout} />
       </div>
+
+      {showNotificationCenter && (
+        <div className="fixed inset-0 z-50" onClick={() => setShowNotificationCenter(false)}>
+          <div className="fixed right-4 top-16 z-50" onClick={(e) => e.stopPropagation()}>
+            <NotificationCenter />
+          </div>
+        </div>
+      )}
     </header>
   );
 };

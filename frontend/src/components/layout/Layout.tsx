@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { Sidebar } from './Sidebar';
 import { Topbar } from './Topbar';
+import { NotificationCenter } from '@/components/notifications/NotificationCenter';
 import { User, UserRole } from '@/types';
 import { cn } from '@/lib/utils';
 
@@ -36,8 +37,8 @@ export const Layout: React.FC<LayoutProps> = ({ children, user }) => {
   }, [isMobileMenuOpen]);
 
   const handleLogout = () => {
-    // TODO: Implement logout logic
-    console.log('Logout clicked');
+    // Clear tokens and redirect to login will be handled by parent
+    window.location.href = '/app/login';
   };
 
   return (
@@ -81,7 +82,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, user }) => {
           onLogout={handleLogout}
         />
 
-        <main className="p-6">{children}</main>
+        <main className="main-content">{children}</main>
       </div>
     </div>
   );

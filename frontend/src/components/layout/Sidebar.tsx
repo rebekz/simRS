@@ -15,6 +15,8 @@ import {
   Settings,
   Shield,
   ChevronRight,
+  DollarSign,
+  BarChart3,
 } from 'lucide-react';
 import { NavSection } from './NavSection';
 import { NavItem } from './NavItem';
@@ -31,28 +33,29 @@ const menuConfig: MenuItem[] = [
     id: 'dashboard',
     label: 'Dashboard',
     icon: 'LayoutDashboard',
-    href: '/dashboard',
+    href: '/app/dashboard',
   },
   {
     id: 'patients',
     label: 'Pasien',
     icon: 'Users',
-    href: '/patients',
+    href: '/app/patients',
   },
   {
     id: 'registration',
     label: 'Pendaftaran',
     icon: 'FileText',
-    href: '/registration',
+    href: '/app/patients/new',
   },
   {
     id: 'medical-records',
     label: 'Rekam Medis',
     icon: 'FileText',
     children: [
-      { id: 'outpatient', label: 'Rawat Jalan', href: '/medical-records/outpatient' },
-      { id: 'inpatient', label: 'Rawat Inap', href: '/medical-records/inpatient' },
-      { id: 'emergency', label: 'IGD', href: '/medical-records/emergency' },
+      { id: 'outpatient', label: 'Rawat Jalan', href: '/app/consultation' },
+      { id: 'inpatient', label: 'Rawat Inap', href: '/app/admission' },
+      { id: 'emergency', label: 'IGD', href: '/app/emergency' },
+      { id: 'clinical', label: 'Catatan Medis', href: '/app/clinical' },
     ],
   },
   {
@@ -61,8 +64,8 @@ const menuConfig: MenuItem[] = [
     icon: 'Pill',
     roles: ['admin', 'pharmacist', 'doctor', 'nurse'],
     children: [
-      { id: 'prescription', label: 'Resep', href: '/pharmacy/prescription' },
-      { id: 'inventory', label: 'Stok Obat', href: '/pharmacy/inventory' },
+      { id: 'prescription', label: 'Resep', href: '/app/prescriptions' },
+      { id: 'inventory', label: 'Stok Obat', href: '/app/inventory' },
     ],
   },
   {
@@ -70,21 +73,47 @@ const menuConfig: MenuItem[] = [
     label: 'Radiologi',
     icon: 'Microscope',
     roles: ['admin', 'radiologist', 'doctor'],
-    href: '/radiology',
+    href: '/app/radiology',
   },
   {
     id: 'laboratory',
     label: 'Laboratorium',
     icon: 'TestTube',
     roles: ['admin', 'lab_tech', 'doctor'],
-    href: '/laboratory',
+    href: '/app/lab',
+  },
+  {
+    id: 'appointments',
+    label: 'Janji Temu',
+    icon: 'Calendar',
+    roles: ['admin', 'doctor', 'nurse', 'receptionist'],
+    href: '/app/appointments',
+  },
+  {
+    id: 'queue',
+    label: 'Antrian',
+    icon: 'Activity',
+    href: '/app/queue',
   },
   {
     id: 'schedule',
-    label: 'Jadwal Dokter',
+    label: 'Jadwal',
     icon: 'Calendar',
     roles: ['admin', 'doctor', 'nurse', 'receptionist'],
-    href: '/schedule',
+    href: '/app/schedule',
+  },
+  {
+    id: 'billing',
+    label: 'Tagihan',
+    icon: 'DollarSign',
+    href: '/app/billing',
+  },
+  {
+    id: 'reports',
+    label: 'Laporan',
+    icon: 'BarChart3',
+    roles: ['admin'],
+    href: '/app/reports',
   },
 ];
 
@@ -95,9 +124,9 @@ const adminMenuConfig: MenuItem[] = [
     icon: 'Shield',
     roles: ['admin'],
     children: [
-      { id: 'users', label: 'Manajemen User', href: '/admin/users' },
-      { id: 'roles', label: 'Roles & Permissions', href: '/admin/roles' },
-      { id: 'settings', label: 'Pengaturan', href: '/admin/settings' },
+      { id: 'users', label: 'Manajemen User', href: '/app/admin/users' },
+      { id: 'roles', label: 'Roles & Permissions', href: '/app/admin/roles' },
+      { id: 'settings', label: 'Pengaturan', href: '/app/admin/settings' },
     ],
   },
 ];
@@ -114,6 +143,8 @@ const iconMap: Record<string, React.ComponentType<{ size?: number }>> = {
   Settings,
   Shield,
   ChevronRight,
+  DollarSign,
+  BarChart3,
 };
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -198,10 +229,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <NavItem
             icon={Settings}
             label="Pengaturan"
-            href="/settings"
-            active={isActive('/settings')}
+            href="/app/settings"
+            active={isActive('/app/settings')}
             onClick={() => {
-              router.push('/settings');
+              router.push('/app/settings');
               onClose?.();
             }}
           />
