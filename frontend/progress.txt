@@ -98,15 +98,25 @@
   - Loading and error states
   - File: src/components/bpjs/BPJSStatusIndicators.tsx
 
-- [ ] WEB-S-2.4: BPJS Error Handling
-  - User-friendly error messages
-  - Retry functionality
+- [x] WEB-S-2.4: BPJS Error Handling (commit: TBD)
+  - BPJS error code mapping (30+ error codes)
+  - User-friendly error translation (API codes → Indonesian messages)
+  - Error severity levels (Critical/High/Medium/Low)
+  - BPJSErrorAlert: Color-coded alert component
+  - BPJSErrorDisplay: Wrapper component with auto-translation
+  - BPJSErrorToast: Toast notification with auto-dismiss
+  - BPJSErrorRetryButton: Retry button with loading state
+  - useBPJSErrorRetry: Custom hook for retry management
+  - BPJSErrorBoundary: Error boundary component
+  - Exponential backoff retry logic
+  - Retry attempt tracking
+  - File: src/lib/bpjs-errors.ts, src/components/bpjs/BPJSErrorDisplay.tsx
 
 - [ ] WEB-S-2.5: BPJS History & Audit
   - Admin logs
   - Success rate tracking
 
-**Epic Status:** IN PROGRESS (1/5 stories complete)
+**Epic Status:** IN PROGRESS (4/5 stories complete - 80%)
 **Completion Date:** TBD
 
 ---
@@ -149,8 +159,8 @@ Waiting for WEB-EPIC-3 completion.
 **Blocked:** 2 (WEB-EPIC-3, WEB-EPIC-4)
 
 **Total Stories:** 34
-**Completed:** 15
-**In Progress:** 1
-**Remaining:** 18
+**Completed:** 18
+**In Progress:** 0
+**Remaining:** 16
 
-**Overall Progress:** ~44% complete (15/34 stories)
+**Overall Progress:** ~53% complete (18/34 stories)
