@@ -12,7 +12,7 @@
  */
 
 import { useState, useEffect } from "react";
-import { User, FileText, Pills, AlertCircle, CheckCircle, Clock, Video } from "lucide-react";
+import { User, FileText, Pills, AlertCircle, CheckCircle, Clock, Video, AlertTriangle } from "lucide-react";
 import { SOAPNoteEditor } from "../clinical/SOAPNoteEditor";
 import { ICD10Selector } from "../patients/ICD10Selector";
 

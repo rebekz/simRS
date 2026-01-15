@@ -81,7 +81,7 @@ export function AllergyList({ patientId }: AllergyListProps) {
         `/api/v1/allergies/patient/${patientId}?${params}`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${localStorage.getItem("staff_access_token")}`,
           },
         }
       );
@@ -157,7 +157,7 @@ export function AllergyList({ patientId }: AllergyListProps) {
       const response = await fetch(`/api/v1/allergies/${allergyId}`, {
         method: "DELETE",
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${localStorage.getItem("staff_access_token")}`,
         },
       });
 
@@ -175,7 +175,7 @@ export function AllergyList({ patientId }: AllergyListProps) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${localStorage.getItem("staff_access_token")}`,
         },
         body: JSON.stringify({
           patient_id: patientId,

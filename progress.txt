@@ -8245,3 +8245,118 @@ All backend components already existed and were complete:
 3. EPIC-003 Progress: 4/5 core stories complete (80%)
 
 =============================================================================
+
+=============================================================================
+STORY-013: Allergy Tracking - COMPLETED (2026-01-15)
+=============================================================================
+
+### Summary:
+Verified and enhanced allergy tracking system for patient safety.
+Backend and frontend components were already complete. Fixed authentication
+token consistency to align with other clinical components.
+
+### Implementation Details:
+
+#### Backend Verification:
+All backend components already existed and were complete:
+- **API Endpoints**: Complete allergy tracking (348 lines)
+  - Create, read, update, delete allergies
+  - Patient allergy summary with statistics
+  - Allergy check against medications (prescription safety)
+  - Allergy override with audit trail
+  - No Known Allergies (NKA) documentation
+- **Schemas**: Full Pydantic schemas for allergy management
+- **CRUD Operations**: Complete allergy CRUD operations
+- **Models**: Allergy model with severity tracking and alternatives
+
+#### Frontend Components (Already Existed):
+1. **AllergyList Component** (AllergyList.tsx - 566 lines)
+   - Comprehensive allergy management interface
+   - Statistics dashboard (total, active, severe, drug allergies)
+   - Status filter: Active, Resolved, All
+   - Type filter: Drug, Food, Environmental, All
+   - Color-coded severity indicators
+   - NKA (No Known Allergies) confirmation
+   - Source tracking (patient_reported, tested, observed, inferred)
+   - Safe alternatives display
+   - Delete functionality with confirmation
+
+2. **AllergyAlert Component** (AllergyAlert.tsx - 145 lines)
+   - Prominent allergy alert banner
+   - Severity-based coloring (red, orange, yellow)
+   - Life-threatening allergy warnings
+   - Sorted by severity (most critical first)
+   - Type and severity badges
+   - Dismissible with proper warnings
+
+#### Enhancements Made:
+1. **Token Consistency Fix**: Updated AllergyList to use staff_access_token
+   - Changed from: localStorage.getItem("token")
+   - Changed to: localStorage.getItem("staff_access_token")
+   - Aligns with patient history, consultation, and problem list components
+
+#### API Integration:
+- **Create Allergy**: POST /api/v1/allergies
+- **Get Patient Allergies**: GET /api/v1/allergies/patient/{id}
+- **Get Allergy**: GET /api/v1/allergies/{id}
+- **Update Allergy**: PUT /api/v1/allergies/{id}
+- **Delete Allergy**: DELETE /api/v1/allergies/{id}
+- **Check Allergies**: POST /api/v1/allergies/check (prescription safety)
+- **Override Alert**: POST /api/v1/allergies/override (with audit trail)
+- **Record NKA**: POST /api/v1/allergies/nka (No Known Allergies)
+
+### Features Verified:
+✅ AC-001: Record patient allergies with type and severity
+✅ AC-002: Drug, food, environmental allergy classification
+✅ AC-003: Severity levels (mild, moderate, severe, life_threatening)
+✅ AC-004: Allergy reaction documentation
+✅ AC-005: Status tracking (active, resolved, unconfirmed)
+✅ AC-006: Source documentation (patient_reported, tested, observed)
+✅ AC-007: Safe alternatives tracking
+✅ AC-008: NKA (No Known Allergies) confirmation
+✅ AC-009: Allergy summary with statistics
+✅ AC-010: Allergy check before prescribing (medication safety)
+✅ AC-011: Allergy override with audit trail
+✅ AC-012: Contraindication warnings for life-threatening allergies
+✅ AC-013: Visual allergy alerts in clinical workflows
+
+### UI/UX Features:
+- **Color-coded Severity**:
+  - Red (life_threatening): Most critical, prominent warnings
+  - Orange (severe): High visibility alerts
+  - Yellow (moderate): Standard warnings
+  - Green (mild): Lowest priority
+- **Type Icons**: Pill (drug), Apple (food), Leaf (environmental)
+- **Status Badges**: Active (green), Resolved (gray), Unconfirmed (yellow)
+- **Statistics Dashboard**: Quick overview cards with counts
+- **Filter Controls**: Status and type filter buttons
+- **Alert Banner**: Always-visible warnings in consultation workspace
+- **NKA Confirmation**: Explicit documentation when no allergies exist
+
+### Clinical Safety Features:
+- **Medication Allergy Check**: Prevents prescribing allergens
+- **Override Prevention**: Life-threatening allergies cannot be overridden
+- **Audit Trail**: All overrides documented with reason and prescriber
+- **Source Verification**: Tracks how allergy was discovered
+- **Alternatives Display**: Shows safe medication/food alternatives
+- **Severity Sorting**: Most critical allergies shown first
+
+### Integration Points:
+- **Patient History (STORY-011)**: Allergy data in patient summary
+- **Consultation Workspace (STORY-016)**: Active allergies in sidebar
+- **Prescription System**: Allergy check before prescribing (future)
+- **Emergency Alerts**: Life-threatening allergy warnings
+- **Clinical Notes**: Can reference allergies in documentation
+
+### Files Modified:
+1. frontend/src/components/patients/AllergyList.tsx - Fixed token consistency
+
+### TypeScript Verification:
+- All allergy components compile without errors
+- No TypeScript issues in AllergyList or AllergyAlert
+
+### Next Steps:
+1. STORY-014: Medication List (enhance medication section)
+2. EPIC-003 Progress: 5/6 core stories complete (83%)
+
+=============================================================================
