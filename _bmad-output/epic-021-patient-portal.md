@@ -1,6 +1,6 @@
-### Epic 22: Patient Portal
+### Epic 21: Patient Portal
 
-**Epic ID**: EPIC-022
+**Epic ID**: EPIC-021
 **Business Value**: Patient engagement, satisfaction, reduced workload, improved patient outcomes, enhanced patient experience, better care coordination
 **Complexity**: High
 **Estimated Duration**: 5-6 weeks

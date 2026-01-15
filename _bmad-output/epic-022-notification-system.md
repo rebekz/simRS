@@ -1,6 +1,6 @@
 # Epic 023: Notification System
 
-**Epic ID**: EPIC-023
+**Epic ID**: EPIC-022
 **Business Value**: Improves patient engagement, operational efficiency, and communication - critical for patient satisfaction and care quality
 **Complexity**: Medium-High
 **Estimated Duration**: 4-5 weeks
@@ -45,7 +45,7 @@ The Notification System provides:
 
 ## Detailed User Stories
 
-### STORY-023-01: Multi-Channel Notification Delivery
+### STORY-022-01: Multi-Channel Notification Delivery
 
 **As a** System Architect
 **I want to** implement a multi-channel notification delivery system
@@ -98,7 +98,7 @@ The Notification System provides:
 
 ---
 
-### STORY-023-02: Appointment Reminders and Confirmations
+### STORY-022-02: Appointment Reminders and Confirmations
 
 **As a** Patient
 **I want to** receive appointment reminders and confirmations
@@ -153,7 +153,7 @@ The Notification System provides:
 
 ---
 
-### STORY-023-03: Medication Reminders
+### STORY-022-03: Medication Reminders
 
 **As a** Patient
 **I want to** receive medication reminders
@@ -206,7 +206,7 @@ The Notification System provides:
 
 ---
 
-### STORY-023-04: Lab Result Notifications
+### STORY-022-04: Lab Result Notifications
 
 **As a** Patient
 **I want to** be notified when my lab results are ready
@@ -264,7 +264,7 @@ The Notification System provides:
 
 ---
 
-### STORY-023-05: Critical Value Alerts to Physicians
+### STORY-022-05: Critical Value Alerts to Physicians
 
 **As a** Doctor
 **I want to** receive immediate alerts for critical lab values
@@ -329,7 +329,7 @@ The Notification System provides:
 
 ---
 
-### STORY-023-06: System Alerts (Downtime, Failures)
+### STORY-022-06: System Alerts (Downtime, Failures)
 
 **As a** System Administrator
 **I want to** receive alerts for system issues
@@ -399,7 +399,7 @@ The Notification System provides:
 
 ---
 
-### STORY-023-07: Queue Status Notifications
+### STORY-022-07: Queue Status Notifications
 
 **As a** Patient
 **I want to** receive queue status updates
@@ -465,7 +465,7 @@ The Notification System provides:
 
 ---
 
-### STORY-023-08: Payment Due Reminders
+### STORY-022-08: Payment Due Reminders
 
 **As a** Patient
 **I want to** receive payment reminders
@@ -525,7 +525,7 @@ The Notification System provides:
 
 ---
 
-### STORY-023-09: Notification Preference Management
+### STORY-022-09: Notification Preference Management
 
 **As a** Patient
 **I want to** manage my notification preferences
@@ -597,7 +597,7 @@ The Notification System provides:
 
 ---
 
-### STORY-023-10: Template Management System
+### STORY-022-10: Template Management System
 
 **As a** Hospital Administrator
 **I want to** manage notification templates

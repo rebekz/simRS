@@ -1,6 +1,6 @@
-### Epic 21: Staff Portal
+### Epic 20: Staff Portal
 
-**Epic ID**: EPIC-021
+**Epic ID**: EPIC-020
 **Business Value**: Staff empowerment, reduced admin burden, improved HR efficiency, enhanced staff satisfaction and retention
 **Complexity**: Medium-High
 **Estimated Duration**: 4-5 weeks

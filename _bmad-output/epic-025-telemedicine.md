@@ -1,6 +1,6 @@
-# Epic 18: Telemedicine Platform
+# Epic 25: Telemedicine Platform
 
-**Epic ID**: EPIC-018
+**Epic ID**: EPIC-025
 **Business Value**: Enables remote care access - critical for patient accessibility, revenue diversification, and modern healthcare delivery
 **Complexity**: High
 **Estimated Duration**: 6-8 weeks

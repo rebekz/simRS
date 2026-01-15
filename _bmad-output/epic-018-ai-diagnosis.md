@@ -1,6 +1,6 @@
-# Epic 19: AI Diagnosis Assistant
+# Epic 18: AI Diagnosis Assistant
 
-**Epic ID**: EPIC-019
+**Epic ID**: EPIC-018
 **Business Value**: Clinical decision support, diagnostic accuracy, patient safety
 **Complexity**: Very High
 **Estimated Duration**: 8-10 weeks

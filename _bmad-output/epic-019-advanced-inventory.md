@@ -1,6 +1,6 @@
-# Epic 20: Advanced Inventory Management
+# Epic 19: Advanced Inventory Management
 
-**Epic ID**: EPIC-020
+**Epic ID**: EPIC-019
 **Business Value**: Cost control, stock optimization, regulatory compliance
 **Complexity**: High
 **Estimated Duration**: 5-6 weeks

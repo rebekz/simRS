@@ -1,6 +1,6 @@
 # Epic 024: Advanced Reporting - Custom Report Builder
 
-**Epic ID**: EPIC-024
+**Epic ID**: EPIC-023
 **Business Value**: Enables flexible, self-service reporting with powerful customization capabilities - essential for data-driven decision making, regulatory compliance automation, and business intelligence
 **Complexity**: High
 **Estimated Duration**: 6-8 weeks
@@ -14,7 +14,7 @@ Epic 024 builds upon the foundational reporting capabilities established in EPIC
 ### Key Differentiators from EPIC-013
 
 **EPIC-013 (Basic Reporting)**: Pre-built reports, standard dashboards, basic exports, manual scheduling
-**EPIC-024 (Advanced Reporting)**: Custom report builder, ad-hoc query interface, advanced visualizations, automated regulatory submissions, enterprise security, performance optimization for large datasets
+**EPIC-023 (Advanced Reporting)**: Custom report builder, ad-hoc query interface, advanced visualizations, automated regulatory submissions, enterprise security, performance optimization for large datasets
 
 ---
 

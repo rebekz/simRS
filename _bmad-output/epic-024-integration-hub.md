@@ -1,6 +1,6 @@
 # Epic 025: Integration Hub - HL7/FHIR Gateway
 
-**Epic ID**: EPIC-025
+**Epic ID**: EPIC-024
 **Business Value**: Enables seamless interoperability with third-party healthcare systems, future-proofs the platform for ecosystem integration, and positions SIMRS as a connected healthcare platform
 **Complexity**: High
 **Estimated Duration**: 6-8 weeks
@@ -46,7 +46,7 @@ The Integration Hub provides:
 
 ## Detailed User Stories
 
-### STORY-025-01: HL7 v2.x Message Parsing and Routing
+### STORY-024-01: HL7 v2.x Message Parsing and Routing
 
 **As a** System Integrator
 **I want to** parse and route HL7 v2.x messages
@@ -109,7 +109,7 @@ The Integration Hub provides:
 
 ---
 
-### STORY-025-02: FHIR R4 Server Implementation
+### STORY-024-02: FHIR R4 Server Implementation
 
 **As a** System Architect
 **I want to** implement a FHIR R4 server
@@ -183,7 +183,7 @@ The Integration Hub provides:
 
 ---
 
-### STORY-025-03: LIS (Laboratory Information System) Integration
+### STORY-024-03: LIS (Laboratory Information System) Integration
 
 **As a** Laboratory Manager
 **I want to** integrate with external LIS systems
@@ -257,7 +257,7 @@ The Integration Hub provides:
 
 ---
 
-### STORY-025-04: RIS (Radiology Information System) Integration
+### STORY-024-04: RIS (Radiology Information System) Integration
 
 **As a** Radiology Manager
 **I want to** integrate with RIS systems
@@ -334,7 +334,7 @@ The Integration Hub provides:
 
 ---
 
-### STORY-025-05: PACS (Picture Archiving and Communication System) Integration
+### STORY-024-05: PACS (Picture Archiving and Communication System) Integration
 
 **As a** Radiologist
 **I want to** integrate with PACS systems
@@ -401,7 +401,7 @@ The Integration Hub provides:
 
 ---
 
-### STORY-025-06: EMR/EHR System Integration (Bidirectional)
+### STORY-024-06: EMR/EHR System Integration (Bidirectional)
 
 **As a** Hospital IT Director
 **I want to** integrate with external EMR/EHR systems
@@ -483,7 +483,7 @@ The Integration Hub provides:
 
 ---
 
-### STORY-025-07: Insurance Verification System Integration
+### STORY-024-07: Insurance Verification System Integration
 
 **As a** Registration Clerk
 **I want to** automatically verify insurance eligibility
@@ -554,7 +554,7 @@ The Integration Hub provides:
 
 ---
 
-### STORY-025-08: Payment Gateway Integration
+### STORY-024-08: Payment Gateway Integration
 
 **As a** Patient
 **I want to** pay bills online through payment gateways
@@ -629,7 +629,7 @@ The Integration Hub provides:
 
 ---
 
-### STORY-025-09: Identification System Integration (KTP-el, BPJS)
+### STORY-024-09: Identification System Integration (KTP-el, BPJS)
 
 **As a** Registration Clerk
 **I want to** verify patient identity through government systems
@@ -701,7 +701,7 @@ The Integration Hub provides:
 
 ---
 
-### STORY-025-10: Message Transformation and Mapping Engine
+### STORY-024-10: Message Transformation and Mapping Engine
 
 **As a** System Integrator
 **I want to** transform messages between different formats
@@ -780,7 +780,7 @@ The Integration Hub provides:
 
 ---
 
-### STORY-025-11: Integration Monitoring and Error Handling
+### STORY-024-11: Integration Monitoring and Error Handling
 
 **As a** System Administrator
 **I want to** monitor all integrations and handle errors
