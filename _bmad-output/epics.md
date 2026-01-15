@@ -1484,6 +1484,16 @@ These concerns span multiple epics and must be addressed consistently:
 | EPIC-013 | Reporting & Analytics | Medium | 3-4 weeks | Phase 2 | Multiple |
 | EPIC-014 | User Management | Low-Med | 2-3 weeks | MVP | EPIC-001 |
 | EPIC-015 | System Configuration | Medium | 3-4 weeks | MVP | EPIC-001 |
+| EPIC-016 | Mobile App (React Native) | High | 8-10 weeks | Phase 2 | Multiple |
+| EPIC-017 | Analytics Dashboard | High | 5-6 weeks | Phase 2 | Multiple |
+| EPIC-018 | Telemedicine Platform | High | 6-8 weeks | Phase 2 | EPIC-001, EPIC-002, EPIC-003, EPIC-004 |
+| EPIC-019 | AI Diagnosis Assistant | High | 8-10 weeks | Phase 3 | EPIC-001, EPIC-003, EPIC-004, EPIC-007, EPIC-008 |
+| EPIC-020 | Advanced Inventory Management | Medium | 4-5 weeks | Phase 2 | EPIC-001, EPIC-006 |
+| EPIC-021 | Staff Portal | Medium-High | 4-5 weeks | Phase 2 | EPIC-001, EPIC-014, EPIC-015 |
+| EPIC-022 | Patient Portal | High | 5-6 weeks | Phase 2 | Multiple |
+| EPIC-023 | Notification System | Medium | 4-5 weeks | MVP+ | EPIC-001 |
+| EPIC-024 | Advanced Reporting | Medium | 3-4 weeks | Phase 2 | Multiple |
+| EPIC-025 | Integration Hub (HL7/FHIR) | High | 6-8 weeks | Phase 2 | EPIC-001, EPIC-003, EPIC-010, EPIC-011, EPIC-007, EPIC-008 |
 
 ---
 
@@ -1494,6 +1504,11 @@ These concerns span multiple epics and must be addressed consistently:
 2. **EPIC-010 (BPJS Integration)**: External dependency, certification critical
 3. **EPIC-011 (SATUSEHAT)**: External dependency, evolving platform
 4. **EPIC-003 (Medical Records)**: Complex clinical workflows, critical for care
+5. **EPIC-016 (Mobile App)**: Cross-platform complexity, offline-first architecture
+6. **EPIC-018 (Telemedicine)**: WebRTC integration, real-time video streaming
+7. **EPIC-019 (AI Diagnosis)**: ML model complexity, regulatory approval, accuracy requirements
+8. **EPIC-022 (Patient Portal)**: Security compliance, data privacy, user experience
+9. **EPIC-025 (Integration Hub)**: Multiple standards (HL7/FHIR), third-party dependencies
 
 ### Medium Risk Epics
 1. **EPIC-004 (Outpatient)**: Core workflow, high usage
@@ -1501,6 +1516,11 @@ These concerns span multiple epics and must be addressed consistently:
 3. **EPIC-009 (Billing)**: Financial impact, regulatory requirements
 4. **EPIC-007 (Laboratory)**: Instrument integration challenges
 5. **EPIC-008 (Radiology)**: PACS integration complexity
+6. **EPIC-017 (Analytics Dashboard)**: Data warehouse complexity, ETL pipelines
+7. **EPIC-020 (Advanced Inventory)**: Predictive analytics, multi-location tracking
+8. **EPIC-021 (Staff Portal)**: HR/payroll integration, data privacy
+9. **EPIC-023 (Notification System)**: Multi-channel delivery, cost management
+10. **EPIC-024 (Advanced Reporting)**: Complex query builder, performance optimization
 
 ### Lower Risk Epics
 1. **EPIC-002 (Registration)**: Well-defined scope
@@ -1539,7 +1559,25 @@ These concerns span multiple epics and must be addressed consistently:
 
 ---
 
-**Document Version:** 1.0
-**Last Updated:** 2026-01-13
+**Document Version:** 1.1
+**Last Updated:** 2026-01-15
 **Status:** Draft - Ready for Review
 **Next Review:** After Architecture Approval
+
+---
+
+## What's New in Version 1.1
+
+Added 10 new advanced epics for Phase 2 and Phase 3 development:
+- **EPIC-016**: Mobile App (React Native) - Cross-platform mobile application
+- **EPIC-017**: Analytics Dashboard - Hospital KPIs and business intelligence
+- **EPIC-018**: Telemedicine Platform - Video consultation integration
+- **EPIC-019**: AI Diagnosis Assistant - ML-powered clinical decision support
+- **EPIC-020**: Advanced Inventory Management - Predictive pharmacy inventory
+- **EPIC-021**: Staff Portal - Self-service HR and staff management
+- **EPIC-022**: Patient Portal - Patient self-service features
+- **EPIC-023**: Notification System - Multi-channel notifications (SMS/Email/Push)
+- **EPIC-024**: Advanced Reporting - Custom report builder and ad-hoc queries
+- **EPIC-025**: Integration Hub - HL7/FHIR gateway for third-party systems
+
+Each epic includes detailed user stories, acceptance criteria, technical architecture, and implementation phases.
