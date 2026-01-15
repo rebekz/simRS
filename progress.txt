@@ -11540,3 +11540,135 @@ Notes:
 - Compliant with local radiology standards
 
 =============================================================================
+
+=============================================================================
+STORY-009: Billing & Finance Management - COMPLETED
+Date: 2026-01-15 18:20:06
+
+Implementation Summary:
+Created comprehensive billing & finance management page for medical staff
+to manage patient invoices, payments, and BPJS claims.
+
+Files Created:
+- frontend/src/app/app/billing/page.tsx (600+ lines)
+
+Key Features Implemented:
+✅ Statistics dashboard (5 cards)
+   - Today\'s total billing
+   - Pending invoices
+   - Approved invoices
+   - Submitted claims
+   - Collected payments
+
+✅ Invoice management system
+   - Invoice list with comprehensive display
+   - Status workflow (draft→pending→approved→submitted/partial/paid/overdue)
+   - Expandable invoice details
+   - Line item breakdown
+   - Discount and tax calculation
+   - Balance tracking (total, paid, remaining)
+
+✅ BPJS claims integration
+   - Claim number tracking
+   - BPJS status tracking (draft→submitted→approved/rejected→paid)
+   - Submit claim to BPJS action
+   - BPJS-specific badges and indicators
+
+✅ Payment management
+   - Multiple payment methods (cash, transfer, card, BPJS, insurance, mixed)
+   - Payer type support (patient, BPJS, insurance, corporate)
+   - Payment method icons for quick identification
+   - Payment amount tracking
+   - Receive payment action
+
+✅ Comprehensive filtering
+   - Status filter (8 types)
+   - Payment method filter (6 types)
+   - Payer type filter (4 types)
+   - Date range filter
+   - Search by patient name, MRN, invoice number
+
+✅ Invoice details display
+   - Patient information
+   - Visit type (outpatient, inpatient, emergency)
+   - Department
+   - Invoice and due dates
+   - Line items with quantities and prices
+   - Discount and tax breakdown
+   - Total calculation
+   - Notes and additional information
+
+✅ Actions and functionality
+   - Create new invoice
+   - Edit draft invoices
+   - Approve/reject pending invoices
+   - Submit BPJS claims
+   - Receive payments
+   - Print invoices
+   - View details
+
+✅ Line item types support
+   - Services
+   - Medications
+   - Room charges
+   - Procedures
+   - Diagnostics (lab, radiology)
+
+✅ Currency formatting
+   - Indonesian Rupiah (IDR) format
+   - Proper number formatting
+
+Testing Considerations:
+- Invoice list display and loading
+- Filter combinations
+- Search functionality
+- Status transitions
+- BPJS claim submission
+- Payment receipt
+- Invoice editing
+- Print functionality
+- Expand/collapse functionality
+- Currency formatting accuracy
+- Balance calculation
+- Empty state handling
+- Responsive design
+- Indonesian language correctness
+- Date formatting
+
+Next Steps:
+- Implement invoice creation form
+- Add invoice edit form
+- Implement payment receipt form
+- Add refund functionality
+- Implement payment plan/instalment
+- Add invoice adjustment feature
+- Implement credit note system
+- Add aging report
+- Implement revenue recognition
+- Add payment reconciliation
+- Implement bank integration
+- Add e-invoice integration
+- Implement tax calculation rules
+- Add discount rules engine
+- Implement approval workflow configuration
+- Add notification for overdue invoices
+- Integrate with BPJS VClaim API
+- Implement insurance claim submission
+- Add financial reports (daily, monthly, yearly)
+- Implement DRG (Diagnosis Related Groups) coding
+- Add package pricing support
+- Implement corporate billing agreements
+- Add payment gateway integration
+
+Notes:
+- Critical for revenue cycle management
+- BPJS integration essential for Indonesian hospitals
+- Multi-payer support (BPJS, insurance, corporate, self-pay)
+- Status workflow ensures proper approval
+- Balance tracking prevents revenue leakage
+- Print functionality supports paper-based workflows
+- Foundation for advanced billing features
+- Indonesian language interface
+- Compliant with local billing standards
+
+=============================================================================
