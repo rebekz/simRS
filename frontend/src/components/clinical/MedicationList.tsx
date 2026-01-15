@@ -102,7 +102,7 @@ export function MedicationList({ patientId }: MedicationListProps) {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("staff_access_token");
 
       // Load medications
       const medsResponse = await fetch(`/api/v1/patients/${patientId}/medications?include_past=${showPast}`, {
@@ -129,7 +129,7 @@ export function MedicationList({ patientId }: MedicationListProps) {
 
   const checkInteractions = async (drugIds: number[]) => {
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("staff_access_token");
 
       // Check drug-drug interactions
       const interactionResponse = await fetch("/api/v1/medications/check-interactions", {
@@ -170,7 +170,7 @@ export function MedicationList({ patientId }: MedicationListProps) {
 
   const stopMedication = async (medicationId: number, reason: string) => {
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("staff_access_token");
 
       const response = await fetch(`/api/v1/medications/${medicationId}/stop?reason=${encodeURIComponent(reason)}`, {
         method: "POST",

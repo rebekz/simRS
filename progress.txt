@@ -8360,3 +8360,131 @@ All backend components already existed and were complete:
 2. EPIC-003 Progress: 5/6 core stories complete (83%)
 
 =============================================================================
+
+=============================================================================
+STORY-014: Medication List - COMPLETED (2026-01-15)
+=============================================================================
+
+### Summary:
+Verified and enhanced medication list management for patient safety and
+clinical documentation. Backend and frontend components were already complete.
+Fixed authentication token consistency and integrated into patient history page.
+
+### Implementation Details:
+
+#### Backend Verification:
+All backend components already existed and were complete:
+- **API Endpoints**: Complete medication management (461 lines)
+  - Get patient medications (current and past)
+  - Create, update, stop medications
+  - Medication history with date range filtering
+  - Drug interaction checking
+  - Duplicate therapy detection
+  - Medication reconciliation
+  - Reconciliation history tracking
+- **Schemas**: Full Pydantic schemas for medication management
+- **CRUD Operations**: Complete medication CRUD operations
+- **Models**: Medication, Drug, DrugInteraction, MedicationReconciliation
+
+#### Frontend Components (Already Existed):
+1. **MedicationList Component** (MedicationList.tsx - ~600 lines)
+   - Comprehensive medication management interface
+   - Current and past medications tabs
+   - Drug interaction checking
+   - Duplicate therapy warnings
+   - Medication reconciliation functionality
+   - Visual indicators for narcotics and antibiotics
+   - BPJS code integration for insurance
+   - Discontinuation reason tracking
+
+#### Enhancements Made:
+1. **Token Consistency Fix**: Updated MedicationList to use staff_access_token
+   - Changed from: localStorage.getItem("token")
+   - Changed to: localStorage.getItem("staff_access_token")
+   - Aligns with all other clinical components
+
+2. **Patient History Integration**: Added MedicationList to patient history page
+   - Replaced basic medication display with full MedicationList component
+   - Located in medications tab of patient history view
+
+#### API Integration:
+- **Get Patient Medications**: GET /api/v1/patients/{id}/medications
+- **Create Medication**: POST /api/v1/patients/{id}/medications
+- **Update Medication**: PUT /api/v1/medications/{id}
+- **Stop Medication**: POST /api/v1/medications/{id}/stop
+- **Medication History**: GET /api/v1/patients/{id}/medications/history
+- **Check Interactions**: POST /api/v1/medications/check-interactions
+- **Check Duplicates**: POST /api/v1/medications/check-duplicates
+- **Reconcile Medications**: POST /api/v1/patients/{id}/medications/reconcile
+- **Reconciliation History**: GET /api/v1/patients/{id}/medications/reconciliations
+
+### Features Verified:
+✅ AC-001: Display current patient medications
+✅ AC-002: Display past medication history
+✅ AC-003: Drug name, generic name, dosage, frequency
+✅ AC-004: Route of administration tracking
+✅ AC-005: Indication/purpose documentation
+✅ AC-006: Prescriber information tracking
+✅ AC-007: Start and end date tracking
+✅ AC-008: Medication status (active, stopped, completed)
+✅ AC-009: Discontinuation reason tracking
+✅ AC-010: Drug interaction checking
+✅ AC-011: Duplicate therapy warnings
+✅ AC-012: Medication reconciliation
+✅ AC-013: Narcotic and antibiotic flags
+✅ AC-014: BPJS code for insurance claims
+✅ AC-015: Batch number and manufacturer tracking
+
+### UI/UX Features:
+- **Tabbed Interface**: Current medications, History, Reconciliation
+- **Color-coded Badges**:
+  - Purple: Narcotics
+  - Yellow: Antibiotics
+  - Red: Stopped medications
+  - Green: Active medications
+- **Visual Warnings**:
+  - Drug interaction alerts (severity-based)
+  - Duplicate therapy warnings
+  - Allergy cross-references
+- **Status Indicators**: Active, Stopped, Completed
+- **Search and Filter**: Quick medication lookup
+- **Action Buttons**: Edit, Stop, Reconcile
+
+### Clinical Safety Features:
+- **Drug Interaction Checking**: Prevents harmful drug combinations
+- **Duplicate Therapy Detection**: Identifies redundant medications
+- **Allergy Cross-Reference**: Links with allergy system
+- **Medication Reconciliation**: Admission/discharge medication review
+- **Discontinuation Tracking**: Records why medications were stopped
+- **Prescriber Attribution**: Tracks who prescribed each medication
+
+### Integration Points:
+- **Patient History (STORY-011)**: Medications tab in patient view
+- **Allergy Tracking (STORY-013)**: Drug-allergy interaction checks
+- **Consultation Workspace (STORY-016)**: Current medications in sidebar
+- **Prescription System**: Linked to prescription writing
+- **Drug Database**: BPJS codes, interaction data
+- **Discharge Planning**: Medication reconciliation at discharge
+
+### Files Modified:
+1. frontend/src/components/clinical/MedicationList.tsx - Fixed token consistency
+2. frontend/src/app/app/patients/[id]/page.tsx - Integrated MedicationList component
+
+### TypeScript Verification:
+- MedicationList component compiles without errors
+- Patient history page compiles without errors
+
+### EPIC-003 Completion:
+This story completes EPIC-003: Clinical Documentation (100%)
+All core clinical documentation stories are now complete:
+- STORY-011: Patient History View ✅
+- STORY-012: ICD-10 Problem List ✅
+- STORY-013: Allergy Tracking ✅
+- STORY-014: Medication List ✅
+- STORY-015: Clinical Notes (SOAP) ✅
+- STORY-016: Doctor Consultation Workflow ✅
+
+### Next Steps:
+EPIC-003 is COMPLETE. Ready for next epic or story.
+
+=============================================================================

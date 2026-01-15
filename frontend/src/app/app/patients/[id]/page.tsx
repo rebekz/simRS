@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ProblemList } from "@/components/patients/ProblemList";
 import { ClinicalNotesList } from "@/components/clinical/ClinicalNotesList";
+import { MedicationList } from "@/components/clinical/MedicationList";
 
 interface PatientHistory {
   patient_id: number;
@@ -431,20 +432,7 @@ export default function PatientHistoryPage() {
         )}
 
         {activeTab === "medications" && (
-          <div className="space-y-3">
-            {history.current_medications.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">No current medications</p>
-            ) : (
-              history.current_medications.map((med) => (
-                <div key={med.id} className="p-4 border border-gray-200 rounded-lg">
-                  <p className="font-semibold text-gray-900">{med.medication_name}</p>
-                  <p className="text-sm text-gray-600 mt-1">
-                    {med.dosage} | {med.frequency}
-                  </p>
-                </div>
-              ))
-            )}
-          </div>
+          <MedicationList patientId={parseInt(patientId)} />
         )}
 
         {activeTab === "timeline" && (
