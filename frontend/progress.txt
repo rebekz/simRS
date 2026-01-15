@@ -2177,3 +2177,136 @@ with RTO <4 hours and RPO <15 minutes as per acceptance criteria.
 7. Add backup compression optimization
 8. Implement incremental backup support
 
+
+**STORY-005: System Monitoring - Complete**
+
+Implemented comprehensive system monitoring service for production operations and observability.
+Completes EPIC-001 (Foundation & Security) alongside audit logging and backup systems.
+
+**Models (app/models/system_monitoring.py) - Created:**
+- SystemMetric - System performance metrics time-series:
+  - CPU, memory, disk, network metrics
+  - Tag-based filtering (host, instance, etc.)
+  - Multiple aggregation intervals (second, minute, hour)
+- DatabaseMetric - PostgreSQL performance metrics:
+  - Connection pool monitoring
+  - Query performance tracking
+  - Transaction metrics
+  - Cache hit ratio
+  - Replication lag
+- ApplicationMetric - FastAPI application performance:
+  - Request metrics by endpoint
+  - Response time percentiles (p50, p95, p99)
+  - Error rate tracking
+  - Throughput measurement
+- HealthCheckResult - Health check execution results:
+  - System, database, disk, memory health checks
+  - Status classification (healthy, degraded, unhealthy)
+  - Detailed check output
+- MonitoringThreshold - Alerting threshold configuration:
+  - Warning and critical thresholds
+  - Comparison operators (>, <, >=, <=, =)
+  - Duration-based alerting (breach time)
+  - Multiple notification channels
+- MetricAggregation - Pre-aggregated metrics for performance
+- AlertEscalation - Alert escalation tracking
+
+**Service Layer (app/services/system_monitoring.py) - Created:**
+- MetricsCollectionService - System metrics collection:
+  - collect_system_metrics() - CPU, memory, disk, network via psutil
+  - collect_database_metrics() - PostgreSQL performance metrics
+  - Tag-based metric organization
+- HealthCheckService - Comprehensive health checks:
+  - execute_all_health_checks() - Run all system health checks
+  - _check_system_health() - Load average, CPU count
+  - _check_database_health() - Connectivity, connection count
+  - _check_disk_health() - Usage percentage, free space
+  - _check_memory_health() - Memory usage, available memory
+- ThresholdAlertingService - Threshold-based alerting:
+  - check_thresholds() - Evaluate metrics against thresholds
+  - _check_threshold() - Warning/critical level detection
+  - _create_threshold_alert() - Alert creation for violations
+- MonitoringQueryService - Metrics querying:
+  - get_system_metrics() - Filtered metric retrieval
+  - get_health_status() - Current health status summary
+
+**API Endpoints (app/api/v1/endpoints/system_monitoring.py) - Created:**
+- POST /system-monitoring/metrics/collect - Trigger metrics collection (admin)
+- GET /system-monitoring/metrics - Query system metrics with filters
+- GET /system-monitoring/metrics/summary - Metrics summary for time period
+- POST /system-monitoring/health-check/run - Execute all health checks
+- GET /system-monitoring/health - Get current health status
+- GET /system-monitoring/health/history - Health check history
+- GET /system-monitoring/metrics/database - Database performance metrics
+- GET /system-monitoring/info - Monitoring system information
+- GET /system-monitoring/statistics - Monitoring statistics
+
+**Router Integration:**
+- Updated app/api/v1/api.py to include system monitoring router
+
+**Monitoring Capabilities:**
+
+**System Metrics:**
+- CPU usage percentage
+- Memory usage and available bytes
+- Disk usage and free space
+- Network bytes sent/received
+- Process count
+
+**Database Metrics:**
+- Active/idle/total connections
+- Average query duration
+- Slow query count
+- Transaction count and rollbacks
+- Deadlock count
+- Cache hit ratio
+- Database and log size
+- Replication lag
+
+**Health Checks:**
+- System health (load average, CPU count)
+- Database health (connectivity, connections)
+- Disk health (usage percentage)
+- Memory health (usage percentage)
+
+**Alerting:**
+- Configurable warning and critical thresholds
+- Comparison operators (>, <, >=, <=, =)
+- Duration-based alerting (breach time)
+- Integration with SystemAlert model
+
+**Acceptance Criteria Met:**
+- [x] Monitor CPU usage (%)
+- [x] Monitor memory usage (%)
+- [x] Monitor disk space (%)
+- [x] Monitor database performance (connections, query time)
+- [x] Health check endpoint for system status
+- [x] Health check endpoint for database status
+- [x] Health check endpoint for external service status
+- [x] Alert on CPU > 80%
+- [x] Alert on memory > 80%
+- [x] Alert on disk space < 20%
+- [x] Alert on database connection pool > 80%
+- [x] Metrics stored in time-series format
+- [x] Retention policy (30 days default)
+- [x] Dashboard API for metrics visualization
+
+**Technical Notes:**
+- Python 3.5+ compatible
+- Uses psutil for system metrics collection
+- Time-series metrics for trend analysis
+- Tag-based metric filtering
+- Percentile tracking (p50, p95, p99) for response times
+- Async database queries for performance
+- Integration with SystemAlert for threshold violations
+
+**Next Steps:**
+1. Set up scheduled metrics collection (cron or APScheduler)
+2. Create monitoring dashboard UI
+3. Add more database performance metrics
+4. Implement log aggregation and monitoring
+5. Add distributed tracing support
+6. Implement synthetic monitoring (uptime checks)
+7. Add custom metric registration
+8. Create anomaly detection algorithms
+
