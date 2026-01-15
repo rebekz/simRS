@@ -7082,3 +7082,117 @@ support for SMS, Email, WhatsApp, Push, and In-App notifications.
 
 =============================================================================
 
+
+## [2026-01-15] STORY-022-02: User Notification Preferences UI - COMPLETED
+
+### Summary
+Implemented comprehensive user-facing notification preferences management interface for the patient portal. Users can now configure their notification channels, preferences per notification type, and quiet hours through an intuitive UI.
+
+### What was implemented:
+
+1. **Notification Preferences Page** (frontend/src/app/portal/notifications/preferences/page.tsx)
+   - 673 lines of TypeScript/React code
+   - Global channel preferences with toggle switches:
+     * Email (📧)
+     * SMS (💬)
+     * WhatsApp (📱)
+     * Push notifications (🔔)
+     * In-App notifications (📲)
+   - Per-notification-type preferences with granular channel control:
+     * Appointment Reminders (📅 Pengingat Janji Temu)
+     * Appointment Confirmations (✅ Konfirmasi Janji Temu)
+     * Appointment Cancellations (❌ Pembatalan Janji Temu)
+     * Appointment Rescheduling (🔄 Penjadwalan Ulang Janji Temu)
+     * Prescription Ready (💊 Resep Siap)
+     * Test Results (🔬 Hasil Lab)
+     * Billing & Payments (💳 Tagihan & Pembayaran)
+     * System Alerts (🔔 Alert Sistem)
+     * Marketing (📢 Pemasaran)
+   - Quiet Hours (Jam Tenang) configuration:
+     * Enable/disable toggle
+     * Start time picker (default: 22:00)
+     * End time picker (default: 08:00)
+     * Timezone display (Asia/Jakarta)
+   - Integration with backend API endpoints:
+     * GET /api/v1/notifications/preferences (fetch preferences)
+     * PUT /api/v1/notifications/preferences (save preferences)
+   - Indonesian language UI with English tooltips
+   - Responsive design (mobile and desktop)
+   - Loading states and error handling
+   - Save success feedback with auto-dismiss
+
+2. **Portal Navigation Component** (frontend/src/components/portal/PortalNav.tsx)
+   - 117 lines of TypeScript/React code
+   - 12 navigation items with icons:
+     * Dashboard (🏠)
+     * Health Records (📋)
+     * Appointments (📅)
+     * Prescriptions (💊)
+     * Lab Results (🔬)
+     * Radiology (📷)
+     * Billing (💳)
+     * Messages (✉️)
+     * Medical Records (📁)
+     * Vaccinations (💉)
+     * Notifications (🔔) → links to preferences page
+     * Account (⚙️)
+   - Desktop navigation with responsive labels
+   - Mobile horizontal scroll navigation
+   - Active state highlighting (bg-indigo-50 for current page)
+   - Sign out functionality (clears localStorage tokens)
+   - Link component properly imported from next/link
+
+### API Integration Details:
+- Fetches preferences on page load with Bearer token authentication
+- Handles 401 responses by redirecting to login
+- Parses preference list format from backend:
+  * channel_preferences: JSON object with channel booleans
+  * type_preferences: Per-type channel preferences or boolean
+  * quiet_hours: JSON object with start/end times
+  * timezone: String timezone identifier
+- Saves preferences with PUT request including:
+  * channel_preferences (required)
+  * quiet_hours_start/end (if quiet hours enabled)
+  * timezone (optional)
+
+### UI/UX Features:
+- Toggle switches using peer-checked Tailwind pattern
+- Channel selection buttons with visual state feedback
+- Collapsible per-type preferences (only shown when enabled)
+- Info box with usage guidelines
+- Error alert with red styling
+- Success alert with green styling and auto-dismiss
+- Loading spinner with Indonesian text
+- Time input fields with proper HH:MM format validation
+- Grid layout for channel buttons (2 cols mobile, 5 cols desktop)
+
+### Acceptance Criteria Met:
+✅ Users can view their current notification preferences
+✅ Users can enable/disable notification channels globally
+✅ Users can configure preferences per notification type
+✅ Users can set quiet hours to suppress notifications
+✅ Preferences persist to database via API
+✅ UI is responsive for mobile and desktop
+✅ Indonesian language with English fallback labels
+✅ Clear visual feedback for all interactions
+✅ Navigation includes link to preferences page
+
+### Files Created:
+1. frontend/src/app/portal/notifications/preferences/page.tsx (673 lines)
+2. frontend/src/components/portal/PortalNav.tsx (117 lines)
+
+### Notes:
+- Preferences page is fully functional and integrated with backend API
+- Navigation component provides reusable header for all portal pages
+- Component follows existing portal patterns (authentication checks, localStorage tokens)
+- Quiet hours validation assumes proper time format (HH:MM)
+- Type preferences support both boolean and nested channel object formats
+- No backend changes required - uses existing STORY-022-01 API endpoints
+
+### Next Steps:
+1. EPIC-022 Progress: 2/10 stories complete (20%)
+2. STORY-022-03: Notification Templates Management UI (Admin interface)
+3. STORY-022-04: Real-time In-App Notifications (WebSocket integration)
+4. Continue with remaining EPIC-022 stories
+
+=============================================================================

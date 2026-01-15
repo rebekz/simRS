@@ -261,7 +261,7 @@ class MedicalRecordsService:
         # Verify ownership (in production, would check patient_id matches)
         # Generate share token and URL
         share_id = str(uuid.uuid4())
-        access_url = f"https://portal.example.com/shared/{share_id}"
+        access_url = "https://portal.example.com/shared/{}".format(share_id)
 
         # Calculate expiration
         expires_at = datetime.utcnow()
