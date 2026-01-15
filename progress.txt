@@ -13670,3 +13670,122 @@ Notes:
 - Doctor-centric workflow design
 
 =============================================================================
+
+STORY-064: Vital Signs Monitoring Form - Complete
+-------------------------------------------------
+Implemented comprehensive vital signs monitoring form for nurses/clinical staff to record and monitor patient vital signs.
+
+Implementation Summary:
+- Created types file: frontend/src/types/vital-signs.ts (2000+ lines)
+- Created constants file: frontend/src/constants/vital-signs.ts (900+ lines)
+- Created form page: frontend/src/app/app/clinical/vitals/page.tsx (1600+ lines)
+
+Features Implemented:
+1. Patient Information Section:
+   - Patient search (MRN, name, bed number)
+   - Patient demographics display
+   - Current location/bed assignment
+   - Auto-populate from selected patient
+
+2. Vital Signs Input Section:
+   - Blood Pressure (Systolic/Diastolic in mmHg)
+   - Heart Rate (bpm)
+   - Respiratory Rate (breaths/min)
+   - Body Temperature (°C)
+   - Oxygen Saturation SpO2 (%)
+   - Weight (kg)
+   - Height (cm)
+   - BMI (auto-calculated)
+   - Pain Score (0-10 scale)
+   - Glasgow Coma Scale (GCS)
+   - Blood Glucose (mg/dL)
+
+3. Clinical Context Section:
+   - Measurement date/time (default: now)
+   - Measurement location (ward, ICU, emergency, clinic)
+   - Device/equipment used
+   - Performed by (auto-populate from logged-in user)
+   - Supervised by (if applicable)
+
+4. Alert/Warning Section:
+   - Abnormal value highlighting
+   - Critical value alerts
+   - Trend indicators (improving, stable, worsening)
+   - Requires immediate attention flags
+
+5. Notes Section:
+   - Clinical notes
+   - Symptoms/observations
+   - Patient complaints
+   - Actions taken
+
+6. History/Trends Section:
+   - Display previous vital signs
+   - Trend visualization (graph)
+   - Comparison with baseline
+   - Last 24-48 hours summary
+
+7. Actions:
+   - Save vital signs
+   - Print vital signs report
+   - Export to PDF
+   - Set monitoring reminders
+   - Cancel button
+
+Key Features:
+- Client-side validation for vital signs ranges
+- Auto-calculation of BMI from weight/height
+- Abnormal value detection and alerts
+- Critical value notifications
+- Historical trend display
+- Print-ready vital signs flow sheet
+- PDF generation
+- Loading states and error handling
+- Indonesian language throughout
+- Integration with early warning scores (MEWS/EWS)
+
+API Integration:
+- POST /api/v1/clinical/vitals - Record vital signs
+- GET /api/v1/patients/search - Patient search
+- GET /api/v1/clinical/vitals/history/{patientId} - Historical data
+
+Technical Details:
+- Full TypeScript type safety
+- React hooks (useState, useEffect)
+- TailwindCSS responsive design
+- JWT authentication
+- Form validation helpers
+- Error handling with user messages
+- PDF generation support
+- Trend visualization
+
+Testing Recommendations:
+- Test all vital signs inputs
+- Test BMI auto-calculation
+- Test abnormal value alerts
+- Test critical value notifications
+- Test trend visualization
+- Test historical data display
+- Test PDF generation
+- Test print flow sheet
+- Test MEWS/EWS scoring
+
+Dependencies: None
+Blockers: None
+
+Next Steps:
+- Implement vital signs dashboard
+- Implement multi-patient vital signs monitoring
+- Implement alert escalation system
+- Implement automated MEWS/EWS alerts
+- Implement vital signs analytics
+
+Notes:
+- Completes STORY-064
+- Critical for patient monitoring
+- Supports all clinical settings (inpatient, outpatient, emergency)
+- Early warning scoring for patient safety
+- Print-ready flow sheets for documentation
+- Nurse-centric workflow design
+
+=============================================================================
