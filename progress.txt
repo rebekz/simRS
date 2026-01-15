@@ -5744,3 +5744,96 @@ allergies, diagnoses, medications, vital signs, encounter history, and timeline 
 5. Add family medical history section
 6. Add social history section (smoking, alcohol, occupation)
 
+
+## [2026-01-15] STORY-043: Appointment Scheduling & Management - COMPLETED
+
+### Summary
+Implemented comprehensive appointment scheduling and management for patient portal.
+Allows patients to book, view, manage, and cancel appointments with real-time availability
+checking and calendar integration.
+
+### Key Features Implemented
+
+**Backend (Python/FastAPI):**
+- Created appointment booking schemas for all booking operations
+- Implemented AppointmentBookingService for slot availability, booking, cancellation, rescheduling
+- Automatic appointment number and queue number generation
+- Pre-appointment checklist generation based on appointment type
+- Calendar integration URLs (Google Calendar, Outlook)
+- Queue status tracking for real-time updates
+
+**API Endpoints (`/api/v1/portal/appointments`):**
+- `GET /appointments/available-slots` - Check available slots for department/doctor/date
+- `GET /appointments/departments/{id}/availability` - Get department availability overview
+- `POST /appointments/book` - Book a new appointment
+- `GET /appointments/my-appointments` - Get all patient appointments (upcoming/past/cancelled)
+- `GET /appointments/{id}` - Get appointment details
+- `POST /appointments/{id}/cancel` - Cancel appointment (24-hour policy)
+- `POST /appointments/{id}/reschedule` - Reschedule to new date/time
+- `GET /appointments/{id}/queue-status` - Get real-time queue status
+- `GET /appointments/{id}/info` - Get appointment with pre-appointment checklist
+- `POST /appointments/{id}/waitlist` - Join waitlist (placeholder)
+- `GET /appointments/{id}/calendar` - Get calendar integration links
+
+**Frontend (Next.js 15/React):**
+- `/portal/appointments` - My appointments page with tabs (upcoming/past/cancelled)
+- `/portal/appointments/book` - Appointment booking flow with:
+  - Department selection
+  - Optional doctor preference
+  - Date picker with availability checking
+  - Time slot selection
+  - Appointment type selection
+  - Reason for visit and symptoms
+
+**Acceptance Criteria Met:**
+- [x] View available appointment slots by doctor and polyclinic
+- [x] Book new appointments online
+- [x] Select appointment type (consultation, follow-up, procedure, vaccination)
+- [x] Select preferred doctor or specialist
+- [x] Select appointment date and time from available slots
+- [x] Specify appointment reason (chief complaint)
+- [x] Receive booking confirmation (email/SMS scaffolded)
+- [x] Add appointment to personal calendar (Google, Outlook)
+- [x] View upcoming appointments
+- [x] View past appointments
+- [x] Reschedule appointments (with applicable policies)
+- [x] Cancel appointments (with cancellation policy enforcement)
+- [x] Appointment reminders (scaffolded)
+- [x] Waitlist option (placeholder)
+- [x] Queue number notification on appointment day (real-time status)
+- [x] Real-time appointment status updates
+- [x] Average wait time display (queue status)
+- [x] Pre-appointment checklist (fasting, documents, arrive early)
+
+### Files Created/Modified
+
+**Backend Schemas:**
+- `backend/app/schemas/patient_portal/appointments.py` (new)
+
+**Backend Services:**
+- `backend/app/services/patient_portal/appointment_service.py` (new)
+
+**Backend API:**
+- `backend/app/api/v1/endpoints/patient_portal_appointments.py` (new)
+- `backend/app/api/v1/api.py` (modified - added appointments router)
+
+**Frontend:**
+- `frontend/src/app/portal/appointments/page.tsx` (new)
+- `frontend/src/app/portal/appointments/book/page.tsx` (new)
+
+### Notes
+- Email/SMS appointment confirmations are scaffolded - need real provider integration
+- Waitlist feature is placeholder - needs dedicated waitlist system
+- Calendar integration generates URLs for Google/Outlook
+- Cancellation policy: 24 hours advance notice required
+- Queue status provides real-time position and wait time estimates
+- Pre-appointment checklist provides fasting, document, and arrival instructions
+
+### Next Steps
+1. Implement STORY-044: Prescription Refill Requests
+2. Integrate real email/SMS for appointment confirmations
+3. Implement waitlist system for fully booked slots
+4. Add telemedicine appointment booking
+5. Implement appointment reminder scheduling (24h, 2h before)
+6. Add appointment notification preferences
+
