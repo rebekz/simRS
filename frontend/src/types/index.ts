@@ -98,3 +98,9 @@ export interface ApiError {
   message: string;
   details?: Record<string, unknown>;
 }
+
+// ============================================================================
+// REFERRAL TYPES EXPORT
+// ============================================================================
+
+export * from './referral';

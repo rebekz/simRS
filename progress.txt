@@ -13416,3 +13416,129 @@ Notes:
 - Doctor-centric workflow design
 
 =============================================================================
+
+STORY-062: Referral Letter/Surat Rujukan Form - Complete
+------------------------------------------------------
+Implemented comprehensive referral letter form for doctors to issue Indonesian referral letters.
+
+Implementation Summary:
+- Created types file: frontend/src/types/referral.ts (900+ lines)
+- Created constants file: frontend/src/constants/referral.ts (400+ lines)
+- Created form page: frontend/src/app/app/referrals/new/page.tsx (1700+ lines)
+
+Features Implemented:
+1. Referral Type Selection:
+   - Rujukan Internal (Internal referral)
+   - Rujukan Eksternal (External referral)
+   - Rujukan BPJS (BPJS referral)
+   - Rujukan Emergency (Emergency referral)
+   - Rujukan Kontrol (Follow-up referral)
+   - Rujukan Spesialis (Specialist referral)
+
+2. Patient Information Section:
+   - Patient search (MRN, name, BPJS number)
+   - Patient demographics display
+   - BPJS status display (if applicable)
+   - Auto-populate from selected patient
+
+3. Referral Details Section:
+   - Referral type dropdown
+   - Priority level (routine, urgent, emergency)
+   - Referral date (default: today)
+   - Reason for referral textarea
+   - Clinical summary textarea
+
+4. Destination Facility Section:
+   - Facility type dropdown (hospital, clinic, puskesmas, practice)
+   - Facility name with search/autocomplete
+   - Facility address
+   - Department/Unit selection
+   - Target specialist (if applicable)
+   - Contact phone number
+
+5. Clinical Information Section:
+   - Primary diagnosis with ICD-10 lookup
+   - Secondary diagnoses
+   - Chief complaint textarea
+   - Physical examination findings
+   - Lab/imaging results
+   - Treatment given
+   - Current medications
+
+6. BPJS Information Section (for BPJS referrals):
+   - BPJS number display
+   - BPJS referral diagnosis code
+   - BPJS facility code
+   - BPJS procedure codes
+   - Investigation required checkbox
+
+7. Doctor Information Section:
+   - Referring doctor (auto-populate from logged-in user)
+   - Doctor's license number (SIP)
+   - Department/Unit
+   - Contact information
+
+8. Preview and Actions:
+   - Preview in standard Indonesian format
+   - Download/Print as PDF
+   - Send to destination facility
+   - Save to patient records
+   - Cancel button
+
+Key Features:
+- Client-side validation for all required fields
+- Facility search/autocomplete
+- ICD-10 code lookup for diagnosis
+- Referral number auto-generation
+- BPJS integration for BPJS referrals
+- Standard Indonesian referral format
+- Print-ready layout
+- PDF generation
+- Loading states and error handling
+- Indonesian language throughout
+
+API Integration:
+- POST /api/v1/referrals - Create referral
+- GET /api/v1/patients/search - Patient search
+- GET /api/v1/facilities/search - Facility search
+- GET /api/v1/bpjs/facilities - BPJS facility search
+
+Technical Details:
+- Full TypeScript type safety
+- React hooks (useState, useEffect)
+- TailwindCSS responsive design
+- JWT authentication
+- Form validation helpers
+- Error handling with user messages
+- PDF generation support
+
+Testing Recommendations:
+- Test all referral types
+- Test patient search functionality
+- Test facility search/autocomplete
+- Test ICD-10 code lookup
+- Test BPJS referral format
+- Test PDF generation
+- Test print preview
+- Test save to patient records
+- Test send to destination facility
+
+Dependencies: None
+Blockers: None
+
+Next Steps:
+- Implement referral history view
+- Implement referral tracking dashboard
+- Implement referral acknowledgment system
+- Implement referral analytics
+- Implement inter-facility referral network
+
+Notes:
+- Completes STORY-062
+- Critical for patient continuity of care
+- Supports all Indonesian referral types
+- BPJS-ready for national insurance referrals
+- Print-ready for immediate use
+- Doctor-centric workflow design
+
+=============================================================================
