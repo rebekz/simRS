@@ -412,3 +412,43 @@
 **Next Steps:**
 1. Complete remaining EPIC-022 stories
 2. Consider creating frontend components for critical value alert display
+
+- [x] STORY-022-09: Notification Preference Management (commit: TBD)
+  - PreferenceManager service for managing user preferences
+  - Get/set preferences by notification type
+  - Bulk preference update support
+  - Channel enable/disable (Email, SMS, Push, In-App, WhatsApp)
+  - Quiet hours configuration with timezone support
+  - Default preferences for patient/staff user types
+  - Quiet hours checking method
+  - Enabled channels retrieval
+  - API endpoints: /notification-preferences/my-preferences (GET, PUT, DELETE), /notification-preferences/defaults, /notification-preferences/check-preference/{user_id}/{type}
+  - Python 3.5 compatible service layer
+  - Files: backend/app/services/notification_preferences.py, backend/app/api/v1/endpoints/notification_preferences.py
+
+**Epic Status:** IN PROGRESS (3+ stories completed, more to implement)
+
+---
+
+## CURRENT ITERATION (2026-01-16) - Continued
+
+**Working On:** STORY-022-09: Notification Preference Management
+
+**Implementation Summary:**
+- Created PreferenceManager service with full CRUD operations
+- Implemented channel enable/disable functionality
+- Added quiet hours support with timezone handling
+- Created default preference templates for patient/staff users
+- Built RESTful API endpoints for preference management
+- Added internal endpoint for notification system to check preferences
+
+**Technical Notes:**
+- Service layer (notification_preferences.py): Python 3.5 compatible using .format()
+- Supports quiet hours that span midnight (e.g., 22:00-06:00)
+- Bulk update functionality for multiple preferences
+- Default settings: Email=True, Push=True, In-App=True, SMS=False, WhatsApp=False
+
+**Next Steps:**
+1. Complete remaining EPIC-022 stories (02, 03, 04, 07, 08)
+2. Integrate preference checking into notification delivery pipeline
+3. Consider creating frontend UI for preference management
