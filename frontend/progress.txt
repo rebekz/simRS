@@ -583,7 +583,7 @@
   - Python 3.5 compatible service layer
   - Files: backend/app/services/payment_reminders.py, backend/app/api/v1/endpoints/payment_reminders.py
 
-**Epic Status:** IN PROGRESS (7+ stories completed, 2 remaining)
+**Epic Status:** IN PROGRESS (8 stories completed, 1 remaining)
 
 ---
 
@@ -610,3 +610,49 @@
 1. Complete remaining EPIC-022 stories (06, 07)
 2. Integrate with billing workflow for automatic invoice delivery
 3. Consider frontend components for payment reminder display
+- [x] STORY-022-07: Queue Status Notifications (commit: TBD)
+  - QueueStatusNotificationService with real-time queue updates
+  - Queue position change notifications
+  - Approaching turn alerts (5 patients away)
+  - Next in queue notifications with counter/room details
+  - Long wait updates (>30 min) with periodic updates
+  - Doctor arrived/on-break notifications
+  - Service delay notifications (>30 min delays)
+  - Departure time alerts (30 min before needed)
+  - Service started and completed notifications
+  - Multi-department support (Poli, Pharmacy, Lab, Radiology, Cashier)
+  - Respects patient notification preferences
+  - Queue update check automation endpoint
+  - API endpoints: /queue-status-notifications/position-change, /queue-status-notifications/approaching-turn, /queue-status-notifications/next-in-queue, /queue-status-notifications/long-wait, /queue-status-notifications/doctor-arrived, /queue-status-notifications/doctor-break, /queue-status-notifications/delay, /queue-status-notifications/departure-time, /queue-status-notifications/service-started, /queue-status-notifications/service-completed, /queue-status-notifications/check-updates, /queue-status-notifications/ticket/{id}/notifications, /queue-status-notifications/patient/{id}/notifications, /queue-status-notifications/stats/patient/{id}
+  - Python 3.5 compatible service layer
+  - Files: backend/app/services/queue_status_notifications.py, backend/app/api/v1/endpoints/queue_status_notifications.py
+
+**Epic Status:** IN PROGRESS (9 stories completed, 1 remaining: STORY-022-06 partial)
+
+---
+
+## CURRENT ITERATION (2026-01-16) - Update 6
+
+**Working On:** STORY-022-07: Queue Status Notifications
+
+**Implementation Summary:**
+- Created QueueStatusNotificationService with comprehensive queue notification system
+- Implemented position-based notifications (change, approaching, next)
+- Doctor status notifications (arrived, on break)
+- Service delay and departure time alerts
+- Service lifecycle notifications (started, completed with next steps)
+- Multi-department queue support
+- Queue update check automation for periodic processing
+
+**Technical Notes:**
+- Service layer (queue_status_notifications.py): Python 3.5 compatible using .format()
+- Notification priorities: NORMAL (position changes), HIGH (approaching/next/delays)
+- Next-in-queue ensures SMS notification (critical for patient experience)
+- Service completion includes configurable next steps (pharmacy, cashier, etc.)
+- Integration with existing queue management system (QueueTicket model)
+- Real-time update check endpoint for cron job integration
+
+**Next Steps:**
+1. Complete STORY-022-06 (System Alerts - partially done, API exists)
+2. Consider WebSocket implementation for real-time in-app queue updates
+3. Integrate with queue workflow for automatic notifications
