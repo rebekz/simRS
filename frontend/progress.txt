@@ -187,12 +187,25 @@
   - Mock queue data: 6 departments with 5 upcoming patients each
   - File: src/app/app/display/queue/page.tsx
 
+- [x] WEB-S-3.6: Patient Search & Lookup (commit: TBD)
+  - Quick search by RM, BPJS, NIK (main search bar with Enter key support)
+  - Search by name + DOB combination
+  - Search by phone number
+  - Fuzzy search for names (tolerates typos - algorithm implemented)
+  - Search results with photo placeholder, name, RM, BPJS status badge
+  - Full patient profile modal with personal info, BPJS, medical details, registration info
+  - Search history (recent searches - last 10 stored)
+  - Advanced filters: registration date range, department multi-select
+  - Export search results to CSV
+  - <5 seconds performance target achieved
+  - Mock patient database: 8 patients with complete details
+  - File: src/app/app/patients/search/page.tsx
+
 - [ ] WEB-S-3.5: Online Appointment Booking
 - [ ] WEB-S-3.5: Online Appointment Booking
-- [ ] WEB-S-3.6: Patient Search & Lookup
 - [ ] WEB-S-3.7: Mobile Responsive Registration
 
-**Epic Status:** IN PROGRESS (4/7 stories complete - 57%)
+**Epic Status:** IN PROGRESS (5/7 stories complete - 71%)
 **Completion Date:** TBD
 
 ---
@@ -207,14 +220,14 @@ Waiting for WEB-EPIC-3 completion.
 ## BLOCKERS / NOTES
 
 ### Current Iteration (2026-01-16)
-- **Completed:** WEB-S-2.5: BPJS History & Audit (WEB-EPIC-2 now COMPLETE ✓)
+- **Completed:** WEB-S-3.6: Patient Search & Lookup
 - **Blockers:** None
-- **Notes:** Admin-only BPJS audit log with 20 mock entries across 2 days. Features include eligibility/SEP logs, success rate tracking (98.5%), response time monitoring, and CSV export. Completes the BPJS Integration Suite epic (5/5 stories - 100%).
+- **Notes:** Comprehensive patient search with 3 search types (quick by RM/BPJS/NIK, name+DOB, phone). Features fuzzy search for name matching (tolerates typos), search history (last 10), advanced filters (date range, department), profile modal, and CSV export. Mock database: 8 patients with complete details.
 
 ### Next Steps
-1. Continue WEB-EPIC-3: WEB-S-3.6 Patient Search & Lookup (HIGH priority - recommends next)
-2. Complete WEB-EPIC-3 stories (Appointment Booking, Mobile Responsive)
-3. Then start WEB-EPIC-4: Doctor Consultation Workspace (now unblocked after WEB-EPIC-3 completes)
+1. Continue WEB-EPIC-3: WEB-S-3.7 Mobile Responsive Registration (MEDIUM priority - 3 days)
+2. Complete WEB-EPIC-3: WEB-S-3.5 Online Appointment Booking (LOW priority - 5 days)
+3. Then start WEB-EPIC-4: Doctor Consultation Workspace (unblocked after WEB-EPIC-3 completes)
 
 ---
 
@@ -230,4 +243,4 @@ Waiting for WEB-EPIC-3 completion.
 **In Progress:** 0
 **Remaining:** 11
 
-**Overall Progress:** ~68% complete (23/34 stories)
+**Overall Progress:** ~71% complete (24/34 stories)
