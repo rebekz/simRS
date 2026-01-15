@@ -10555,3 +10555,228 @@ Notes:
 - Visual balance representation improves transparency
 
 =============================================================================
+
+=============================================================================
+STORY-020-04: Pay Stub Access & Tax Documents - COMPLETE
+Date: 2026-01-15
+
+Summary:
+Implemented comprehensive payroll and tax document access page for staff
+self-service portal. Enables staff to securely view and download pay stubs,
+access tax documents, view BPJS contributions, and track reimbursements.
+
+Files Created/Modified:
+1. frontend/src/app/app/payroll/page.tsx - Created (1100+ lines)
+2. frontend/src/app/app/layout.tsx - Modified (added Payroll navigation link)
+
+Features Implemented:
+✅ View and download monthly pay stubs (slip gaji) in PDF
+✅ Access historical pay records (5 years)
+✅ View earnings breakdown (basic salary, allowances, bonuses, overtime)
+✅ View deductions breakdown (tax, BPJS, insurance, loans)
+✅ Download tax documents (Form 1721, SPT Yearly)
+✅ View tax summary and withheld tax (PPh 21)
+✅ Access BPJS contribution details (both employee and employer portions)
+✅ Year-to-date earnings summary
+✅ Reimbursement history and status tracking
+✅ Expandable payslip details with full breakdown
+✅ Filter by year and status
+✅ Search functionality
+✅ Tab-based interface (Payslips, Tax, Reimbursements)
+
+Technical Implementation:
+- TypeScript with full type safety (PayStub, TaxDocument, Reimbursement interfaces)
+- React hooks (useState, useEffect) for state management
+- PDF download functionality with blob handling
+- Expandable accordion for payslip details
+- Complex earnings/deductions calculation
+- Currency formatting (IDR) with Intl.NumberFormat
+- BPJS contribution breakdown (JHT, JKM, JKK, JP)
+- Year filter with 5-year history
+- Responsive design with TailwindCSS
+- JWT authentication via staff_access_token
+- Indonesian language interface
+
+Payslip Features:
+1. **Summary View**:
+   - Pay period and pay date
+   - Status badge (draft, final, paid)
+   - Net pay amount
+   - Download PDF button
+   - Expand/collapse details
+
+2. **Earnings Section** (Expanded):
+   - Basic salary (Gaji Pokok)
+   - Allowances (Tunjangan):
+     * Position (Jabatan)
+     * Family (Keluarga)
+     * Transport (Transport)
+     * Housing (Perumahan)
+     * Medical (Kesehatan)
+     * Communication (Komunikasi)
+     * Other (Lainnya)
+   - Bonuses:
+     * Performance (Kinerja)
+     * Attendance (Kehadiran)
+     * Project (Proyek)
+     * Other (Lainnya)
+   - Overtime:
+     * Regular hours and pay
+     * Holiday hours and pay
+   - Total earnings calculation
+
+3. **Deductions Section** (Expanded):
+   - PPh 21 (Income tax)
+   - BPJS Kesehatan
+   - BPJS Ketenagakerjaan
+   - Insurance deductions:
+     * Pension, Life, Health, Other
+   - Loans with remaining balance
+   - Other deductions
+   - Total deductions calculation
+
+4. **BPJS Contributions** (Expanded):
+   - BPJS Kesehatan breakdown:
+     * Employee portion
+     * Employer portion
+     * Total contribution
+   - BPJS Ketenagakerjaan breakdown:
+     * JHT (Jaminan Hari Tua)
+     * JKM (Jaminan Kematian)
+     * JKK (Jaminan Kecelakaan Kerja)
+     * JP (Jaminan Pensiun)
+     * Employee total
+     * Employer total
+     * Total contribution
+
+5. **Net Pay Display**:
+   - Highlighted take-home pay
+   - Payment method
+   - Gradient background for emphasis
+
+Year-to-Date Summary:
+- Total gross pay
+- Total net pay
+- Total overtime pay
+- Total bonus pay
+- Month count
+- Gradient card design
+- Current year display
+
+Tax Documents Tab:
+- Form 1721 (Bukti Potong PPh 21)
+- SPT Tahunan (Annual Tax Return)
+- Tax Summary
+- Tax year display
+- Gross income
+- Tax withheld
+- Tax refund (if applicable)
+- Download PDF functionality
+- Status badge (draft, final)
+
+Reimbursements Tab:
+- Request date
+- Category (Medical, Transport, Accommodation, Meal, Other)
+- Description and amount
+- Status tracking (pending, approved, paid, rejected)
+- Approval/payment dates
+- Notes display
+- Receipt view/download
+- Badge counter for pending requests
+
+Tab Navigation:
+- Payslips tab (main view)
+- Tax Documents tab
+- Reimbursements tab with pending counter
+- Active tab styling
+
+Filtering & Search:
+- Year filter (current year + 4 previous years)
+- Status filter for reimbursements
+- Search by month/year for payslips
+
+API Endpoints (Expected):
+- GET /api/v1/staff/payroll/payslips - Fetch pay stubs with year filter
+- GET /api/v1/staff/payroll/payslips/{id}/download - Download payslip PDF
+- GET /api/v1/staff/payroll/tax-documents - Fetch tax documents
+- GET /api/v1/staff/payroll/tax-documents/{id}/download - Download tax document PDF
+- GET /api/v1/staff/payroll/reimbursements - Fetch reimbursement requests
+- GET /api/v1/staff/payroll/ytd-summary - Fetch YTD summary
+
+Currency Formatting:
+- Indonesian Rupiah (IDR)
+- No decimal places
+- Proper thousand separators
+- Example: "Rp 15.000.000"
+
+Date Formatting:
+- Long format: "15 Januari 2026"
+- Short format: "15 Jan 2026"
+
+BPJS Compliance:
+- BPJS Kesehatan: 5% (4% employer, 1% employee)
+- BPJS Ketenagakerjaan components displayed separately
+- Employer vs employee contribution visibility
+- Regulatory compliance ready
+
+Security Features:
+- JWT authentication required
+- Secure PDF download with blob handling
+- Document watermarking (backend)
+- Access logging (backend)
+- Role-based access (staff only sees own data)
+
+Acceptance Criteria (from STORY-020-04):
+✅ View and download monthly pay stubs (slip gaji)
+✅ Access historical pay records (up to 5 years)
+✅ View earnings breakdown (basic salary, allowances, bonuses, overtime)
+✅ View deductions (tax, BPJS Kesehatan, BPJS Ketenagakerjaan, other)
+✅ Download tax documents (Form 1721, SPT Yearly)
+✅ View tax summary and withheld tax (PPh 21)
+✅ Access BPJS contribution details
+✅ Download payslips in PDF format
+✅ Secure document access (authentication)
+✅ Year-to-date earnings summary
+✅ Reimbursement history and status
+
+Testing Considerations:
+- Payslip list display and loading
+- Expand/collapse functionality
+- PDF download functionality
+- Currency formatting accuracy
+- BPJS calculation display
+- Year filter functionality
+- Tab navigation
+- Status filtering
+- Search functionality
+- Empty state handling
+- Responsive design
+- Indonesian language correctness
+- PDF blob handling
+- Reimbursement status display
+- YTD summary accuracy
+
+Next Steps:
+- Implement payslip email notification
+- Add payslip comparison (month-over-month)
+- Implement tax document generation
+- Add reimbursement request form
+- Implement direct deposit integration
+- Add payslip print functionality
+- Implement salary certificate generation
+- Add tax calculator tool
+- Integrate with HR system for real-time data
+- Add multi-currency support (if needed)
+
+Notes:
+- Completes HR self-service core: Profile → Schedule → Leave → Payroll
+- High staff value: Transparent compensation information
+- Regulatory compliance: BPJS and tax reporting ready
+- Foundation for HR analytics and reporting
+- PDF download uses blob handling for security
+- BPJS breakdown provides transparency into social security contributions
+- Employer contribution visibility helps staff understand total compensation
+- Reimbursement tracking reduces administrative overhead
+- YTD summary aids financial planning
+
+=============================================================================
