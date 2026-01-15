@@ -762,3 +762,67 @@ Extending EPIC-022 (Notification System) with template management capabilities.
 
 **EPIC-022 Enhancement:** Complete
 EPIC-022 (Notification System) now includes template management for easier maintenance.
+
+**EPIC-013: Reporting & Analytics - Complete**
+
+Implemented comprehensive reporting and analytics system as the foundation for data-driven decision making.
+
+**What was implemented:**
+
+**Database Models (app/models/reporting.py):**
+- Report - Report definitions with configuration, scheduling, and access control
+- ReportSchedule - Automated report scheduling with cron expressions
+- ReportExecution - Report execution history and tracking
+- OperationalMetric - Daily operational metrics storage
+- ClinicalQualityMetric - Clinical quality metrics with target tracking
+- FinancialMetric - Financial metrics and revenue tracking
+- RegulatoryReport - Regulatory report submission tracking
+
+**Service Layer (app/services/reporting.py):**
+- ReportingService with report management (create, read, list)
+- Report execution with error handling and performance tracking
+- Pre-built report generators:
+  - Daily Census (inpatient, outpatient, emergency by department)
+  - Department Utilization (encounter counts by department)
+  - Bed Occupancy (occupancy rate, bed status breakdown)
+  - Patient Wait Times (average wait by department)
+  - Revenue Summary (by payer type, invoice counts)
+  - BPJS Claim Analytics (submission, approval, rejection rates)
+  - Clinical Quality Summary (documentation rate vs 95% target)
+- Daily metric aggregation function
+- Custom query execution support
+
+**API Endpoints (app/api/v1/endpoints/reporting.py):**
+- POST /reports - Create new report (admin)
+- GET /reports - List reports with filtering
+- GET /reports/{id} - Get report details
+- POST /reports/{id}/execute - Execute report
+- GET /reports/daily-census - Daily census report
+- GET /reports/bed-occupancy - Bed occupancy report
+- GET /reports/patient-wait-times - Wait time report
+- GET /reports/revenue-summary - Revenue report
+- GET /reports/bpjs-analytics - BPJS claim analytics
+- GET /reports/clinical-quality - Clinical quality summary
+- GET /dashboard - Executive dashboard with all metrics
+- POST /metrics/aggregate-daily - Aggregate daily metrics (admin)
+
+**Router Integration:**
+- Updated app/api/v1/api.py to include reporting router
+
+**Acceptance Criteria Met:**
+- [x] Daily census (inpatient, outpatient, emergency)
+- [x] Department utilization rates
+- [x] Bed occupancy rates
+- [x] Patient wait times
+- [x] Revenue reports with payer breakdown
+- [x] BPJS claim analytics (approval rate, rejection reasons)
+- [x] Clinical quality metrics (documentation completeness)
+- [x] Executive dashboard combining all metrics
+
+**Next Steps:**
+1. Create database migration for reporting tables
+2. Add report export functionality (PDF, Excel, CSV)
+3. Implement regulatory report generators (SIRS, Kemenkes)
+4. Consider frontend dashboard UI
+5. Add scheduled report execution with Celery/async tasks
+
