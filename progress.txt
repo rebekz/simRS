@@ -12776,3 +12776,201 @@ Notes:
 - BPJS and insurance ready
 
 =============================================================================
+
+=============================================================================
+STORY-057: Patient Discharge Form - COMPLETED
+Date: 2026-01-15 18:42:16
+
+Implementation Summary:
+Created comprehensive patient discharge form documenting inpatient stay completion
+with medications, instructions, follow-up planning, and death documentation.
+
+Files Created:
+- frontend/src/app/app/discharge/page.tsx (750+ lines)
+
+Key Features Implemented:
+✅ Patient and admission information display
+   - Patient details (name, MRN, age, gender, blood type, insurance)
+   - Admission information (admission number, room, bed, ward, class, dates)
+   - Length of stay calculation
+   - Attending physician
+   - Allergy warnings
+
+✅ Discharge details
+   - Discharge date and time
+   - Discharge status (8 types):
+     * recovered (sembuh)
+     * improved (membaik)
+     * unimproved (tidak membaik)
+     * transferred (dirujuk)
+     * lama - PAP (pulang atas permintaan)
+     * request (pulang paksa)
+     * deceased (meninggal)
+   - Discharge destination (home, transfer facility, rehab, nursing home, other)
+   - Transfer facility name (when applicable)
+
+✅ Diagnosis and procedures
+   - Discharge diagnosis (required)
+   - Principal procedure
+   - Secondary procedures list (add/remove)
+   - Complications documentation
+
+✅ Treatment summary and outcome
+   - Treatment summary (required)
+   - Outcome/final condition (required)
+   - Prognosis documentation
+
+✅ Discharge medications
+   - Medication list management (add/remove)
+   - Medication details: name, dosage, frequency, duration, indication
+   - Table display with all medications
+   - Allergy-aware medication management
+
+✅ Instructions and health education
+   - Special instructions list (add/remove)
+   - Health education topics (add/remove)
+   - Color-coded lists (blue for instructions, green for education)
+
+✅ Follow-up appointments
+   - Follow-up appointment scheduling
+   - Specialty selection (13 specialties)
+   - Doctor name (optional)
+   - Scheduled date
+   - Reason for follow-up
+   - List management (add/remove)
+
+✅ Referrals
+   - Specialist referral selection
+   - 13 medical specialties available
+   - Toggle-based selection
+   - Orange highlighting when selected
+
+✅ Documents given checklist
+   - 9 document types:
+     * Surat Kontrol (control letter)
+     * Surat Sakit (sick letter)
+     * Surat Rujukan (referral letter)
+     * Ringkasan Rawat Inap (inpatient summary)
+     * Hasil Lab (lab results)
+     * Hasil Radiologi (radiology results)
+     * Keping Resep Asli (original prescription)
+     * Epidemiologi Report (epidemiology report)
+   - Toggle-based selection with visual feedback
+
+✅ Cost summary
+   - Daily room rate
+   - Length of stay calculation
+   - Room class display
+   - Estimated total cost
+   - Disclaimer about additional costs
+
+✅ Death documentation
+   - Special warning when discharge status is deceased
+   - Red alert box with death icon
+   - Confirmation dialog
+   - Death protocol trigger
+   - Medical death certificate requirement note
+
+✅ Form validation
+   - Discharge date required
+   - Discharge status required
+   - Discharge destination required
+   - Discharge diagnosis required
+   - Treatment summary required
+   - Outcome required
+   - Patient and admission required
+
+✅ Visual enhancements
+   - Color-coded status (red for deceased, others gray)
+   - Color-coded lists (blue instructions, green education, purple follow-up, orange referrals)
+   - Selected documents highlighted (indigo)
+   - Death warning with red theme
+   - Estimated cost in indigo highlight
+   - Table for medications
+   - Expandable sections
+
+✅ Actions and functionality
+   - Discharge patient
+   - Cancel/back button
+   - Redirect to patient page after discharge
+   - Success notification with control number
+   - Loading state during submission
+   - Death confirmation dialog
+
+✅ Integration points
+   - Patient ID from URL query params
+   - Admission ID from URL query params
+   - Fetch patient data
+   - Fetch admission data
+   - Length of stay auto-calculation
+   - Cost estimation
+
+✅ Indonesian language interface
+   - All UI text in Indonesian
+   - Medical terminology in Indonesian
+
+Testing Considerations:
+- Patient and admission display accuracy
+- Discharge status selection
+- Death status handling
+- Diagnosis and procedures input
+- Medication list management
+- Instructions and education lists
+- Follow-up appointment scheduling
+- Referral selection
+- Document checklist
+- Cost calculations
+- Length of stay calculation
+- Form validation
+- Discharge submission
+- Death confirmation
+- Success/error handling
+- Redirect after discharge
+- Empty state handling
+- Responsive design
+- Indonesian language correctness
+
+Next Steps:
+- Implement death certificate generation
+- Add autopsy request workflow
+- Implement body donation consent
+- Add mortality review trigger
+- Implement bereavement support resources
+- Add medical examiner notification (for unexpected deaths)
+- Implement cause of death coding (ICD-10)
+- Add discharge summary export to PDF
+- Implement medication reconciliation
+- Add pending test results follow-up
+- Implement home care services coordination
+- Add DME (durable medical equipment) provisioning
+- Implement hospice referral for terminal patients
+- Add palliative care documentation
+- Implement readmission risk assessment
+- Add patient satisfaction survey at discharge
+- Implement discharge planning checklist
+- Add caregiver education documentation
+- Implement outpatient handoff communication
+- Add clinical handoff to primary care physician
+- Implement quality metrics capture (HCAHPS-like)
+- Add discharge medication counseling
+- Implement vaccination status check
+- Add follow-up appointment reminder system
+
+Notes:
+- Critical for inpatient workflow - discharge completes the inpatient cycle
+- Proper discharge documentation is a legal and regulatory requirement
+- Medication reconciliation ensures patient safety
+- Follow-up planning prevents readmission
+- Health education promotes patient self-care
+- Referral system ensures continuity of care
+- Document tracking prevents lost documents
+- Death documentation supports legal requirements
+- Cost estimation supports financial planning
+- Treatment summary supports continuity of care
+- Completes the full inpatient journey (admission → treatment → discharge)
+- Foundation for comprehensive discharge planning
+- Indonesian language interface
+- Compliant with local discharge standards
+- BPJS and insurance ready
+
+=============================================================================
