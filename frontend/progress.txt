@@ -98,7 +98,7 @@
   - Loading and error states
   - File: src/components/bpjs/BPJSStatusIndicators.tsx
 
-- [x] WEB-S-2.4: BPJS Error Handling (commit: TBD)
+- [x] WEB-S-2.4: BPJS Error Handling (commit: ddb508b)
   - BPJS error code mapping (30+ error codes)
   - User-friendly error translation (API codes → Indonesian messages)
   - Error severity levels (Critical/High/Medium/Low)
