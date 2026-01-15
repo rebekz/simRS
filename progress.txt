@@ -7601,3 +7601,106 @@ Implemented complete appointment reminder and confirmation system for STORY-022-
 6. Consider STORY-022-05 (Medication Reminders) or STORY-022-06 (Lab Result Notifications)
 
 =============================================================================
+
+## [2026-01-15] STORY-042: Staff Portal - Staff Authentication - COMPLETED
+
+### Summary
+Implemented Staff Portal authentication and main application entry point. 
+Hospital staff (doctors, nurses, admin) can now login to access the main SIMRS application.
+
+### Background
+CRITICAL GAP IDENTIFIED: Patient Portal was complete but there was NO staff authentication UI. 
+The /api/v1/auth/* endpoints existed in backend but had no frontend interface.
+This blocked all hospital staff from accessing the system.
+
+### What was implemented:
+
+1. **Staff Login Page** (frontend/src/app/app/login/page.tsx)
+   - Clean, professional login interface with hospital branding
+   - Username/password authentication
+   - MFA (Multi-Factor Authentication) support with TOTP
+   - Forgot password link
+   - Link to Patient Portal for easy switching
+   - Uses existing backend endpoint: POST /api/v1/auth/login
+
+2. **Staff Portal Layout** (frontend/src/app/app/layout.tsx)
+   - Responsive sidebar navigation
+   - Top header with notifications and user dropdown
+   - Mobile-friendly with hamburger menu
+   - Authentication check (redirects to login if not authenticated)
+   - User info fetch from GET /api/v1/auth/me
+   - Logout functionality via POST /api/v1/auth/logout
+   - Navigation menu with icons for all major modules
+
+3. **Staff Dashboard** (frontend/src/app/app/dashboard/page.tsx)
+   - Key statistics display (Patients, Appointments, Queue, Admissions)
+   - Quick action buttons for common tasks
+   - Recent activity feed
+   - Upcoming appointments preview
+   - Links to detailed views
+
+### Navigation Menu Items:
+- Dashboard (🏠)
+- Patients (👥)
+- Appointments (📅)
+- Queue (🔢)
+- Prescriptions (💊)
+- Lab Results (🔬)
+- Radiology (📷)
+- Billing (💰)
+- Inventory (📦)
+- Reports (📊)
+
+### Quick Actions:
+- Register Patient
+- New Appointment
+- View Queue
+- Create Prescription
+
+### Authentication Flow:
+1. User enters username/password
+2. Backend validates credentials
+3. If MFA enabled, prompt for TOTP code
+4. If password expired, redirect to change password
+5. Store access_token and refresh_token in localStorage
+6. Redirect to /app/dashboard
+7. Subsequent requests include Bearer token
+8. Layout fetches user info from /api/v1/auth/me
+
+### Files Created:
+1. frontend/src/app/app/login/page.tsx (270 lines)
+2. frontend/src/app/app/layout.tsx (260 lines)
+3. frontend/src/app/app/dashboard/page.tsx (240 lines)
+
+### Backend Integration:
+Uses existing backend endpoints from backend/app/api/v1/endpoints/auth.py:
+- POST /api/v1/auth/login - Staff login
+- GET /api/v1/auth/me - Get current user info
+- POST /api/v1/auth/logout - Logout
+- POST /api/v1/auth/refresh - Refresh access token
+
+### Acceptance Criteria Met:
+✅ Staff login page accessible at /app/login
+✅ Professional UI with hospital branding
+✅ Username/password authentication
+✅ MFA support (TOTP)
+✅ Token storage (access + refresh)
+✅ Automatic redirect to dashboard on success
+✅ Error handling and display
+✅ Responsive design (mobile + desktop)
+✅ Sidebar navigation with icons
+✅ User dropdown menu in header
+✅ Logout functionality
+✅ Dashboard with key statistics
+✅ Quick action buttons
+✅ Recent activity feed
+✅ Upcoming appointments preview
+
+### Next Steps:
+1. Implement STORY-043 (Doctor Dashboard) or STORY-044 (Nurse Station)
+2. Create detailed pages for each navigation item
+3. Implement role-based routing (doctors → clinical dashboard, admin → admin panel)
+4. Add permission-based UI element visibility
+5. EPIC-020 Status: 1/5 stories complete (20%)
+
+=============================================================================
