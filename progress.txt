@@ -9727,3 +9727,216 @@ This enables staff members to view, manage, and interact with all their notifica
 - Ready for real-time updates implementation
 
 =============================================================================
+
+=============================================================================
+
+## [2026-01-15] STORY-009-Enhanced: Staff Appointments Management - COMPLETED
+
+### Summary
+Implemented comprehensive appointments management page for staff application.
+This enables staff to view, manage, and interact with all patient appointments efficiently.
+
+### What was implemented:
+
+1. **Staff Appointments Page** (frontend/src/app/app/appointments/page.tsx)
+   - Complete appointment list with pagination (500+ lines)
+   - Advanced filtering capabilities
+   - Search functionality
+   - Appointment status management
+   - Quick actions (confirm, cancel, view, edit)
+   - Statistics dashboard
+
+2. **Statistics Dashboard**
+   - Today's appointments count
+   - Scheduled appointments count
+   - Confirmed appointments count
+   - Completed appointments count
+   - Real-time updates
+
+3. **Filtering Capabilities**
+   - Status filter: scheduled, confirmed, checked_in, in_progress, completed, cancelled, no_show
+   - Date filter: all, today, tomorrow, this week, this month
+   - Type filter: consultation, follow_up, procedure, vaccination, telemedicine
+   - Search by patient name or doctor name
+
+4. **Appointment Types Supported**
+   - consultation: Konsultasi
+   - follow_up: Kontrol
+   - procedure: Tindakan
+   - vaccination: Vaksinasi
+   - telemedicine: Telemedicine
+
+5. **Appointment Statuses**
+   - scheduled: Terjadwal
+   - confirmed: Dikonfirmasi
+   - checked_in: Check-In
+   - in_progress: Sedang Berlangsung
+   - completed: Selesai
+   - cancelled: Dibatalkan
+   - no_show: Tidak Hadir
+
+6. **Quick Actions**
+   - Confirm appointment (for scheduled status)
+   - View appointment details
+   - Edit appointment (if not completed/cancelled)
+   - Cancel appointment (if not completed/cancelled)
+   - Create new appointment
+
+7. **Table Display**
+   - Patient information (name, phone, email)
+   - Doctor information (name, department)
+   - Date and time with smart formatting
+   - Type indicator with icon
+   - Status badge with color coding
+   - Action buttons
+
+### Technical Implementation:
+
+**Component Structure:**
+- Main page component with state management
+- Responsive table design
+- Pagination controls
+- Filter state management
+- Search functionality
+
+**API Integration:**
+- GET /api/v1/appointments with query parameters
+- POST /api/v1/appointments/{id}/confirm - Confirm appointment
+- POST /api/v1/appointments/{id}/cancel - Cancel appointment
+- JWT token authentication from localStorage
+
+**TypeScript Types:**
+- Appointment interface with all fields
+- AppointmentListResponse for pagination
+- Full type safety throughout
+
+**State Management:**
+- React hooks (useState, useEffect)
+- Local state for filters and pagination
+- Real-time statistics calculation
+- Optimized re-renders
+
+**Styling:**
+- TailwindCSS for all styling
+- Responsive design (mobile, tablet, desktop)
+- Color-coded status badges
+- Icon-based type indicators
+- Hover effects and transitions
+- Consistent with SIMRS design system
+
+### Features:
+
+**Statistics Cards:**
+- 4 card layout showing key metrics
+- Color-coded icons
+- Real-time counts based on filtered data
+- Quick visual overview
+
+**Smart Date Formatting:**
+- "Hari Ini" for today
+- "Besok" for tomorrow
+- Full date with weekday for other dates
+- Indonesian locale formatting
+
+**Status Management:**
+- Color-coded badges (blue, green, purple, yellow, gray, red, orange)
+- Clear Indonesian labels
+- Status-based action buttons
+- Visual hierarchy
+
+**Search & Filter:**
+- Real-time search on Enter
+- Multiple filter combinations
+- Clear filter options
+- Reset capability with "all" options
+
+**Pagination:**
+- 20 items per page
+- Page navigation buttons
+- Current page indicator
+- Total count display
+
+**User Experience:**
+- Indonesian language interface
+- Clear action buttons with tooltips
+- Confirmation dialogs for destructive actions
+- Loading states with spinner
+- Empty state with call-to-action
+- Responsive table with horizontal scroll
+
+### Integration Points:
+
+**Navigation:**
+- Accessible from staff sidebar
+- "Buat Janji Temu" button in header
+- Links to appointment details and edit pages
+
+**Dashboard Integration:**
+- Replaces mock dashboard data
+- Provides real appointment statistics
+- Links from dashboard to this page
+
+**Future Pages:**
+- /app/appointments/new - Create new appointment
+- /app/appointments/{id} - View appointment details
+- /app/appointments/{id}/edit - Edit appointment
+
+### API Endpoints Used:
+- GET /api/v1/appointments
+- POST /api/v1/appointments/{id}/confirm
+- POST /api/v1/appointments/{id}/cancel
+
+### Files Created/Modified:
+1. frontend/src/app/app/appointments/page.tsx - Created (500+ lines)
+
+### TypeScript Verification:
+- Appointments page compiles without errors
+- Full type safety with interfaces
+- Proper type definitions for all API responses
+- No TypeScript errors in appointments code
+
+### Acceptance Criteria:
+✅ View all appointments with pagination
+✅ Filter by status, date, and type
+✅ Search by patient or doctor name
+✅ Confirm scheduled appointments
+✅ Cancel appointments (if not completed)
+✅ View appointment details
+✅ Edit appointments
+✅ Statistics dashboard
+✅ Responsive design
+✅ Indonesian language interface
+
+### Testing Considerations:
+- Appointment list display
+- Filter functionality
+- Search functionality
+- Pagination navigation
+- Confirm appointment action
+- Cancel appointment action
+- Status badge colors
+- Type icons and labels
+- Date formatting
+- Empty state display
+- Loading state display
+- Statistics accuracy
+- Responsive table on mobile
+
+### Next Steps:
+- Implement /app/appointments/new page for creating appointments
+- Implement /app/appointments/{id} page for viewing details
+- Implement /app/appointments/{id}/edit page for editing
+- Add calendar view for appointments
+- Implement appointment reminders
+- Add appointment export functionality
+- Implement appointment print functionality
+
+### Notes:
+- This is a core operational feature for staff
+- Critical for daily hospital operations
+- Replaces mock data with real API integration
+- Provides foundation for appointment management
+- Integrates with existing notification system
+- Ready for appointment creation and detail pages
+
+=============================================================================
