@@ -287,25 +287,38 @@
   - Priority selection (routine/urgent)
   - File: src/components/prescriptions/PrescriptionWriter.tsx (enhanced)
 
-- [ ] WEB-S-4.5: Lab/Radiology Ordering
+- [x] WEB-S-4.5: Lab/Radiology Ordering (commit: TBD)
+  - Test catalog search and package selection (Lab + Radiology)
+  - Priority assignment (routine, urgent, STAT) with visual indicators
+  - Clinical indication input (required for some tests)
+  - Insurance pre-authorization (BPJS prior auth request/approval/rejection)
+  - Order tracking (pending → in-progress → completed)
+  - Result viewing with abnormal value flags (high/low/critical)
+  - Result attachment to encounter functionality
+  - Fasting requirement warnings
+  - Preparation instructions display
+  - TAT (turnaround time) estimation
+  - Three tabs: Catalog, Orders, Results
+  - Mock database: 6 lab tests + 5 radiology tests
+  - File: src/components/consultation/TestOrdering.tsx
+
 - [ ] WEB-S-4.6: Patient History Timeline
 - [ ] WEB-S-4.7: Allergy & Medication Alerts
 
-**Epic Status:** IN PROGRESS (4/7 stories complete - 57%)
+**Epic Status:** IN PROGRESS (5/7 stories complete - 71%)
 
 ---
 
 ## BLOCKERS / NOTES
 
 ### Current Iteration (2026-01-16)
-- **Completed:** WEB-S-4.4: Electronic Prescription Writer
+- **Completed:** WEB-S-4.5: Lab/Radiology Ordering
 - **Blockers:** None
-- **Notes:** Enhanced existing PrescriptionWriter with drug-disease and drug-allergy interaction checking. Added critical allergy alerts with "PASIEN ALERGI" warnings. Added prescription preview modal with hospital header, patient info, medications list (R/x format), barcode, and doctor signature. Added print functionality. Drug search with autocomplete, dose/frequency/route selection, BPJS formulary coverage, prior auth warnings.
+- **Notes:** Unified test ordering component for Lab and Radiology. Test catalog search with category filtering. Priority assignment (routine/urgent/STAT). Clinical indication required for specific tests. BPJS pre-authorization with request/approval/rejection flow. Order tracking with status updates. Results viewing with abnormal value flags (high/low/critical) and reference ranges. Result attachment to encounter. Fasting warnings and preparation instructions. TAT estimation displayed.
 
 ### Next Steps
-1. Continue WEB-EPIC-4: WEB-S-4.5 Lab/Radiology Ordering (MEDIUM priority)
-2. Then WEB-S-4.6: Patient History Timeline (MEDIUM priority)
-3. Then WEB-S-4.7: Allergy & Medication Alerts (LOW priority)
+1. Continue WEB-EPIC-4: WEB-S-4.6 Patient History Timeline (MEDIUM priority)
+2. Then WEB-S-4.7: Allergy & Medication Alerts (LOW priority)
 
 ---
 
@@ -317,8 +330,8 @@
 **Blocked:** 0
 
 **Total Stories:** 34
-**Completed:** 30
+**Completed:** 31
 **In Progress:** 0
-**Remaining:** 4
+**Remaining:** 3
 
-**Overall Progress:** ~88% complete (30/34 stories)
+**Overall Progress:** ~91% complete (31/34 stories)
