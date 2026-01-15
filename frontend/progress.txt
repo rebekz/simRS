@@ -202,10 +202,24 @@
   - File: src/app/app/patients/search/page.tsx
 
 - [ ] WEB-S-3.5: Online Appointment Booking
-- [ ] WEB-S-3.5: Online Appointment Booking
+- [x] WEB-S-3.5: Online Appointment Booking (commit: TBD)
+  - Public-facing booking page (no authentication required)
+  - 4-step wizard flow (Service→Patient→Confirm→Success)
+  - Department selection with icons (6 departments)
+  - Doctor selection filtered by department with availability status
+  - Date picker (today to 30 days ahead)
+  - Time slot selection with quota management (15 slots/day)
+  - Patient details form (name, phone, optional BPJS)
+  - SMS reminder checkbox option
+  - Form validation at each step
+  - Booking confirmation with summary
+  - Success page with booking number and queue number
+  - Informational messages and warnings
+  - File: src/app/appointments/book/page.tsx
+
 - [ ] WEB-S-3.7: Mobile Responsive Registration
 
-**Epic Status:** IN PROGRESS (5/7 stories complete - 71%)
+**Epic Status:** IN PROGRESS (6/7 stories complete - 86%)
 **Completion Date:** TBD
 
 ---
@@ -220,14 +234,13 @@ Waiting for WEB-EPIC-3 completion.
 ## BLOCKERS / NOTES
 
 ### Current Iteration (2026-01-16)
-- **Completed:** WEB-S-3.6: Patient Search & Lookup
+- **Completed:** WEB-S-3.5: Online Appointment Booking
 - **Blockers:** None
-- **Notes:** Comprehensive patient search with 3 search types (quick by RM/BPJS/NIK, name+DOB, phone). Features fuzzy search for name matching (tolerates typos), search history (last 10), advanced filters (date range, department), profile modal, and CSV export. Mock database: 8 patients with complete details.
+- **Notes:** Public-facing appointment booking page with 4-step wizard (Service→Patient→Confirm→Success). Features department selection (6 departments with icons), doctor selection filtered by department with availability status, date picker (today to 30 days), time slot selection with quota management (15 slots/day), patient details form (name, phone, optional BPJS), SMS reminder option, booking confirmation, and success page with booking/queue numbers.
 
 ### Next Steps
-1. Continue WEB-EPIC-3: WEB-S-3.7 Mobile Responsive Registration (MEDIUM priority - 3 days)
-2. Complete WEB-EPIC-3: WEB-S-3.5 Online Appointment Booking (LOW priority - 5 days)
-3. Then start WEB-EPIC-4: Doctor Consultation Workspace (unblocked after WEB-EPIC-3 completes)
+1. Complete WEB-EPIC-3: WEB-S-3.7 Mobile Responsive Registration (MEDIUM priority - 3 days)
+2. Then start WEB-EPIC-4: Doctor Consultation Workspace (unblocked after WEB-EPIC-3 completes)
 
 ---
 
@@ -239,8 +252,8 @@ Waiting for WEB-EPIC-3 completion.
 **Blocked:** 1 (WEB-EPIC-4)
 
 **Total Stories:** 34
-**Completed:** 23
+**Completed:** 25
 **In Progress:** 0
-**Remaining:** 11
+**Remaining:** 9
 
-**Overall Progress:** ~71% complete (24/34 stories)
+**Overall Progress:** ~74% complete (25/34 stories)
