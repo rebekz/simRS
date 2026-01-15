@@ -82,6 +82,7 @@ export default function StaffLayout({
     { name: "Billing", href: "/app/billing", icon: "💰" },
     { name: "Inventory", href: "/app/inventory", icon: "📦" },
     { name: "Reports", href: "/app/reports", icon: "📊" },
+    { name: "My Profile", href: "/app/profile", icon: "👤" },
   ];
 
   return (
