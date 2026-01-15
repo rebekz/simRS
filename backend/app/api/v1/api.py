@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import health, auth, audit, monitoring, patients, encounters, bpjs, bpjs_verification, bpjs_aplicare, bpjs_claims, icd10, allergies, clinical_notes, consultation, sep, inventory, user_management, medications, drug_interactions, prescriptions, dispensing, queue, bed, hospital, admission, daily_care, discharge, satusehat, lab_orders, radiology_orders, procedure_codes, training, appointments, billing, payments, patient_portal, patient_portal_auth, patient_portal_linking, patient_portal_health, patient_portal_appointments
+from app.api.v1.endpoints import health, auth, audit, monitoring, patients, encounters, bpjs, bpjs_verification, bpjs_aplicare, bpjs_claims, icd10, allergies, clinical_notes, consultation, sep, inventory, user_management, medications, drug_interactions, prescriptions, dispensing, queue, bed, hospital, admission, daily_care, discharge, satusehat, lab_orders, radiology_orders, procedure_codes, training, appointments, billing, payments, patient_portal, patient_portal_auth, patient_portal_linking, patient_portal_health, patient_portal_appointments, patient_portal_prescriptions
 
 api_router = APIRouter()
 
@@ -121,5 +121,8 @@ api_router.include_router(patient_portal_linking.router, prefix="/portal", tags=
 api_router.include_router(patient_portal_health.router, prefix="/portal", tags=["Patient Portal Health"])
 
 # Include Patient Portal Appointments endpoints
-api_router.include_router(patient_portal_appointments.router, prefix="/portal", tags=["Patient Portal Appointments"])
+api_router.include_router(patient_portal_appointments.router, prefix="/portal/appointments", tags=["Patient Portal Appointments"])
+
+# Include Patient Portal Prescriptions endpoints
+api_router.include_router(patient_portal_prescriptions.router, prefix="/portal", tags=["Patient Portal Prescriptions"])
 

@@ -63,6 +63,11 @@ from app.models.bpjs_claims import (
     BPJSSubmissionStatus,
     BPJSQueryStatus,
 )
+from app.models.refill_request import (
+    PrescriptionRefillRequest,
+    PrescriptionRefillItem,
+    RefillRequestStatus,
+)
 
 __all__ = [
     "User",
@@ -121,4 +126,7 @@ __all__ = [
     "BPJSDocumentType",
     "BPJSSubmissionStatus",
     "BPJSQueryStatus",
+    "PrescriptionRefillRequest",
+    "PrescriptionRefillItem",
+    "RefillRequestStatus",
 ]

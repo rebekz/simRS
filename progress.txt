@@ -5830,10 +5830,98 @@ checking and calendar integration.
 - Pre-appointment checklist provides fasting, document, and arrival instructions
 
 ### Next Steps
-1. Implement STORY-044: Prescription Refill Requests
+1. Implement STORY-045: Medical Records & Documents Access
 2. Integrate real email/SMS for appointment confirmations
 3. Implement waitlist system for fully booked slots
 4. Add telemedicine appointment booking
 5. Implement appointment reminder scheduling (24h, 2h before)
 6. Add appointment notification preferences
+
+
+## STORY-044: Prescription Refill Requests - Complete (2026-01-15)
+
+### Summary
+Implemented prescription refill request functionality allowing patients to view active/past prescriptions, check refill eligibility, and submit refill requests through the patient portal.
+
+### Acceptance Criteria Met
+- [x] View active and past prescriptions
+- [x] Check refill eligibility (refills remaining, expiration, last dispense date)
+- [x] Submit refill request for one or more medications
+- [x] Specify quantity requested and reason for refill
+- [x] Provide preferred pickup date
+- [x] View refill request status (pending, approved, rejected, ready_for_pickup, completed)
+- [x] Receive notification when refill is ready (scaffolded)
+- [x] View medication information (indications, warnings, contraindications)
+- [x] Check drug interactions between medications
+
+### Files Created/Modified
+
+**Backend Models:**
+- `backend/app/models/refill_request.py` (new)
+  - PrescriptionRefillRequest model
+  - PrescriptionRefillItem model
+  - RefillRequestStatus enum
+
+**Backend Schemas:**
+- `backend/app/schemas/patient_portal/prescriptions.py` (new)
+  - RefillRequestStatus, RefillEligibility enums
+  - MedicationInfo, PrescriptionItem schemas
+  - RefillRequestCreate, RefillRequestResponse schemas
+  - RefillEligibilityCheck, MedicationDetail schemas
+
+**Backend Services:**
+- `backend/app/services/patient_portal/prescription_service.py` (new)
+  - PrescriptionRefillService
+  - Eligibility checking (refills remaining, expiration, minimum days between refills)
+  - Refill request creation with validation
+  - Request tracking by status
+
+**Backend API:**
+- `backend/app/api/v1/endpoints/patient_portal_prescriptions.py` (new)
+  - GET /prescriptions - list active/past prescriptions
+  - POST /prescriptions/check-eligibility - check refill eligibility
+  - POST /prescriptions/refill-requests - submit refill request
+  - GET /prescriptions/refill-requests - view refill requests
+  - GET /prescriptions/medications/{drug_id} - medication details
+  - GET /prescriptions/check-interactions - check drug interactions
+- `backend/app/api/v1/api.py` (modified - added prescriptions router)
+
+**Frontend:**
+- `frontend/src/app/portal/prescriptions/page.tsx` (new)
+  - View active and past prescriptions
+  - Select medications for refill
+  - Display refill eligibility
+- `frontend/src/app/portal/prescriptions/refill/page.tsx` (new)
+  - Submit refill request
+  - Specify quantity and reason per medication
+  - Add notes and preferred pickup date
+
+**Models Export:**
+- `backend/app/models/__init__.py` (modified - added refill request models)
+
+### Technical Implementation Notes
+- Refill eligibility checks: refills remaining, prescription expiration, minimum 21 days between refills
+- Request number format: REFILL-YYYYMMDD-XXXXXX (6-char random suffix)
+- Refill requests expire after 30 days if not processed
+- Drug interaction checking uses existing DrugInteraction model
+- Medication details from Drug model (indications, contraindications, warnings)
+- Status workflow: pending → approved → ready_for_pickup → completed (or rejected)
+- Pharmacy selection removed (Pharmacy model doesn't exist yet - future enhancement)
+
+### Notes
+- Pharmacy model referenced in original schema but doesn't exist - removed pharmacy_id from PrescriptionRefillRequest
+- Some Drug fields (side_effects, drug_interactions, instructions) not in current model - return empty lists
+- Notifications for refill approval/rejection are scaffolded - need real provider integration
+- Frontend uses sessionStorage to pass selected medications to refill page
+- Minimum 5 characters required for "reason for refill"
+- Maximum 10 medications per refill request
+
+### Next Steps
+1. Implement STORY-045: Medical Records & Documents Access
+2. Implement STORY-046: Lab Results Viewing
+3. Implement STORY-047: Radiology Results Viewing
+4. Implement STORY-048: Billing & Payments Portal
+5. Implement STORY-049: Communication Center
+6. Implement STORY-050: Feedback & Surveys
+7. Implement STORY-051: Account Settings & Preferences
 
