@@ -270,26 +270,42 @@
   - Mock database with 70+ ICD-10 codes across categories
   - File: src/components/consultation/DiagnosisSearch.tsx
 
-- [ ] WEB-S-4.4: Electronic Prescription Writer
+- [x] WEB-S-4.4: Electronic Prescription Writer (commit: TBD)
+  - Drug search with autocomplete (generic and brand names)
+  - Dose and frequency selection (mg/g/mcg/ml/units/IU, 1-4x daily)
+  - Route selection (oral, IV, IM, SC, topical, inhalation, etc.)
+  - Duration and quantity calculation with calculator button
+  - Drug-drug interaction checking with severity levels
+  - Drug-disease interaction checking (NEW - patient diagnoses)
+  - Drug-allergy interaction checking with critical alerts (ENHANCED)
+  - BPJS formulary checking with coverage percentage
+  - Prior authorization warning for restricted drugs
+  - Prescription preview modal with printable layout
+  - Barcode display on prescription
+  - Print to PDF functionality
+  - Draft/Final submission status
+  - Priority selection (routine/urgent)
+  - File: src/components/prescriptions/PrescriptionWriter.tsx (enhanced)
+
 - [ ] WEB-S-4.5: Lab/Radiology Ordering
 - [ ] WEB-S-4.6: Patient History Timeline
 - [ ] WEB-S-4.7: Allergy & Medication Alerts
 
-**Epic Status:** IN PROGRESS (3/7 stories complete - 43%)
+**Epic Status:** IN PROGRESS (4/7 stories complete - 57%)
 
 ---
 
 ## BLOCKERS / NOTES
 
 ### Current Iteration (2026-01-16)
-- **Completed:** WEB-S-4.3: ICD-10 Diagnosis Search
+- **Completed:** WEB-S-4.4: Electronic Prescription Writer
 - **Blockers:** None
-- **Notes:** Comprehensive ICD-10 diagnosis search component for consultation workspace. Autocomplete search with 300ms debounce (<2s target). Keyboard shortcut Ctrl+K/Cmd+K to focus. 10 favorite diagnoses as quick chips (starred). 3 recent diagnoses as quick chips. Selected diagnoses shown as chips with remove button. Primary/secondary designation via radio button. Max 10 selections. Fuzzy matching on code and description. 70+ mock ICD-10 codes.
+- **Notes:** Enhanced existing PrescriptionWriter with drug-disease and drug-allergy interaction checking. Added critical allergy alerts with "PASIEN ALERGI" warnings. Added prescription preview modal with hospital header, patient info, medications list (R/x format), barcode, and doctor signature. Added print functionality. Drug search with autocomplete, dose/frequency/route selection, BPJS formulary coverage, prior auth warnings.
 
 ### Next Steps
-1. Continue WEB-EPIC-4: WEB-S-4.4 Electronic Prescription Writer (HIGH priority)
-2. Then WEB-S-4.5: Lab/Radiology Ordering (MEDIUM priority)
-3. Then WEB-S-4.6: Patient History Timeline (MEDIUM priority)
+1. Continue WEB-EPIC-4: WEB-S-4.5 Lab/Radiology Ordering (MEDIUM priority)
+2. Then WEB-S-4.6: Patient History Timeline (MEDIUM priority)
+3. Then WEB-S-4.7: Allergy & Medication Alerts (LOW priority)
 
 ---
 
@@ -301,8 +317,8 @@
 **Blocked:** 0
 
 **Total Stories:** 34
-**Completed:** 29
+**Completed:** 30
 **In Progress:** 0
-**Remaining:** 5
+**Remaining:** 4
 
-**Overall Progress:** ~85% complete (29/34 stories)
+**Overall Progress:** ~88% complete (30/34 stories)

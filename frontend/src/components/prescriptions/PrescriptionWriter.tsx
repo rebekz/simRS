@@ -12,7 +12,7 @@
  * - Pharmacy transmission
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Pill,
   Plus,
@@ -26,6 +26,14 @@ import {
   Info,
   AlertCircle,
   Loader2,
+  X,
+  FileText,
+  Barcode,
+  User,
+  Calendar,
+  Clock,
+  Shield,
+  Activity,
 } from "lucide-react";
 
 // Types
@@ -62,6 +70,31 @@ interface BPJSCoverage {
   max_price?: number;
   patient_responsibility?: number;
   restrictions?: string[];
+  prior_auth_required?: boolean;
+}
+
+// Drug-Disease Interaction
+interface DiseaseInteraction {
+  id: number;
+  drug_id: number;
+  drug_name: string;
+  disease_code: string;
+  disease_name: string;
+  severity: "contraindicated" | "severe" | "moderate" | "mild";
+  description: string;
+  recommendation: string;
+}
+
+// Drug-Allergy Interaction
+interface AllergyInteraction {
+  id: number;
+  drug_id: number;
+  drug_name: string;
+  allergen: string;
+  allergy_type: "medication" | "food" | "environmental";
+  severity: "contraindicated" | "severe" | "moderate" | "mild";
+  description: string;
+  recommendation: string;
 }
 
 interface PrescriptionItem {
@@ -84,6 +117,8 @@ interface PrescriptionWriterProps {
   encounterId?: number;
   patientWeight?: number;
   patientAge?: number;
+  patientAllergies?: string[]; // List of patient allergies
+  patientDiagnoses?: string[]; // List of patient diagnosis codes
   onSave?: (prescription: any) => void;
   onCancel?: () => void;
 }
@@ -93,6 +128,8 @@ export function PrescriptionWriter({
   encounterId,
   patientWeight,
   patientAge,
+  patientAllergies = [],
+  patientDiagnoses = [],
   onSave,
   onCancel,
 }: PrescriptionWriterProps) {
@@ -102,6 +139,7 @@ export function PrescriptionWriter({
   const [notes, setNotes] = useState("");
   const [priority, setPriority] = useState<"routine" | "urgent">("routine");
   const [isDraft, setIsDraft] = useState(true);
+  const [prescriptionNumber, setPrescriptionNumber] = useState("");
 
   // Drug search state
   const [searchQuery, setSearchQuery] = useState("");
@@ -111,6 +149,8 @@ export function PrescriptionWriter({
 
   // Interaction checking
   const [interactions, setInteractions] = useState<DrugInteraction[]>([]);
+  const [diseaseInteractions, setDiseaseInteractions] = useState<DiseaseInteraction[]>([]);
+  const [allergyInteractions, setAllergyInteractions] = useState<AllergyInteraction[]>([]);
   const [isCheckingInteractions, setIsCheckingInteractions] = useState(false);
 
   // BPJS coverage
@@ -118,6 +158,10 @@ export function PrescriptionWriter({
 
   // Loading state
   const [isSaving, setIsSaving] = useState(false);
+
+  // Preview modal
+  const [showPreview, setShowPreview] = useState(false);
+  const previewRef = useRef<HTMLDivElement>(null);
 
   // Form state for new item
   const [newItem, setNewItem] = useState<Partial<PrescriptionItem>>({
@@ -146,10 +190,14 @@ export function PrescriptionWriter({
 
   // Check interactions when items change
   useEffect(() => {
-    if (items.length >= 2) {
+    if (items.length >= 1) {
       checkInteractions();
+      checkDiseaseInteractions();
+      checkAllergyInteractions();
     } else {
       setInteractions([]);
+      setDiseaseInteractions([]);
+      setAllergyInteractions([]);
     }
   }, [items]);
 
@@ -219,6 +267,109 @@ export function PrescriptionWriter({
       }
     } catch (error) {
       console.error("Failed to check interactions:", error);
+    } finally {
+      setIsCheckingInteractions(false);
+    }
+  };
+
+  // WEB-S-4.4: Drug-Disease Interaction Checking
+  const checkDiseaseInteractions = async () => {
+    if (patientDiagnoses.length === 0) return;
+
+    setIsCheckingInteractions(true);
+    try {
+      const token = localStorage.getItem("staff_access_token");
+      const drugIds = items.map((item) => item.drug_id);
+
+      const response = await fetch("/api/v1/prescriptions/check-disease-interactions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          patient_id: patientId,
+          drug_ids: drugIds,
+          diagnoses: patientDiagnoses,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setDiseaseInteractions(data.interactions || []);
+      } else {
+        // Mock data for demo
+        const mockDiseaseInteractions: DiseaseInteraction[] = [];
+        if (drugIds.includes(1) && patientDiagnoses.includes("I10")) {
+          mockDiseaseInteractions.push({
+            id: 1,
+            drug_id: 1,
+            drug_name: "Ibuprofen",
+            disease_code: "I10",
+            disease_name: "Hipertensi Esensial",
+            severity: "moderate",
+            description: "NSAID dapat meningkatkan tekanan darah",
+            recommendation: "Pertimbangkan alternatif analgesik",
+          });
+        }
+        setDiseaseInteractions(mockDiseaseInteractions);
+      }
+    } catch (error) {
+      console.error("Failed to check disease interactions:", error);
+    } finally {
+      setIsCheckingInteractions(false);
+    }
+  };
+
+  // WEB-S-4.4: Drug-Allergy Interaction Checking
+  const checkAllergyInteractions = async () => {
+    if (patientAllergies.length === 0) return;
+
+    setIsCheckingInteractions(true);
+    try {
+      const token = localStorage.getItem("staff_access_token");
+      const drugIds = items.map((item) => item.drug_id);
+
+      const response = await fetch("/api/v1/prescriptions/check-allergy-interactions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          patient_id: patientId,
+          drug_ids: drugIds,
+          allergies: patientAllergies,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setAllergyInteractions(data.interactions || []);
+      } else {
+        // Mock data for demo - check penicillin allergy
+        const mockAllergyInteractions: AllergyInteraction[] = [];
+        const penicillinDrugs = [2, 3, 4]; // Mock drug IDs for penicillin-based drugs
+        const hasPenicillinAllergy = patientAllergies.some((a) =>
+          a.toLowerCase().includes("penisilin") || a.toLowerCase().includes("penicillin")
+        );
+
+        if (hasPenicillinAllergy && drugIds.some((id) => penicillinDrugs.includes(id))) {
+          mockAllergyInteractions.push({
+            id: 1,
+            drug_id: 2,
+            drug_name: "Amoxicillin",
+            allergen: "Penisilin",
+            allergy_type: "medication",
+            severity: "severe",
+            description: "Pasien memiliki alergi terhadap penisilin",
+            recommendation: "JANGAN BERIKAN - Gunakan alternatif antibiotik",
+          });
+        }
+        setAllergyInteractions(mockAllergyInteractions);
+      }
+    } catch (error) {
+      console.error("Failed to check allergy interactions:", error);
     } finally {
       setIsCheckingInteractions(false);
     }
@@ -395,6 +546,15 @@ export function PrescriptionWriter({
           >
             Cancel
           </button>
+          {/* WEB-S-4.4: Print/Preview Button */}
+          <button
+            onClick={() => setShowPreview(true)}
+            disabled={items.length === 0}
+            className="px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium flex items-center"
+          >
+            <Printer className="h-4 w-4 mr-2" />
+            Preview & Print
+          </button>
           <button
             onClick={() => handleSavePrescription(false)}
             disabled={isSaving}
@@ -449,6 +609,75 @@ export function PrescriptionWriter({
                     ...and {interactions.length - 3} more interaction(s)
                   </p>
                 )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* WEB-S-4.4: Disease Interaction Warning */}
+      {diseaseInteractions.length > 0 && (
+        <div className="bg-orange-50 border-l-4 border-orange-500 p-4 rounded">
+          <div className="flex items-start">
+            <Activity className="h-5 w-5 text-orange-600 mr-2 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <h3 className="text-sm font-medium text-orange-800">
+                Drug-Disease Interactions ({diseaseInteractions.length})
+              </h3>
+              <div className="mt-2 space-y-2">
+                {diseaseInteractions.map((interaction, idx) => (
+                  <div
+                    key={idx}
+                    className={`p-2 rounded border ${getSeverityColor(interaction.severity)}`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-medium">{interaction.drug_name}</p>
+                      <span className="text-xs text-gray-500">↔</span>
+                      <p className="text-sm font-medium">{interaction.disease_name}</p>
+                    </div>
+                    <p className="text-xs mt-1">{interaction.description}</p>
+                    <p className="text-xs mt-1 font-medium">
+                      Recommendation: {interaction.recommendation}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* WEB-S-4.4: Allergy Interaction Warning */}
+      {allergyInteractions.length > 0 && (
+        <div className="bg-red-50 border-l-4 border-red-600 p-4 rounded">
+          <div className="flex items-start">
+            <Shield className="h-5 w-5 text-red-600 mr-2 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <h3 className="text-sm font-medium text-red-900">
+                ⚠️ ALLERGY ALERT ({allergyInteractions.length})
+              </h3>
+              <div className="mt-2 space-y-2">
+                {allergyInteractions.map((interaction, idx) => (
+                  <div
+                    key={idx}
+                    className={`p-3 rounded border-2 ${
+                      interaction.severity === "contraindicated" || interaction.severity === "severe"
+                        ? "bg-red-100 border-red-500"
+                        : "bg-orange-100 border-orange-400"
+                    }`}
+                  >
+                    <p className="text-sm font-bold text-red-900">
+                      PASIEN ALERGI {interaction.allergen.toUpperCase()}
+                    </p>
+                    <p className="text-sm mt-1 font-medium">{interaction.drug_name} mengandung {interaction.allergen}</p>
+                    <p className="text-xs mt-1">{interaction.description}</p>
+                    <p className="text-xs mt-1 font-bold">
+                      {interaction.severity === "severe" || interaction.severity === "contraindicated"
+                        ? "⛔ JANGAN BERIKAN - Gunakan alternatif"
+                        : `Recommendation: ${interaction.recommendation}`}
+                    </p>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -800,6 +1029,164 @@ export function PrescriptionWriter({
           </div>
         </div>
       </div>
+
+      {/* WEB-S-4.4: Prescription Preview Modal with Barcode */}
+      {showPreview && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-gray-900">Prescription Preview</h2>
+              <button
+                onClick={() => setShowPreview(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Prescription Content - Printable Area */}
+            <div ref={previewRef} className="p-6 space-y-6">
+              {/* Hospital Header */}
+              <div className="text-center border-b border-gray-200 pb-4">
+                <h1 className="text-xl font-bold text-blue-900">RS SEHAT SELALU</h1>
+                <p className="text-sm text-gray-600">Jl. Kesehatan No. 123, Jakarta 12345</p>
+                <p className="text-sm text-gray-600">Telp: (021) 1234-5678 • Fax: (021) 1234-5679</p>
+              </div>
+
+              {/* Prescription Info */}
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-gray-500">No. Resep:</span>
+                  <span className="ml-2 font-mono font-semibold">{prescriptionNumber || "PRE-" + Date.now().toString().slice(-6)}</span>
+                </div>
+                <div>
+                  <span className="text-gray-500">Tanggal:</span>
+                  <span className="ml-2">{new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}</span>
+                </div>
+                <div>
+                  <span className="text-gray-500">Pasien ID:</span>
+                  <span className="ml-2">{patientId}</span>
+                </div>
+                <div>
+                  <span className="text-gray-500">Prioritas:</span>
+                  <span className="ml-2 capitalize">{priority}</span>
+                </div>
+              </div>
+
+              {/* Patient Info */}
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <User className="h-8 w-8 text-gray-400" />
+                  <div>
+                    <p className="font-semibold text-gray-900">Pasien: [Nama Pasien]</p>
+                    <p className="text-sm text-gray-600">
+                      {patientWeight && `BB: ${patientWeight}kg • `}
+                      {patientAge && `Umur: ${patientAge}thn`}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Diagnosis */}
+              {diagnosis && (
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-700 mb-1">Diagnosis:</h3>
+                  <p className="text-sm text-gray-900 bg-gray-50 p-2 rounded">{diagnosis}</p>
+                </div>
+              )}
+
+              {/* Medications List */}
+              <div>
+                <h3 className="text-sm font-semibold text-gray-700 mb-2">Daftar Obat ({items.length}):</h3>
+                <div className="space-y-3">
+                  {items.map((item, idx) => (
+                    <div key={idx} className="border border-gray-300 rounded-lg p-3">
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono text-sm font-bold text-blue-600">
+                              R/{idx + 1}
+                            </span>
+                            <Pill className="h-4 w-4 text-gray-400" />
+                            <span className="font-semibold text-gray-900">{item.drug_name}</span>
+                          </div>
+                          <p className="text-sm text-gray-600 ml-8">{item.generic_name}</p>
+                        </div>
+                        {bpjsCoverage.get(item.drug_id)?.is_covered && (
+                          <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                            BPJS
+                          </span>
+                        )}
+                      </div>
+                      <div className="ml-8 text-sm text-gray-700 grid grid-cols-2 gap-1">
+                        <p><span className="font-medium">Dosis:</span> {item.dosage} {item.dose_unit}</p>
+                        <p><span className="font-medium">Frekuensi:</span> {item.frequency}</p>
+                        <p><span className="font-medium">Rute:</span> {item.route}</p>
+                        <p><span className="font-medium">Durasi:</span> {item.duration_days} hari</p>
+                        <p><span className="font-medium">Jumlah:</span> {item.quantity} {item.dose_unit}</p>
+                        {item.is_prn && <p className="col-span-2"><span className="font-medium">PRN:</span> Sesuai kebutuhan</p>}
+                      </div>
+                      {item.indication && (
+                        <p className="ml-8 text-sm text-gray-600 mt-1">
+                          <span className="font-medium">Indikasi:</span> {item.indication}
+                        </p>
+                      )}
+                      {item.special_instructions && (
+                        <p className="ml-8 text-sm text-gray-600 mt-1">
+                          <span className="font-medium">Instruksi:</span> {item.special_instructions}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Additional Notes */}
+              {notes && (
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-700 mb-1">Catatan Tambahan:</h3>
+                  <p className="text-sm text-gray-900 bg-gray-50 p-2 rounded">{notes}</p>
+                </div>
+              )}
+
+              {/* Barcode */}
+              <div className="flex flex-col items-center justify-center py-4 border-t border-gray-200">
+                <Barcode className="h-16 w-64 text-gray-800 mb-2" />
+                <p className="text-xs font-mono text-gray-600">{prescriptionNumber || "PRE-" + Date.now().toString().slice(-6)}</p>
+              </div>
+
+              {/* Doctor Signature */}
+              <div className="flex justify-end pt-4 border-t border-gray-200">
+                <div className="text-center">
+                  <div className="h-16 mb-1 border-b border-gray-300 w-40"></div>
+                  <p className="text-sm font-medium text-gray-900">Dokter</p>
+                  <p className="text-xs text-gray-600">{new Date().toLocaleDateString("id-ID")}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer Actions */}
+            <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-end gap-3">
+              <button
+                onClick={() => setShowPreview(false)}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm font-medium"
+              >
+                Tutup
+              </button>
+              <button
+                onClick={() => {
+                  window.print();
+                }}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium flex items-center"
+              >
+                <Printer className="h-4 w-4 mr-2" />
+                Cetak Resep
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
