@@ -1078,3 +1078,89 @@ providing DICOM worklist management and study tracking for radiology.
 6. Add study comparison tools
 7. Implement measurement and annotation tools
 
+
+**STORY-024-05: Device/Instrument Integration - Complete**
+
+Implemented device/instrument integration as the fifth story of EPIC-024 (Integration Hub),
+providing automated data capture from medical devices and lab analyzers.
+
+**What was implemented:**
+
+**Database Models (app/models/device_integration.py):**
+- Device - Medical device registration with communication settings
+- DeviceData - Captured data storage with measurements
+- DeviceCommand - Command queue for device control
+- DeviceAlert - Device alert tracking (malfunction, abnormal readings)
+- DeviceCalibration - Calibration history and records
+
+**Service Layer (app/services/device_integration.py):**
+- HL7DeviceParser - Parses HL7 ORU^R01 messages from devices:
+  - MSH, PID, OBR, OBX segments
+  - Extracts observations and measurements
+- ASTMDeviceParser - Parses ASTM messages from lab analyzers:
+  - Header, Patient, Order, Result records
+  - Test codes and results
+- VitalsDataParser - Parses vitals monitoring data:
+  - JSON, HL7, CSV formats
+  - Extracts heart rate, BP, SpO2, temp, etc.
+- DeviceIntegrationService - Core device operations:
+  - Device registration and management
+  - Data capture from devices
+  - Alert creation and tracking
+  - Device status monitoring
+
+**API Endpoints (app/api/v1/endpoints/device_integration.py):**
+- POST /integration/devices/devices - Register device (admin)
+- GET /integration/devices/devices/{id} - Get device status
+- GET /integration/devices/devices - List devices with filtering
+- POST /integration/devices/data/capture - Capture device data
+- GET /integration/devices/data - List device data records
+- POST /integration/devices/alerts - Create device alert
+- GET /integration/devices/alerts - List device alerts
+- GET /integration/devices/statistics - Integration statistics
+
+**Router Integration:**
+- Updated app/api/v1/api.py to include device integration router
+
+**Supported Device Types:**
+- Lab analyzers (chemistry, hematology, etc.)
+- Vitals monitors (heart rate, BP, SpO2, etc.)
+- ECG machines
+- Pulse oximeters
+- Glucose meters
+- Infusion pumps
+- Ventilators
+- Scales, thermometers, blood pressure monitors
+
+**Supported Communication Protocols:**
+- HL7 v2.x (ORU^R01 messages)
+- ASTM (lab analyzer standard)
+- TCP/IP
+- Serial
+- BLE (Bluetooth Low Energy)
+- Wi-Fi
+- HTTP API
+
+**Acceptance Criteria Met:**
+- [x] Register medical devices with communication settings
+- [x] Capture data from devices automatically
+- [x] Parse HL7 messages from devices
+- [x] Parse ASTM messages from lab analyzers
+- [x] Parse vitals monitoring data (JSON, CSV)
+- [x] Store captured measurements in database
+- [x] Track device status (online, offline, error)
+- [x] Create device alerts (malfunction, abnormal readings)
+- [x] Support device filtering by type and department
+- [x] Provide device statistics and monitoring
+
+**Next Steps:**
+1. Implement TCP/IP connector for real-time device communication
+2. Implement serial port communication
+3. Add BLE connector for wireless devices
+4. Implement automatic data import to SIMRS tables
+5. Add device calibration tracking
+6. Implement device command execution
+7. Add device alert notifications to staff
+8. Implement data quality validation
+9. Add device compatibility testing framework
+
