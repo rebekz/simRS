@@ -944,3 +944,67 @@ data exchange, building on EPIC-011 (SATUSEHAT FHIR Integration).
 5. Support XML format in addition to JSON
 6. Implement FHIR subscriptions (Phase 2)
 
+
+**STORY-024-03: LIS (Laboratory Information System) Integration - Complete**
+
+Implemented LIS integration as the third story of EPIC-024 (Integration Hub),
+building on HL7 messaging (STORY-024-01) for bidirectional lab data exchange.
+
+**What was implemented:**
+
+**Database Models (app/models/lis_integration.py):**
+- LISOrder - Lab order tracking with status and results
+- LISResult - Lab result storage with observations and flags
+- LISSample - Sample tracking through LIS workflow
+- LISMapping - Code mappings (tests, locations, clinicians)
+- LISConfiguration - Connection settings and preferences
+
+**Service Layer (app/services/lis_integration.py):**
+- LISOrderBuilder - Builds HL7 ORM^O01 order messages:
+  - MSH, PID, PV1, ORC, OBR segments
+  - Patient demographics and visit info
+  - Test codes with priority
+- LISResultProcessor - Processes HL7 ORU^R01 results:
+  - Parses OBX observation segments
+  - Extracts values, units, reference ranges
+  - Identifies abnormal and critical flags
+- LISIntegrationService - Core LIS operations:
+  - Send orders to LIS via HL7
+  - Process received lab results
+  - Track order status and results
+  - Manage code mappings
+
+**API Endpoints (app/api/v1/endpoints/lis_integration.py):**
+- POST /integration/lis/orders/send - Send order to LIS
+- GET /integration/lis/orders/{id} - Get order status
+- GET /integration/lis/orders - List orders with filtering
+- POST /integration/lis/results - Process lab result
+- POST /integration/lis/mappings/tests - Create test mapping
+- GET /integration/lis/statistics - Integration statistics
+
+**Router Integration:**
+- Updated app/api/v1/api.py to include LIS integration router
+
+**Acceptance Criteria Met:**
+- [x] Send lab orders via HL7 ORM^O01 messages
+- [x] Include patient demographics (PID segment)
+- [x] Include test codes and descriptions
+- [x] Include priority (routine, urgent, STAT)
+- [x] Receive lab results via HL7 ORU^R01
+- [x] Parse result values (OBX segments)
+- [x] Parse units of measure
+- [x] Parse reference ranges
+- [x] Parse abnormal flags
+- [x] Parse critical value flags
+- [x] Track order status in SIMRS
+- [x] Store results in database
+
+**Next Steps:**
+1. Implement MLLP protocol for TCP transport
+2. Add automatic retry with exponential backoff
+3. Implement LIS connectivity testing endpoint
+4. Add sample status update tracking
+5. Create result import to SIMRS lab_orders table
+6. Trigger critical value alerts to physicians
+7. Implement order cancellation/modification
+
