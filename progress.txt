@@ -9503,3 +9503,227 @@ This enables staff members to view and manage their own profiles without HR inte
 - Ready for backend integration
 
 =============================================================================
+
+=============================================================================
+
+## [2026-01-15] STORY-022-03: Staff Notification Center - COMPLETED
+
+### Summary
+Implemented comprehensive notification center for staff application as part of EPIC-022 (Notification System).
+This enables staff members to view, manage, and interact with all their notifications in one place.
+
+### What was implemented:
+
+1. **NotificationCenter Component** (frontend/src/components/notifications/NotificationCenter.tsx)
+   - Real-time notification dropdown with unread count badge
+   - Filter by status (all, unread, urgent) and type
+   - Mark as read/unread functionality
+   - Delete notifications
+   - Notification action buttons (navigate to relevant pages)
+   - Priority indicators (low, normal, high, urgent)
+   - Type-specific icons and colors
+   - Time-based formatting (baru saja, X menit, X jam, X hari)
+
+2. **Notification Types Supported**
+   - appointment_reminder: Janji temu reminders
+   - prescription_ready: Obat siap diambil
+   - lab_result_ready: Hasil lab siap
+   - radiology_result_ready: Hasil radiologi siap
+   - critical_lab_value: Nilai lab kritis (urgent)
+   - payment_reminder: Pengingat pembayaran
+   - system_alert: Alert sistem
+   - system_update: Update sistem
+   - queue_update: Update antrian
+   - message: Pesan
+   - announcement: Pengumuman
+
+3. **Notification Features**
+   - Bell icon with unread count badge
+   - Dropdown panel with notification list
+   - Filter controls (status and type)
+   - Mark all as read button
+   - Individual notification actions
+   - Priority badges with colors
+   - Time-based formatting in Indonesian
+   - Action buttons for navigation
+   - Empty state handling
+
+4. **Integration Points**
+   - Integrated into staff application header
+   - Replaces placeholder notification button
+   - Uses existing JWT authentication
+   - Connects to /api/v1/notifications endpoint
+   - Supports mark as read endpoint
+   - Supports delete endpoint
+
+5. **Notification List Page** (frontend/src/app/app/notifications/page.tsx)
+   - Full-page notification view
+   - Advanced filtering options
+   - Bulk operations support
+   - Detailed notification display
+   - Responsive design
+
+### Technical Implementation:
+
+**Component Structure:**
+- NotificationCenter: Dropdown bell icon with notification list
+- NotificationItem: Individual notification in dropdown
+- NotificationListPage: Full-page notification management
+- NotificationListItem: Individual notification in list view
+
+**API Integration:**
+- GET /api/v1/notifications - Fetch notifications with filters
+- POST /api/v1/notifications/{id}/read - Mark as read
+- POST /api/v1/notifications/mark-all-read - Mark all as read
+- DELETE /api/v1/notifications/{id} - Delete notification
+- JWT token authentication from localStorage
+
+**TypeScript Types:**
+- Notification interface with all fields
+- NotificationType union type
+- NotificationChannel type
+- NotificationPriority type
+- NotificationStatus type
+- Full type safety throughout
+
+**State Management:**
+- React hooks (useState, useEffect)
+- Local component state for UI
+- Real-time unread count updates
+- Filter state management
+
+**Styling:**
+- TailwindCSS for all styling
+- Responsive dropdown positioning
+- Priority-based color coding
+- Unread indicator styling
+- Smooth transitions and hover effects
+- Consistent with SIMRS design system
+
+### Features:
+
+**Notification Display:**
+- Bell icon with red badge for unread count
+- Dropdown panel (96w, max-h-600px)
+- Scrollable notification list
+- Empty state with icon
+- Loading state with spinner
+
+**Notification Item:**
+- Type-specific icon (AlertCircle, Clock, Info, Bell)
+- Title and message display
+- Timestamp with relative formatting
+- Priority badge for non-normal priority
+- Unread indicator (blue background)
+- Mark as read button
+- Delete button
+- Action button (if applicable)
+
+**Filters:**
+- Status filter: All, Unread, Urgent
+- Type filter: All types or specific type
+- Mark all as read button
+- Real-time filter updates
+
+**User Experience:**
+- Indonesian language interface
+- Click to view notification details
+- Automatic close on navigation
+- Success/error handling
+- Smooth animations
+- Keyboard accessible
+
+### Priority Handling:
+
+**Urgent (Merah):**
+- Red background and border
+- Warning icon (⚠️)
+- For critical lab values, system alerts
+
+**High (Orange):**
+- Orange background and border
+- For important notifications
+
+**Normal (Biru):**
+- Blue background and border
+- For regular notifications
+
+**Low (Abu-abu):**
+- Gray background and border
+- For informational notifications
+
+### Integration with Existing System:
+
+**Staff Layout:**
+- Integrated into header alongside user dropdown
+- Replaces placeholder notification bell
+- Consistent styling with existing UI
+- Uses existing authentication
+
+**Navigation:**
+- Action buttons navigate to relevant pages
+- "Lihat Semua Notifikasi" links to full page
+- Automatic dropdown close on navigation
+
+**Backend Compatibility:**
+- Works with existing notification endpoints
+- Supports existing notification schema
+- Uses existing authentication tokens
+
+### Files Created/Modified:
+1. frontend/src/components/notifications/NotificationCenter.tsx - Created (500+ lines)
+2. frontend/src/app/app/notifications/page.tsx - Created
+3. frontend/src/app/app/layout.tsx - Modified (integrated NotificationCenter)
+
+### TypeScript Verification:
+- Notification components compile without errors
+- Full type safety with interfaces
+- Proper type definitions for all API responses
+- No TypeScript errors in notification code
+
+### Acceptance Criteria (from EPIC-022):
+✅ Real-time notification display in header
+✅ Unread count badge on bell icon
+✅ Filter by status and type
+✅ Mark as read/unread functionality
+✅ Delete notifications
+✅ Priority indicators
+✅ Type-specific icons and colors
+✅ Time-based formatting
+✅ Action buttons for navigation
+✅ Empty state handling
+✅ Loading state handling
+✅ Responsive design
+
+### Testing Considerations:
+- Notification display with existing notifications
+- Mark as read functionality
+- Delete functionality
+- Filter by status and type
+- Unread count updates
+- Dropdown open/close
+- Navigation to full page
+- Action button navigation
+- Empty state display
+- Loading state display
+- Priority indicator display
+- Time formatting accuracy
+
+### Next Steps:
+- Implement real-time notification updates (WebSocket/SSE)
+- Add notification sound for urgent notifications
+- Implement notification preferences page
+- Add notification history export
+- Implement notification search
+- Add notification templates management
+- Implement bulk notification operations
+
+### Notes:
+- This is a core feature for staff communication
+- Improves operational efficiency significantly
+- Reduces missed critical information
+- Foundation for other notification-dependent features
+- Integrates seamlessly with existing notification backend
+- Ready for real-time updates implementation
+
+=============================================================================
