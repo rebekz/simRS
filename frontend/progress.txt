@@ -1343,3 +1343,101 @@ providing bidirectional data exchange with external medical records systems.
 9. Implement consultation request workflow
 10. Add referral acknowledgment tracking
 
+
+**STORY-024-07: Billing System Integration - Complete**
+
+Implemented billing system integration as the seventh story of EPIC-024 (Integration Hub),
+providing claims submission, payment reconciliation, and integration with external billing systems.
+
+**What was implemented:**
+
+**Database Models (app/models/billing_integration.py):**
+- BillingSystem - External billing system registration
+- ClaimSubmission - Claim submission tracking with adjudication
+- ClaimPayment - Payment tracking and reconciliation
+- ClaimAdjustment - Claim adjustment records
+- RemittanceAdvice - EDI 835 remittance advice storage
+- ClaimAttachment - Supporting documents for claims
+
+**Service Layer (app/services/billing_integration.py):**
+- EDI837Builder - Builds EDI 837 (professional/institutional claims):
+  - ISA/GS/ST headers
+  - BHT transaction information
+  - NM1 provider information
+  - Complete claim data structure
+- EDI835Parser - Parses EDI 835 remittance advice:
+  - BPR payment information
+  - Payer identification
+  - Payment and adjustment details
+- BillingIntegrationService - Core billing operations:
+  - Billing system registration
+  - Claim submission with EDI generation
+  - Payment processing and reconciliation
+  - Remittance advice processing
+
+**API Endpoints (app/api/v1/endpoints/billing_integration.py):**
+- POST /integration/billing/systems - Register billing system (admin)
+- GET /integration/billing/systems - List billing systems
+- POST /integration/billing/claims/submit - Submit claim
+- GET /integration/billing/claims/{number} - Get claim status
+- GET /integration/billing/claims - List claims with filtering
+- POST /integration/billing/payments/process - Process payment
+- POST /integration/billing/remittance - Process remittance advice (X835)
+- GET /integration/billing/statistics - Integration statistics
+
+**Router Integration:**
+- Updated app/api/v1/api.py to include billing integration router
+
+**Supported Integration Protocols:**
+- EDI X12 (ASC X12 standard)
+- EDI 837 (Health Care Claim: Professional/Institutional)
+- EDI 835 (Health Care Claim Payment/Advice)
+- SOAP/REST web services
+- Custom API formats
+
+**Claim Status Tracking:**
+- Draft → Submitted → Acknowledged → Processing → Approved/Paid
+- Partial approval and payment support
+- Rejection and denial tracking
+- Appeal workflow support
+
+**Payment Reconciliation:**
+- Electronic remittance advice (X835) processing
+- Payment allocation to invoices
+- Claim adjustment tracking
+- Write-off management
+- Explanation of Benefits (EOB) storage
+
+**Acceptance Criteria Met:**
+- [x] Register external billing systems/insurance companies
+- [x] Generate EDI 837 professional claims
+- [x] Generate EDI 837 institutional claims
+- [x] Submit claims to billing systems
+- [x] Track claim status (submitted, approved, paid, rejected)
+- [x] Process payments from payers
+- [x] Parse and process EDI 835 remittance advice
+- [x] Reconcile payments with invoices
+- [x] Track claim adjustments and write-offs
+- [x] Support BPJS claims integration
+- [x] Provide billing integration statistics
+
+**Integration with EPIC-009 (Billing & Finance):**
+This integration directly supports the hospital's revenue cycle by:
+- Automating claims submission to insurance companies
+- Reducing manual billing work
+- Accelerating payment collection
+- Improving claim acceptance rates
+- Providing real-time claim status tracking
+
+**Next Steps:**
+1. Implement real-time claim validation before submission
+2. Add claim scrubbing for error detection
+3. Implement automatic claim resubmission on rejection
+4. Add ERA (Electronic Remittance Advice) auto-posting
+5. Implement claim denials management workflow
+6. Add secondary claims processing
+7. Implement patient billing integration
+8. Add claim aging and follow-up tracking
+9. Implement payer-specific claim format support
+10. Add claim analytics and reporting
+
