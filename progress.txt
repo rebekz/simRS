@@ -13213,3 +13213,100 @@ Notes:
 - Real-time calculations reduce errors
 
 =============================================================================
+
+STORY-060: Patient Registration Form - Complete
+------------------------------------------------
+Implemented comprehensive patient registration form for staff to register new patients.
+
+Implementation Summary:
+- Created types file: frontend/src/types/patient-registration.ts (750+ lines)
+- Created constants file: frontend/src/constants/patient-registration.ts (200+ lines)
+- Created form page: frontend/src/app/app/patients/new/page.tsx (1400+ lines)
+
+Features Implemented:
+1. Patient Information Section:
+   - Full name, NIK (16-digit validation)
+   - Date of birth with age auto-calculation
+   - Place of birth, gender (radio buttons)
+   - Blood type, marital status, religion
+   - Occupation, education level
+
+2. Contact Information Section:
+   - Phone (Indonesian format validation)
+   - Email (optional, with validation)
+   - Address, province/city/district/village
+   - Postal code (5-digit validation)
+
+3. BPJS Information Section (collapsible):
+   - BPJS number, status, class (1/2/3)
+   - Facility (faskes) selection
+   - Registration date
+
+4. Insurance Information Section (collapsible):
+   - Provider name, policy number
+   - Member name, expiry date
+   - Insurance type (inpatient/outpatient/both)
+
+5. Emergency Contact Section:
+   - Contact name, relationship dropdown
+   - Phone number, address
+
+6. Medical Information Section:
+   - Known allergies (textarea)
+   - Chronic conditions (textarea)
+   - Medical notes
+
+Key Features:
+- Client-side validation for all fields
+- NIK duplicate checking
+- Age auto-calculation from DOB
+- Collapsible BPJS/Insurance sections
+- Indonesian language throughout
+- Loading states and error handling
+- Success message and redirect
+- BPJS integration support
+- Insurance integration support
+
+API Integration:
+- POST /api/v1/patients - Create patient
+- GET /api/v1/patients/check-duplicate?nik={nik} - Duplicate check
+
+Technical Details:
+- Full TypeScript type safety
+- React hooks (useState, useEffect)
+- TailwindCSS responsive design
+- JWT authentication
+- Form validation helpers
+- Error handling with user messages
+
+Testing Recommendations:
+- Test NIK validation (16 digits)
+- Test phone validation (Indonesian format)
+- Test postal code validation (5 digits)
+- Test age calculation
+- Test duplicate patient check
+- Test BPJS section toggle
+- Test insurance section toggle
+- Test form submission
+- Test error handling
+- Test success redirect
+
+Dependencies: None
+Blockers: None
+
+Next Steps:
+- Implement patient profile viewing
+- Implement patient editing
+- Implement patient search/lookup
+- Implement BPJS eligibility verification
+- Implement insurance eligibility verification
+
+Notes:
+- Completes STORY-060
+- Foundation for patient management system
+- Critical for all patient-related workflows
+- Supports Indonesia's NIK-based identification
+- BPJS-ready for national insurance
+- Staff-centric workflow design
+
+=============================================================================
