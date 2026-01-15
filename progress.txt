@@ -12612,3 +12612,167 @@ Notes:
 - WHO/ICF compliant framework
 
 =============================================================================
+
+=============================================================================
+STORY-056: Patient Admission Form - COMPLETED
+Date: 2026-01-15 18:38:18
+
+Implementation Summary:
+Created comprehensive patient admission form for inpatient admission with
+room/bed selection, nursing orders, and deposit management.
+
+Files Created:
+- frontend/src/app/app/admission/page.tsx (600+ lines)
+
+Key Features Implemented:
+✅ Patient information display
+   - Patient name, MRN, age, gender, blood type
+   - Insurance type (BPJS, insurance, corporate, self-pay) with icons
+   - Allergy warnings
+   - Patient ID from URL params
+
+✅ Admission details input
+   - Admission type (emergency, elective, transfer)
+   - Admission reason (required)
+   - Primary diagnosis (required)
+   - Secondary diagnoses list (add/remove)
+   - Estimated length of stay
+   - Attending physician selection
+   - Referring physician
+   - Special instructions
+
+✅ Room and bed selection interface
+   - Available rooms list with filtering
+   - Class filter (Kelas 1, 2, 3)
+   - Bed type filter (Regular, VIP, ICU, Isolation)
+   - Room cards with details:
+     * Room number, ward, floor
+     * Class badge (purple/blue/green)
+     * Bed type badge (gray/purple/red/yellow)
+     * Available beds count
+     * Daily rate
+   - Bed selection grid within selected room
+   - Selected bed summary with cost
+
+✅ Nursing orders
+   - Diet type selection (8 types: regular, fasting, soft, liquid, diabetic, low_salt, low_fat, renal)
+   - Activity level selection (4 types: bed_rest, up_as_tolerated, up_with_assistance, ambulatory)
+   - Isolation requirement checkbox
+   - Isolation type selection (5 types: standard, contact, droplet, airborne, neutropenic)
+
+✅ Deposit management
+   - Deposit required checkbox (for self-pay patients only)
+   - Deposit amount input
+   - Visible only for self-pay insurance type
+   - Yellow highlight in summary
+
+✅ Admission summary
+   - Patient name
+   - Admission type
+   - Room and bed number
+   - Room class
+   - Daily room rate
+   - Estimated cost (if LOS provided)
+   - Deposit amount (if required)
+
+✅ Form validation
+   - Admission type required
+   - Admission reason required
+   - Primary diagnosis required
+   - Attending physician required
+   - Bed selection required
+   - Patient required
+
+✅ Visual enhancements
+   - Selected room highlighted (indigo border/background)
+   - Selected bed highlighted (indigo)
+   - Color-coded class badges
+   - Color-coded bed type badges
+   - Scrollable rooms list
+   - Filter dropdowns
+   - Summary with cost calculations
+
+✅ Actions and functionality
+   - Admit patient
+   - Cancel/back button
+   - Redirect to patient page after admission
+   - Success notification with admission number
+   - Loading state during submission
+
+✅ Integration points
+   - Patient ID from URL query params
+   - Encounter ID support
+   - Link back to patient selection
+   - Fetch available rooms from API
+   - Fetch available doctors from API
+
+✅ Currency formatting
+   - Indonesian Rupiah (IDR) format
+   - Daily room rate display
+   - Estimated cost calculation
+   - Deposit amount display
+
+✅ Indonesian language interface
+   - All UI text in Indonesian
+   - Medical terminology in Indonesian
+
+Testing Considerations:
+- Patient information display accuracy
+- Admission type selection
+- Room and bed selection functionality
+- Filter combinations
+- Primary and secondary diagnosis input
+- Nursing orders selection
+- Deposit visibility (self-pay only)
+- Cost calculations
+- Form validation
+- Admission submission
+- Success/error handling
+- Redirect after admission
+- Empty state handling
+- Responsive design
+- Indonesian language correctness
+
+Next Steps:
+- Implement bed real-time availability
+- Add bed reservation functionality
+- Implement admission checklist
+- Add informed consent capture
+- Implement advance directive documentation
+- Add pre-admission testing requirements
+- Implement admission order sets
+- Add bed management dashboard
+- Implement room transfer functionality
+- Add discharge planning from admission
+- Implement insurance pre-authorization
+- Add admission prediction based on ED
+- Implement bed allocation optimization
+- Add room cleaning status tracking
+- Implement equipment assignment (ventilator, monitor)
+- Add nursing assignment
+- Implement admission workflow automation
+- Add integration with bed management system
+- Implement admission cancellation
+- Add waiting list for bed availability
+- Implement family/visitor management
+- Add personal belongings documentation
+- Implement valuables storage
+- Add admission time tracking
+- Implement DRG (Diagnosis Related Groups) assignment
+
+Notes:
+- Critical for inpatient workflow - admission is the entry point
+- Completes the care continuum (outpatient → emergency → inpatient → discharge)
+- Room/bed selection with filtering enables efficient bed management
+- Nursing orders ensure proper care from admission
+- Deposit management for self-pay patients ensures financial coverage
+- Multiple admission types support different patient pathways
+- Estimated length of stay supports bed planning
+- Secondary diagnoses support accurate coding and billing
+- Insurance type integration supports claims processing
+- Foundation for comprehensive inpatient management
+- Indonesian language interface
+- Compliant with local admission standards
+- BPJS and insurance ready
+
+=============================================================================
