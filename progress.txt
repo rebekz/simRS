@@ -13310,3 +13310,109 @@ Notes:
 - Staff-centric workflow design
 
 =============================================================================
+
+STORY-061: Medical Certificate/Surat Dokter Form - Complete
+---------------------------------------------------------
+Implemented comprehensive medical certificate form for doctors to issue Indonesian medical certificates.
+
+Implementation Summary:
+- Created types file: frontend/src/types/medical-certificate.ts (900+ lines)
+- Created constants file: frontend/src/constants/medical-certificate.ts (700+ lines)
+- Created form page: frontend/src/app/app/certificates/medical/page.tsx (1500+ lines)
+
+Features Implemented:
+1. Certificate Type Selection:
+   - Surat Sakit (Sick Leave)
+   - Surat Keterangan Sehat (Medical Fitness)
+   - Surat Keterangan Fit untuk Bekerja (Fit for Work)
+   - Surat Keterangan Hamil (Pregnancy)
+   - Surat Keterangan Anak Sehat (Healthy Child)
+   - Surat Keterangan Kematian (Death Certificate)
+   - Surat Keterangan Medis (Medical Report)
+
+2. Patient Information Section:
+   - Patient search (MRN, name, BPJS number)
+   - Patient demographics display
+   - Auto-populate from selected patient
+
+3. Certificate Details Section:
+   - Certificate type dropdown
+   - Issue date (default: today)
+   - Purpose/Reason textarea
+   - Duration inputs (from/to dates, auto-calculated days)
+
+4. Clinical Information Section:
+   - Chief complaint textarea
+   - Diagnosis with ICD-10 code lookup
+   - Physical examination findings
+   - Vital signs input
+   - Lab/imaging findings
+   - Clinical notes
+
+5. Doctor Information Section:
+   - Attending doctor (auto-populate)
+   - License number (SIP/STR)
+   - Signature placeholder
+
+6. Preview and Actions:
+   - Preview in standard Indonesian format
+   - Download/Print as PDF
+   - Save to patient records
+   - Cancel button
+
+Key Features:
+- Client-side validation for all fields
+- Date validation (end date after start date)
+- Duration auto-calculation
+- Certificate number auto-generation
+- BPJS integration for sick leave
+- Standard Indonesian certificate format
+- Print-ready layout
+- PDF generation support
+- Loading states and error handling
+- Indonesian language throughout
+
+API Integration:
+- POST /api/v1/certificates/medical - Create certificate
+- GET /api/v1/patients/search - Patient search
+- GET /api/v1/icd10/search - ICD-10 code lookup
+
+Technical Details:
+- Full TypeScript type safety
+- React hooks (useState, useEffect)
+- TailwindCSS responsive design
+- JWT authentication
+- Form validation helpers
+- Error handling with user messages
+- PDF generation support
+
+Testing Recommendations:
+- Test all certificate types
+- Test patient search functionality
+- Test date validation
+- Test duration calculation
+- Test ICD-10 code lookup
+- Test PDF generation
+- Test print preview
+- Test BPJS sick leave format
+- Test save to patient records
+
+Dependencies: None
+Blockers: None
+
+Next Steps:
+- Implement certificate history view
+- Implement certificate template management
+- Implement digital signature integration
+- Implement certificate verification portal
+- Implement certificate analytics
+
+Notes:
+- Completes STORY-061
+- Critical for legal/compliance requirements
+- Supports all Indonesian certificate types
+- BPJS-ready for sick leave claims
+- Print-ready for immediate use
+- Doctor-centric workflow design
+
+=============================================================================
