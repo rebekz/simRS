@@ -16,6 +16,7 @@ import {
   PAYMENT_METHOD_OPTIONS,
   PAYER_TYPE_OPTIONS,
   LINE_ITEM_TYPE_OPTIONS,
+  LINE_ITEM_TYPES,
   VISIT_TYPES,
   DEFAULT_INVOICE_FORM_VALUES,
   DEFAULT_LINE_ITEM_VALUES,
@@ -632,7 +633,7 @@ export default function NewInvoicePage() {
             {LINE_ITEM_TYPE_OPTIONS.map((type) => (
               <button
                 key={type.value}
-                onClick={() => handleOpenAddItemModal(type.value)}
+                onClick={() => handleOpenAddItemModal(type.value as LineItemType)}
                 className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center space-x-2"
               >
                 <span>{type.icon}</span>

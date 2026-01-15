@@ -3,7 +3,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import type {
-  CertificateType,
   CertificatePatientInfo,
   CertificateDoctorInfo,
   SickLeaveDetails,
@@ -14,6 +13,9 @@ import type {
   MedicalReportDetails,
   FormValidationError,
 } from "@/types/medical-certificate";
+import type {
+  CertificateType,
+} from "@/constants/medical-certificate";
 import {
   CERTIFICATE_TYPE_OPTIONS,
   DURATION_OPTIONS,
@@ -30,7 +32,7 @@ export default function MedicalCertificatePage() {
   const router = useRouter();
 
   // Form state
-  const [certificateType, setCertificateType] = useState<CertificateType>("SICK_LEAVE");
+  const [certificateType, setCertificateType] = useState<CertificateType>("sick_leave");
   const [selectedPatient, setSelectedPatient] = useState<CertificatePatientInfo | null>(null);
   const [selectedDoctor, setSelectedDoctor] = useState<CertificateDoctorInfo | null>(null);
   const [purpose, setPurpose] = useState("");
@@ -261,7 +263,7 @@ export default function MedicalCertificatePage() {
     }
 
     // Type-specific validation
-    if (certificateType === "SICK_LEAVE") {
+    if (certificateType === "sick_leave") {
       if (!sickLeaveDetails.start_date) {
         errors.push({ field: "start_date", message: "Tanggal mulai istirahat harus diisi", severity: "error" });
       }
@@ -286,14 +288,14 @@ export default function MedicalCertificatePage() {
           severity: "warning",
         });
       }
-    } else if (certificateType === "PREGNANCY") {
+    } else if (certificateType === "pregnancy") {
       if (!pregnancyDetails.estimated_due_date) {
         errors.push({ field: "estimated_due_date", message: "Tanggal perkiraan lahir harus diisi", severity: "error" });
       }
       if (pregnancyDetails.gestational_age_weeks < 0 || pregnancyDetails.gestational_age_weeks > 42) {
         errors.push({ field: "gestational_age", message: "Usia kehamilan tidak valid (0-42 minggu)", severity: "error" });
       }
-    } else if (certificateType === "DEATH") {
+    } else if (certificateType === "death_certificate") {
       if (!deathDetails.death_datetime) {
         errors.push({ field: "death_datetime", message: "Tanggal dan jam kematian harus diisi", severity: "error" });
       }
@@ -341,17 +343,17 @@ export default function MedicalCertificatePage() {
       };
 
       // Add type-specific details
-      if (certificateType === "SICK_LEAVE") {
+      if (certificateType === "sick_leave") {
         payload.sick_leave_details = sickLeaveDetails;
-      } else if (certificateType === "MEDICAL_FITNESS") {
+      } else if (certificateType === "medical_fitness") {
         payload.medical_fitness_details = medicalFitnessDetails;
-      } else if (certificateType === "PREGNANCY") {
+      } else if (certificateType === "pregnancy") {
         payload.pregnancy_details = pregnancyDetails;
-      } else if (certificateType === "HEALTHY_CHILD") {
+      } else if (certificateType === "healthy_child") {
         payload.healthy_child_details = healthyChildDetails;
-      } else if (certificateType === "DEATH") {
+      } else if (certificateType === "death_certificate") {
         payload.death_details = deathDetails;
-      } else if (certificateType === "MEDICAL_REPORT") {
+      } else if (certificateType === "medical_report") {
         payload.medical_report_details = medicalReportDetails;
       }
 
@@ -462,7 +464,7 @@ export default function MedicalCertificatePage() {
             <p className="font-semibold text-gray-900">Informasi Medis:</p>
             <div className="mt-2 pl-4">
               <p>Tanggal Pemeriksaan: {formatDateIndonesian(issueDate)}</p>
-              {certificateType === "SICK_LEAVE" && (
+              {certificateType === "sick_leave" && (
                 <>
                   <p>Durasi Istirahat: {durationDays} hari</p>
                   <p>Tanggal: {formatDateIndonesian(sickLeaveDetails.start_date)} s/d {formatDateIndonesian(sickLeaveDetails.end_date)}</p>
@@ -567,7 +569,7 @@ export default function MedicalCertificatePage() {
                   <div className="flex items-center space-x-3">
                     <span className="text-2xl">{type.icon}</span>
                     <div>
-                      <p className="font-medium text-gray-900">{type.label_indonesian}</p>
+                      <p className="font-medium text-gray-900">{type.label}</p>
                       <p className="text-sm text-gray-600">{type.description}</p>
                     </div>
                   </div>
@@ -719,7 +721,7 @@ export default function MedicalCertificatePage() {
               </div>
 
               {/* Sick Leave Duration */}
-              {certificateType === "SICK_LEAVE" && (
+              {certificateType === "sick_leave" && (
                 <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                   <h3 className="font-semibold text-gray-900 mb-3">Durasi Istirahat</h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -768,7 +770,7 @@ export default function MedicalCertificatePage() {
               )}
 
               {/* Pregnancy Details */}
-              {certificateType === "PREGNANCY" && (
+              {certificateType === "pregnancy" && (
                 <div className="mt-4 p-4 bg-pink-50 border border-pink-200 rounded-lg">
                   <h3 className="font-semibold text-gray-900 mb-3">Detail Kehamilan</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -820,7 +822,7 @@ export default function MedicalCertificatePage() {
               )}
 
               {/* Death Details */}
-              {certificateType === "DEATH" && (
+              {certificateType === "death_certificate" && (
                 <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
                   <h3 className="font-semibold text-gray-900 mb-3">Detail Kematian</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -1,5 +1,6 @@
-"""BPJS Claim Generator Component
-
+/**
+ * BPJS Claim Generator Component
+ *
 Comprehensive BPJS claim generation system with:
 - Encounter/invoice selection
 - Automatic claim data generation
@@ -8,7 +9,8 @@ Comprehensive BPJS claim generation system with:
 - Package rate calculation
 - e-Claim file generation
 - Submission to BPJS gateway
-"""
+
+ */
 
 import { useState, useEffect } from 'react';
 import {

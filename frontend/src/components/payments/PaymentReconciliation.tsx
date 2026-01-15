@@ -1,12 +1,14 @@
-"""Payment Reconciliation Component
-
+/**
+ * Payment Reconciliation Component
+ *
 Reconciliation system with:
 - Daily transaction list
 - Payment method breakdown
 - Expected vs actual comparison
 - Discrepancy handling
 - Export to Excel
-"""
+
+ */
 
 import { useState, useEffect } from 'react';
 import {
@@ -794,7 +796,7 @@ export function PaymentReconciliation() {
                 <div>
                   <p className="text-sm font-medium text-green-900">Laporan Terverifikasi</p>
                   <p className="text-xs text-green-700">
-                    Oleh {report.verified_by} pada {formatDate(report.verified_at)}
+                    Oleh {report.verified_by} {report.verified_at ? `pada ${formatDate(report.verified_at)}` : ''}
                   </p>
                 </div>
               </div>

@@ -1,12 +1,14 @@
-"""Accounts Receivable Component
-
+/**
+ * Accounts Receivable Component
+ *
 Accounts Receivable management with:
 - Outstanding invoices list
 - Aging analysis (30, 60, 90+ days)
 - Customer statements
 - Payment reminders
 - Collection tracking
-"""
+
+ */
 
 import { useState, useEffect } from 'react';
 import {

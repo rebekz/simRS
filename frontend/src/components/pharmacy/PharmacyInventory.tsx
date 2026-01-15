@@ -1,12 +1,14 @@
-"""Pharmacy Inventory Management UI Component for STORY-024
-
+/**
+ * Pharmacy Inventory Management UI Component for STORY-024
+ *
 Provides comprehensive inventory management with:
 - Real-time stock levels dashboard
 - Near expiry alerts (3 months)
 - Expired drug quarantine
 - Low stock alerts with reorder points
 - FIFO dispensing logic
-"""
+
+ */
 
 import { useState, useEffect } from "react";
 import {

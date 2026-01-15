@@ -1,12 +1,14 @@
-"""BPJS Claim List Component
-
+/**
+ * BPJS Claim List Component
+ *
 Comprehensive BPJS claims list with:
 - Filter by status, date, package type
 - Status tracking (draft, submitted, verified, approved, rejected)
 - Action buttons (submit, validate, respond)
 - Deadline indicators
 - Claim details modal
-"""
+
+ */
 
 import { useState, useEffect } from 'react';
 import {

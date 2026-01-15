@@ -121,8 +121,8 @@ export function SEPGenerator({
       const token = localStorage.getItem("staff_access_token");
 
       // Check for existing SEP
-      const sepResponse = await fetch(\`/api/v1/encounter/\${encounterId}/sep\`, {
-        headers: { Authorization: \`Bearer \${token}\` },
+      const sepResponse = await fetch(`/api/v1/encounter/${encounterId}/sep`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (sepResponse.ok) {
@@ -134,9 +134,9 @@ export function SEPGenerator({
 
       // No existing SEP, load auto-populate data
       const autoPopulateResponse = await fetch(
-        \`/api/v1/sep/auto-populate/\${encounterId}\`,
+        `/api/v1/sep/auto-populate/${encounterId}`,
         {
-          headers: { Authorization: \`Bearer \${token}\` },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
 
@@ -168,10 +168,10 @@ export function SEPGenerator({
     try {
       const token = localStorage.getItem("staff_access_token");
 
-      const response = await fetch(\`/api/v1/sep?submit_to_bpjs=\${submitToBPJS}\`, {
+      const response = await fetch(`/api/v1/sep?submit_to_bpjs=${submitToBPJS}`, {
         method: "POST",
         headers: {
-          Authorization: \`Bearer \${token}\`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -221,10 +221,10 @@ export function SEPGenerator({
     try {
       const token = localStorage.getItem("staff_access_token");
 
-      const response = await fetch(\`/api/v1/sep?submit_to_bpjs=true\`, {
+      const response = await fetch(`/api/v1/sep?submit_to_bpjs=true`, {
         method: "PUT",
         headers: {
-          Authorization: \`Bearer \${token}\`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -264,10 +264,10 @@ export function SEPGenerator({
     try {
       const token = localStorage.getItem("staff_access_token");
 
-      const response = await fetch(\`/api/v1/sep\`, {
+      const response = await fetch(`/api/v1/sep`, {
         method: "DELETE",
         headers: {
-          Authorization: \`Bearer \${token}\`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -507,11 +507,11 @@ export function SEPGenerator({
           <div className="p-6">
             {/* Validation Status */}
             {validation && (
-              <div className={\`mb-6 p-4 rounded-lg \${
+              <div className={`mb-6 p-4 rounded-lg ${
                 validation.is_valid
                   ? "bg-green-50 border border-green-200"
                   : "bg-yellow-50 border border-yellow-200"
-              }\`}>
+              }`}>
                 <div className="flex items-start">
                   {validation.is_valid ? (
                     <CheckCircle className="h-5 w-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" />

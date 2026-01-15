@@ -403,6 +403,6 @@ export default function PatientCheckInPage() {
           </div>
         )}
       </div>
-    )
-  }
+    </div>
+  )
 }

@@ -1,12 +1,14 @@
-"""Payment Allocation Component
-
+/**
+ * Payment Allocation Component
+ *
 Payment allocation system with:
 - Unpaid invoices list
 - Auto-allocate logic (FIFO, by date, by amount)
 - Manual allocation
 - Allocation history
 - Balance tracking
-"""
+
+ */
 
 import { useState, useEffect } from 'react';
 import {

@@ -1,12 +1,14 @@
-"""Invoice List Component for STORY-028
-
+/**
+ * Invoice List Component for STORY-028
+ *
 Invoice management with:
 - List view with filters (patient, status, date, payer)
 - Invoice details view
 - Approve/reject workflow
 - Payment recording
 - Export to PDF
-"""
+
+ */
 
 import { useState, useEffect } from 'react';
 import {

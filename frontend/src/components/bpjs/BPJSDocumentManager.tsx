@@ -1,12 +1,14 @@
-"""BPJS Document Manager Component
-
+/**
+ * BPJS Document Manager Component
+ *
 Comprehensive BPJS document management with:
 - Required documents list
 - Document upload (SEP, resume, DPJP, invoice)
 - Document verification status
 - Bulk upload
 - Missing documents alert
-"""
+
+ */
 
 import { useState, useEffect, useRef } from 'react';
 import {
@@ -26,7 +28,7 @@ import {
 import { Badge } from '@/components/ui/Badge';
 
 // Types
-interface Document {
+interface BPJSDocument {
   id: number;
   claim_id: string;
   document_type: DocumentType;
@@ -42,7 +44,7 @@ interface Document {
 
 type DocumentType = 'sep' | 'resume_medis' | 'dpjp' | 'invoice' | 'billing' | 'laboratorium' | 'radiologi' | 'obat' | 'lainnya';
 
-interface DocumentRequirement {
+interface BPJSDocumentRequirement {
   type: DocumentType;
   name: string;
   description: string;
@@ -56,7 +58,7 @@ interface ClaimDocuments {
   patient_name: string;
   sep_number: string;
   status: string;
-  documents: Document[];
+  documents: BPJSDocument[];
   missing_required: DocumentType[];
 }
 
@@ -71,7 +73,7 @@ export function BPJSDocumentManager({ claimId }: { claimId?: string }) {
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const documentRequirements: DocumentRequirement[] = [
+  const documentRequirements: BPJSDocumentRequirement[] = [
     {
       type: 'sep',
       name: 'Surat Eligibilitas Peserta (SEP)',
@@ -249,9 +251,9 @@ export function BPJSDocumentManager({ claimId }: { claimId?: string }) {
     }
   };
 
-  const downloadDocument = async (document: Document) => {
+  const downloadDocument = async (doc: BPJSDocument) => {
     try {
-      const response = await fetch(document.file_url, {
+      const response = await fetch(doc.file_url, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
@@ -262,19 +264,19 @@ export function BPJSDocumentManager({ claimId }: { claimId?: string }) {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = document.file_name;
+        a.download = doc.file_name;
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
       }
     } catch (error) {
-      console.error('Gagal download dokumen:', error);
+      console.error('Gagal menghapus dokumen:', error);
     }
   };
 
-  const previewDocument = (document: Document) => {
-    setPreviewUrl(document.file_url);
+  const previewDocument = (doc: BPJSDocument) => {
+    setPreviewUrl(doc.file_url);
   };
 
   const handleBulkFileSelect = (docType: DocumentType, file: File) => {
@@ -315,11 +317,11 @@ export function BPJSDocumentManager({ claimId }: { claimId?: string }) {
     }
   };
 
-  const getDocumentByType = (docType: DocumentType): Document | undefined => {
+  const getDocumentByType = (docType: DocumentType): BPJSDocument | undefined => {
     return claimDocuments?.documents.find(d => d.document_type === docType);
   };
 
-  const getStatusIcon = (status: Document['verification_status']) => {
+  const getStatusIcon = (status: BPJSDocument['verification_status']) => {
     switch (status) {
       case 'verified':
         return <CheckCircle className="h-5 w-5 text-green-500" />;
@@ -330,7 +332,7 @@ export function BPJSDocumentManager({ claimId }: { claimId?: string }) {
     }
   };
 
-  const getStatusBadge = (status: Document['verification_status']) => {
+  const getStatusBadge = (status: BPJSDocument['verification_status']) => {
     switch (status) {
       case 'verified':
         return <Badge variant="success">Terverifikasi</Badge>;

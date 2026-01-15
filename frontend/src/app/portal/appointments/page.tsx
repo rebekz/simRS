@@ -255,6 +255,22 @@ export default function MyAppointmentsPage() {
   );
 }
 
+function getStatusColor(status: string): string {
+  const colors: Record<string, string> = {
+    scheduled: 'bg-blue-100 text-blue-800',
+    confirmed: 'bg-green-100 text-green-800',
+    completed: 'bg-gray-100 text-gray-800',
+    cancelled: 'bg-red-100 text-red-800',
+    no_show: 'bg-yellow-100 text-yellow-800',
+  };
+  return colors[status] || 'bg-gray-100 text-gray-800';
+}
+
+function formatDate(dateStr: string): string {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
 function AppointmentCard({
   appointment,
   onCancel,
@@ -322,6 +338,7 @@ function AppointmentCard({
           </button>
         </div>
       )}
+      </div>
     </div>
   );
 }

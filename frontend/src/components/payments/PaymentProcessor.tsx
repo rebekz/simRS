@@ -1,5 +1,6 @@
-"""Payment Processor Component
-
+/**
+ * Payment Processor Component
+ *
 Payment processing system with:
 - Invoice lookup by number or patient
 - Amount calculation with change for cash
@@ -7,7 +8,8 @@ Payment processing system with:
 - Payment gateway integration
 - Receipt generation
 - Change calculation for cash payments
-"""
+
+ */
 
 import { useState, useEffect } from 'react';
 import {

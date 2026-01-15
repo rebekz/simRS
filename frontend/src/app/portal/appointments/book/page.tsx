@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 interface Department {
@@ -21,7 +21,7 @@ interface AvailableSlot {
   is_available: boolean;
 }
 
-export default function BookAppointmentPage() {
+function BookAppointmentPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const preselectedDept = searchParams.get("department");
@@ -331,5 +331,17 @@ export default function BookAppointmentPage() {
         </form>
       </main>
     </div>
+  );
+}
+
+export default function BookAppointmentPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      </div>
+    }>
+      <BookAppointmentPageContent />
+    </Suspense>
   );
 }

@@ -440,9 +440,11 @@ export const getSpecialtyTemplate = (specialty: keyof typeof SPECIALTY_TEMPLATES
 export const formatSOAPNote = (
   type: keyof typeof SOAP_NOTE_TEMPLATES,
   data: Record<string, string>
-): string => {
+): { subjective: string; objective: string; assessment: string; plan: string } => {
   const template = SOAP_NOTE_TEMPLATES[type];
-  if (!template) return '';
+  if (!template) {
+    return { subjective: '', objective: '', assessment: '', plan: '' };
+  }
 
   return {
     subjective: template.subjective.replace(/\{(\w+)\}/g, (_, key) => data[key] || ''),

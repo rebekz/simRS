@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 interface Patient {
@@ -41,7 +41,7 @@ interface TimeSlot {
   doctor: string;
 }
 
-export default function AppointmentBookingPage() {
+function AppointmentBookingPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const patientId = searchParams.get("patient_id");
@@ -695,5 +695,17 @@ export default function AppointmentBookingPage() {
         </div>
       </form>
     </div>
+  );
+}
+
+export default function AppointmentBookingPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      </div>
+    }>
+      <AppointmentBookingPageContent />
+    </Suspense>
   );
 }

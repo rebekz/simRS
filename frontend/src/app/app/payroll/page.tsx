@@ -84,7 +84,7 @@ interface PayStub {
     income_tax: number;
     bpjs_kesehatan: number;
     bpjs_ketenagakerjaan: number;
-    insurance: number;
+    insurance: {
       pension: number;
       life: number;
       health: number;

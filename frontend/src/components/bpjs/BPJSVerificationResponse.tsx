@@ -1,12 +1,14 @@
-"""BPJS Verification Response Component
-
+/**
+ * BPJS Verification Response Component
+ *
 Comprehensive BPJS verification response management with:
 - Query list
 - Response editor
 - Document attachment
 - Response history
 - Status tracking
-"""
+
+ */
 
 import { useState, useEffect } from 'react';
 import {

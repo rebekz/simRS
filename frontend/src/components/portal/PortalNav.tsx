@@ -66,12 +66,10 @@ export default function PortalNav() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`
-                  inline-flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors
-                  ${isActive(item.href)
-                    ? 'bg-indigo-50 text-indigo-700'
-                    : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
-                  }
+                className={
+                  isActive(item.href)
+                    ? "inline-flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors bg-indigo-50 text-indigo-700"
+                    : "inline-flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors text-gray-700 hover:bg-gray-50 hover:text-gray-900"
                 }
                 title={item.labelId}
               >
@@ -99,16 +97,15 @@ export default function PortalNav() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`
-                  inline-flex items-center px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors
-                  ${isActive(item.href)
-                    ? 'bg-indigo-50 text-indigo-700'
-                    : 'text-gray-700 hover:bg-gray-50'
-                  }
-                >
-                  <span className="mr-1">{item.icon}</span>
-                  <span>{item.labelId}</span>
-                </Link>
+                className={
+                  isActive(item.href)
+                    ? "inline-flex items-center px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors bg-indigo-50 text-indigo-700"
+                    : "inline-flex items-center px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors text-gray-700 hover:bg-gray-50"
+                }
+              >
+                <span className="mr-1">{item.icon}</span>
+                <span>{item.labelId}</span>
+              </Link>
             ))}
           </div>
         </div>

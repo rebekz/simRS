@@ -692,6 +692,6 @@ export default function PatientRegistrationPage() {
           </div>
         </form>
       </div>
-    )
-  }
+    </div>
+  )
 }

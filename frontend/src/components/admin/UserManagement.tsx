@@ -1,14 +1,15 @@
-"""User Management UI Component for STORY-037
-
-Provides comprehensive user management with:
-- User CRUD operations
-- Role assignment
-- Department-based access
-- Bulk user import
-- Password reset
-- User activity logs
-- User access request workflow
-"""
+/**
+ * User Management UI Component for STORY-037
+ *
+ * Provides comprehensive user management with:
+ * - User CRUD operations
+ * - Role assignment
+ * - Department-based access
+ * - Bulk user import
+ * - Password reset
+ * - User activity logs
+ * - User access request workflow
+ */
 
 import { useState, useEffect } from "react";
 import {

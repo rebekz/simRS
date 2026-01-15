@@ -48,7 +48,7 @@ export default function MyPrescriptionsPage() {
   const [error, setError] = useState<string | null>(null);
   const [prescriptions, setPrescriptions] = useState<PrescriptionListResponse | null>(null);
   const [activeTab, setActiveTab] = useState<"active" | "past">("active");
-  const [selectedMedications, setSelectedMedications] = useState<Set<number>>(new Set());
+  const [selectedMedications, setSelectedMedications] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     checkAuth();
@@ -263,9 +263,20 @@ export default function MyPrescriptionsPage() {
   );
 }
 
+function formatDate(dateStr: string): string {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+function getRefillStatusColor(refillsRemaining: number): string {
+  if (refillsRemaining === 0) return 'text-red-600';
+  if (refillsRemaining <= 2) return 'text-yellow-600';
+  return 'text-green-600';
+}
+
 interface PrescriptionCardProps {
   prescription: PrescriptionItem;
-  selectedMedications: Set<number>;
+  selectedMedications: Set<string>;
   onToggleSelection: (prescriptionId: number, medicationIndex: number) => void;
   showRefill: boolean;
 }

@@ -976,11 +976,11 @@ export default function VitalSignsPage() {
                       </td>
                       <td className="px-4 py-2 text-center">
                         <span className={`px-2 py-1 rounded text-xs font-medium ${
-                          record.ews_scores?.mews?.total_score >= 7
+                          (record.ews_scores?.mews?.total_score || 0) >= 7
                             ? "bg-red-100 text-red-700"
-                            : record.ews_scores?.mews?.total_score >= 5
+                            : (record.ews_scores?.mews?.total_score || 0) >= 5
                             ? "bg-orange-100 text-orange-700"
-                            : record.ews_scores?.mews?.total_score >= 3
+                            : (record.ews_scores?.mews?.total_score || 0) >= 3
                             ? "bg-yellow-100 text-yellow-700"
                             : "bg-green-100 text-green-700"
                         }`}>

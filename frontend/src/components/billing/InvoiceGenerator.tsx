@@ -1,5 +1,6 @@
-"""Invoice Generator Component for STORY-028
-
+/**
+ * Invoice Generator Component for STORY-028
+ *
 Comprehensive invoice generation system with:
 - Encounter selection
 - Charge capture from medical services
@@ -7,7 +8,8 @@ Comprehensive invoice generation system with:
 - Fee-for-service calculation
 - Discount and adjustment application
 - Invoice preview and PDF generation
-"""
+
+ */
 
 import { useState, useEffect } from 'react';
 import {

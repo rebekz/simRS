@@ -42,6 +42,7 @@ import {
   ChevronRight,
   Star,
   Flag,
+  Eye,
 } from "lucide-react";
 
 // Types

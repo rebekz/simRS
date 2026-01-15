@@ -228,7 +228,7 @@ export function PrescriptionWriter({
     // Get BPJS coverage for this drug
     await getBPJSCoverage(drug.id);
 
-    const newItem: PrescriptionItem = {
+    const prescriptionItem: PrescriptionItem = {
       drug_id: drug.id,
       drug_name: drug.drug_name,
       generic_name: drug.generic_name,
@@ -241,7 +241,7 @@ export function PrescriptionWriter({
       is_prn: newItem.is_prn || false,
     };
 
-    setItems([...items, newItem]);
+    setItems([...items, prescriptionItem]);
     setShowSearchResults(false);
     setSearchQuery("");
   };
@@ -795,7 +795,7 @@ export function PrescriptionWriter({
                 />
                 <span className="text-sm text-gray-700">Save as Draft</span>
               </label>
-              <Info className="h-4 w-4 text-gray-400" title="Draft prescriptions can be edited later" />
+              <Info className="h-4 w-4 text-gray-400" />
             </div>
           </div>
         </div>

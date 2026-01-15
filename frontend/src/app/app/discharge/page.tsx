@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 interface Patient {
@@ -65,7 +65,7 @@ interface FollowUpAppointment {
   reason: string;
 }
 
-export default function DischargeFormPage() {
+function DischargeFormPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const patientId = searchParams.get("patient_id");
@@ -294,9 +294,9 @@ export default function DischargeFormPage() {
 
   const calculateLengthOfStay = () => {
     if (!admission?.admission_date) return 0;
-    const admission = new Date(admission.admission_date);
+    const admissionDate = new Date(admission.admission_date);
     const discharge = new Date(dischargeData.discharge_date);
-    const diff = Math.floor((discharge.getTime() - admission.getTime()) / (1000 * 60 * 60 * 24));
+    const diff = Math.floor((discharge.getTime() - admissionDate.getTime()) / (1000 * 60 * 60 * 24));
     return diff > 0 ? diff : 0;
   };
 
@@ -1030,5 +1030,17 @@ export default function DischargeFormPage() {
         </div>
       </form>
     </div>
+  );
+}
+
+export default function DischargeFormPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      </div>
+    }>
+      <DischargeFormPageContent />
+    </Suspense>
   );
 }

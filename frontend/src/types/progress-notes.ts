@@ -343,10 +343,10 @@ export interface PainAssessment {
   location: string;
 
   /** Pain quality */
-  quality: PainQuality;
+  quality: ProgressNotePainQuality;
 
   /** Onset */
-  onset: PainOnset;
+  onset: ProgressNotePainOnset;
 
   /** Duration */
   duration: string;
@@ -370,7 +370,7 @@ export interface PainAssessment {
 /**
  * Pain quality descriptions
  */
-export type PainQuality =
+export type ProgressNotePainQuality =
   | 'sharp'               // Tajam
   | 'dull'                // Tumpul
   | 'throbbing'           // Berdebar
@@ -386,7 +386,7 @@ export type PainQuality =
 /**
  * Pain onset patterns
  */
-export type PainOnset =
+export type ProgressNotePainOnset =
   | 'acute'               // Akut
   | 'gradual'             // Bertahap
   | 'sudden'              // Tiba-tiba
@@ -1103,7 +1103,7 @@ export interface Plan {
   /** Consultations requested */
   consultations?: ConsultationPlan[];
 
-  ** Patient education */
+  /** Patient education */
   patient_education?: PatientEducation[];
 
   /** Discharge planning */
@@ -1132,7 +1132,7 @@ export interface DiagnosticPlan {
   /** Test type */
   test_type: string;
 
-  ** Indication */
+  /** Indication */
   indication: string;
 
   /** Priority */
@@ -1164,7 +1164,7 @@ export type PlanPriority =
  * Treatment plan item
  */
 export interface TreatmentPlan {
-  ** Treatment name */
+  /** Treatment name */
   treatment: string;
 
   /** Treatment type */
@@ -1256,7 +1256,7 @@ export interface NursingPlan {
   /** Frequency */
   frequency?: string;
 
-  ** Priority */
+  /** Priority */
   priority: PlanPriority;
 
   /** Who will perform */
@@ -1279,7 +1279,7 @@ export interface ConsultationPlan {
   /** Reason for consultation */
   reason: string;
 
-  ** Specific questions */
+  /** Specific questions */
   questions?: string[];
 
   /** Priority */
@@ -1288,7 +1288,7 @@ export interface ConsultationPlan {
   /** When consultation needed */
   timing: string;
 
-  ** Consulted by */
+  /** Consulted by */
   consulted_by?: string;
 }
 
@@ -1314,7 +1314,7 @@ export interface PatientEducation {
   /** Date provided */
   date_provided: string;
 
-  ** Follow-up needed? */
+  /** Follow-up needed? */
   follow_up_needed: boolean;
 }
 
@@ -1348,7 +1348,7 @@ export interface DischargePlanning {
   /** Discharge destination */
   destination?: DischargeDestination;
 
-  ** Discharge criteria */
+  /** Discharge criteria */
   criteria?: string[];
 
   /** Equipment needed */
@@ -1396,7 +1396,7 @@ export interface FollowUpPlan {
   /** Specific provider (if any) */
   provider?: string;
 
-  ** Purpose of follow-up */
+  /** Purpose of follow-up */
   purpose?: string;
 
   /** Contact information */
@@ -1410,7 +1410,7 @@ export interface Goal {
   /** Goal description */
   goal: string;
 
-  ** Goal type */
+  /** Goal type */
   type: GoalType;
 
   /** Target/measurable outcome */
@@ -1419,7 +1419,7 @@ export interface Goal {
   /** Time frame */
   time_frame?: string;
 
-  ** Is goal achieved? */
+  /** Is goal achieved? */
   achieved: boolean;
 
   /** Progress toward goal */
@@ -1471,7 +1471,7 @@ export interface VitalSignsSummary {
   /** Pain score */
   pain_score?: string;
 
-  ** GCS */
+  /** GCS */
   gcs?: string;
 
   /** Blood glucose */
@@ -1510,7 +1510,7 @@ export interface Intervention {
   /** Performed by */
   performed_by: string;
 
-  ** Performed date/time */
+  /** Performed date/time */
   performed_at: string;
 
   /** Duration */
@@ -1522,7 +1522,7 @@ export interface Intervention {
   /** Complications (if any) */
   complications?: string[];
 
-  ** Follow-up required? */
+  /** Follow-up required? */
   follow_up_required: boolean;
 
   /** Follow-up instructions */
@@ -1595,19 +1595,19 @@ export interface ProcedurePerformed {
   /** Procedure code (if applicable) */
   procedure_code?: string;
 
-  ** Indication */
+  /** Indication */
   indication: string;
 
   /** Consent obtained? */
   consent_obtained: boolean;
 
-  ** Consent type */
+  /** Consent type */
   consent_type?: 'written' | 'verbal' | 'implied';
 
   /** Performed by */
   performed_by: string;
 
-  ** Assisted by */
+  /** Assisted by */
   assisted_by?: string[];
 
   /** Anesthesia used */
@@ -1619,10 +1619,10 @@ export interface ProcedurePerformed {
   /** End time */
   end_time?: string;
 
-  ** Procedure details */
+  /** Procedure details */
   details: string;
 
-  ** Equipment used */
+  /** Equipment used */
   equipment_used?: string[];
 
   /** Complications */
@@ -1634,7 +1634,7 @@ export interface ProcedurePerformed {
   /** Post-procedure instructions */
   post_procedure_instructions?: string;
 
-  ** Specimens obtained */
+  /** Specimens obtained */
   specimens?: string[];
 }
 
@@ -1661,7 +1661,7 @@ export interface Treatment {
   /** Indication */
   indication: string;
 
-  ** Details */
+  /** Details */
   details: string;
 
   /** Started by */
@@ -1676,16 +1676,16 @@ export interface Treatment {
   /** Frequency */
   frequency?: string;
 
-  ** Current status */
+  /** Current status */
   status: TreatmentStatus;
 
-  ** Progress/response */
+  /** Progress/response */
   progress?: string;
 
-  ** Expected outcomes */
+  /** Expected outcomes */
   expected_outcomes?: string;
 
-  ** Actual outcomes */
+  /** Actual outcomes */
   actual_outcomes?: string;
 }
 
@@ -1712,22 +1712,22 @@ export interface MonitoringActivity {
   /** Frequency */
   frequency: string;
 
-  ** Normal range */
+  /** Normal range */
   normal_range?: string;
 
   /** Current value */
   current_value?: string;
 
-  ** Is value abnormal? */
+  /** Is value abnormal? */
   is_abnormal?: boolean;
 
-  ** Trends observed */
+  /** Trends observed */
   trends?: string;
 
-  ** Actions taken */
+  /** Actions taken */
   actions_taken?: string;
 
-  ** Next monitoring time */
+  /** Next monitoring time */
   next_monitoring?: string;
 }
 
@@ -1739,31 +1739,31 @@ export interface MonitoringActivity {
  * Patient response to treatment
  */
 export interface PatientResponse {
-  ** Treatment/intervention */
+  /** Treatment/intervention */
   treatment: string;
 
   /** Response type */
   response_type: ResponseType;
 
-  ** Response description */
+  /** Response description */
   description: string;
 
-  ** Onset of response */
+  /** Onset of response */
   onset: string;
 
-  ** Duration of response */
+  /** Duration of response */
   duration?: string;
 
-  ** Severity (if adverse) */
+  /** Severity (if adverse) */
   severity?: SeverityLevel;
 
-  ** Actions taken */
+  /** Actions taken */
   actions_taken?: string;
 
-  ** Is response expected? */
+  /** Is response expected? */
   is_expected: boolean;
 
-  ** Requires intervention? */
+  /** Requires intervention? */
   requires_intervention: boolean;
 
   /** Follow-up needed */
@@ -1786,40 +1786,40 @@ export type ResponseType =
  * Side effect observed
  */
 export interface SideEffect {
-  ** Side effect name */
+  /** Side effect name */
   name: string;
 
-  ** Suspected cause (medication/treatment) */
+  /** Suspected cause (medication/treatment) */
   suspected_cause: string;
 
-  ** Onset time */
+  /** Onset time */
   onset: string;
 
-  ** Severity */
+  /** Severity */
   severity: SeverityLevel;
 
-  ** Description */
+  /** Description */
   description: string;
 
-  ** Duration */
+  /** Duration */
   duration?: string;
 
-  ** Is expected? */
+  /** Is expected? */
   is_expected: boolean;
 
-  ** Actions taken */
+  /** Actions taken */
   actions_taken: string;
 
-  ** Outcome of actions */
+  /** Outcome of actions */
   outcome?: string;
 
-  ** Was medication/treatment changed? */
+  /** Was medication/treatment changed? */
   treatment_changed: boolean;
 
-  ** Change details */
+  /** Change details */
   change_details?: string;
 
-  ** Reported to prescriber? */
+  /** Reported to prescriber? */
   reported_to_prescriber: boolean;
 }
 
@@ -1827,43 +1827,43 @@ export interface SideEffect {
  * Complication occurred
  */
 export interface Complication {
-  ** Complication name */
+  /** Complication name */
   name: string;
 
-  ** Type */
+  /** Type */
   type: ComplicationType;
 
-  ** Severity */
+  /** Severity */
   severity: SeverityLevel;
 
-  ** Onset time */
+  /** Onset time */
   onset: string;
 
-  ** Description */
+  /** Description */
   description: string;
 
-  ** Risk factors */
+  /** Risk factors */
   risk_factors?: string[];
 
-  ** Preventive measures in place */
+  /** Preventive measures in place */
   preventive_measures?: string[];
 
-  ** Actions taken */
+  /** Actions taken */
   actions_taken: string;
 
-  ** Current status */
+  /** Current status */
   status: ComplicationStatus;
 
-  ** Resolved? */
+  /** Resolved? */
   resolved: boolean;
 
-  ** Resolution date */
+  /** Resolution date */
   resolution_date?: string;
 
-  ** Sequelae */
+  /** Sequelae */
   sequelae?: string[];
 
-  ** Family notified */
+  /** Family notified */
   family_notified: boolean;
 }
 
@@ -1896,40 +1896,40 @@ export type ComplicationStatus =
  * Adverse event
  */
 export interface AdverseEvent {
-  ** Event description */
+  /** Event description */
   event_description: string;
 
-  ** Event type */
+  /** Event type */
   event_type: AdverseEventType;
 
-  ** Severity */
+  /** Severity */
   severity: SeverityLevel;
 
-  ** Date/time of event */
+  /** Date/time of event */
   event_datetime: string;
 
-  ** Suspected cause */
+  /** Suspected cause */
   suspected_cause: string;
 
-  ** Was this preventable? */
+  /** Was this preventable? */
   preventable: boolean;
 
-  ** Immediate actions taken */
+  /** Immediate actions taken */
   immediate_actions: string;
 
-  ** Patient outcome */
+  /** Patient outcome */
   patient_outcome: AdverseEventOutcome;
 
-  ** Reported to */
+  /** Reported to */
   reported_to: string[];
 
-  ** Report date */
+  /** Report date */
   report_date: string;
 
-  ** Follow-up required */
+  /** Follow-up required */
   follow_up_required: boolean;
 
-  ** Preventive measures implemented */
+  /** Preventive measures implemented */
   preventive_measures?: string[];
 }
 
@@ -1967,16 +1967,16 @@ export interface ProgressNotesFormState {
   /** Current form step */
   current_step: ProgressNotesFormStep;
 
-  ** Note type */
+  /** Note type */
   note_type: ProgressNoteType;
 
   /** Patient information */
   patient_info: ProgressNotePatientInfo;
 
-  ** SOAP note data */
+  /** SOAP note data */
   soap_note: SOAPNote;
 
-  ** Vital signs summary */
+  /** Vital signs summary */
   vital_signs_summary?: VitalSignsSummary;
 
   /** Interventions performed */
@@ -1988,28 +1988,28 @@ export interface ProgressNotesFormState {
   /** Side effects */
   side_effects?: SideEffect[];
 
-  ** Complications */
+  /** Complications */
   complications?: Complication[];
 
   /** Form validation errors */
   validation_errors: ValidationError[];
 
-  ** Is form dirty (has unsaved changes) */
+  /** Is form dirty (has unsaved changes) */
   is_dirty: boolean;
 
-  ** Is form valid */
+  /** Is form valid */
   is_valid: boolean;
 
-  ** Is submitting */
+  /** Is submitting */
   is_submitting: boolean;
 
-  ** Additional notes */
+  /** Additional notes */
   additional_notes?: string;
 
-  ** Form mode */
-  mode: FormMode;
+  /** Form mode */
+  mode: ProgressNoteFormMode;
 
-  ** Sign-off status */
+  /** Sign-off status */
   sign_off: SignOffStatus;
 }
 
@@ -2029,7 +2029,7 @@ export type ProgressNotesFormStep =
 /**
  * Form modes
  */
-export type FormMode =
+export type ProgressNoteFormMode =
   | 'create'              // Membuat catatan baru
   | 'edit'                // Mengedit catatan yang ada
   | 'view'                // Melihat catatan
@@ -2056,28 +2056,28 @@ export interface ValidationError {
  * Sign-off status
  */
 export interface SignOffStatus {
-  ** Is signed off? */
+  /** Is signed off? */
   is_signed_off: boolean;
 
-  ** Signed by */
+  /** Signed by */
   signed_by?: string;
 
   /** Signed at */
   signed_at?: string;
 
-  ** Signature type */
+  /** Signature type */
   signature_type?: 'electronic' | 'digital' | 'image';
 
-  ** Cosigner required? */
+  /** Cosigner required? */
   cosigner_required: boolean;
 
-  ** Cosigned by */
+  /** Cosigned by */
   cosigned_by?: string;
 
-  ** Cosigned at */
+  /** Cosigned at */
   cosigned_at?: string;
 
-  ** Verification status */
+  /** Verification status */
   verification_status: 'pending' | 'verified' | 'rejected';
 }
 
@@ -2105,7 +2105,7 @@ export type ProgressNotesFormAction =
   | { type: 'VALIDATE' }
   | { type: 'SUBMIT' }
   | { type: 'RESET' }
-  | { type: 'SET_MODE'; payload: FormMode }
+  | { type: 'SET_MODE'; payload: ProgressNoteFormMode }
   | { type: 'SIGN_OFF'; payload: SignOffStatus };
 
 // ============================================================================
@@ -2122,16 +2122,16 @@ export interface CreateProgressNoteRequest {
   /** Visit/Encounter ID */
   visit_id: string;
 
-  ** Note type */
+  /** Note type */
   note_type: ProgressNoteType;
 
-  ** Note category */
+  /** Note category */
   category: ProgressNoteCategory;
 
-  ** SOAP note data */
+  /** SOAP note data */
   soap_note: SOAPNote;
 
-  ** Vital signs summary */
+  /** Vital signs summary */
   vital_signs_summary?: VitalSignsSummary;
 
   /** Interventions */
@@ -2143,22 +2143,22 @@ export interface CreateProgressNoteRequest {
   /** Side effects */
   side_effects?: SideEffect[];
 
-  ** Complications */
+  /** Complications */
   complications?: Complication[];
 
   /** Additional notes */
   additional_notes?: string;
 
-  ** Priority */
+  /** Priority */
   priority: NotePriority;
 
-  ** Is this an addendum? */
+  /** Is this an addendum? */
   is_addendum?: boolean;
 
-  ** Parent note ID (if addendum) */
+  /** Parent note ID (if addendum) */
   parent_note_id?: string;
 
-  ** Tags/keywords */
+  /** Tags/keywords */
   tags?: string[];
 }
 
@@ -2210,22 +2210,22 @@ export interface ProgressNoteSummary {
   /** Note date/time */
   note_datetime: string;
 
-  ** Created by */
+  /** Created by */
   created_by: string;
 
   /** Primary diagnosis/problem */
   primary_problem: string;
 
-  ** Clinical status */
+  /** Clinical status */
   clinical_status: ClinicalStatus;
 
-  ** Brief summary */
+  /** Brief summary */
   summary: string;
 
-  ** Has interventions? */
+  /** Has interventions? */
   has_interventions: boolean;
 
-  ** Has complications? */
+  /** Has complications? */
   has_complications: boolean;
 }
 
@@ -2239,25 +2239,25 @@ export interface GetProgressNotesRequest {
   /** Visit ID (optional) */
   visit_id?: string;
 
-  ** Note type filter */
+  /** Note type filter */
   note_type?: ProgressNoteType;
 
-  ** Date range start */
+  /** Date range start */
   date_from?: string;
 
   /** Date range end */
   date_to?: string;
 
-  ** Maximum records to return */
+  /** Maximum records to return */
   limit?: number;
 
-  ** Offset for pagination */
+  /** Offset for pagination */
   offset?: number;
 
-  ** Sort order */
+  /** Sort order */
   sort_order?: 'asc' | 'desc';
 
-  ** Include addendums? */
+  /** Include addendums? */
   include_addendums?: boolean;
 }
 
@@ -2365,7 +2365,7 @@ export interface UpdateProgressNoteRequest {
   /** Note ID */
   note_id: string;
 
-  ** SOAP note data to update */
+  /** SOAP note data to update */
   soap_note?: Partial<SOAPNote>;
 
   /** Vital signs summary to update */
@@ -2389,7 +2389,7 @@ export interface UpdateProgressNoteRequest {
   /** Reason for update */
   update_reason: string;
 
-  ** Tags to update */
+  /** Tags to update */
   tags?: string[];
 }
 
@@ -2544,7 +2544,7 @@ export interface ProgressNoteTemplate {
   /** Default SOAP structure */
   default_soap: Partial<SOAPNote>;
 
-  ** Common phrases/templates */
+  /** Common phrases/templates */
   common_phrases?: {
     subjective?: string[];
     objective?: string[];
@@ -2552,16 +2552,16 @@ export interface ProgressNoteTemplate {
     plan?: string[];
   };
 
-  ** Is this a system template? */
+  /** Is this a system template? */
   is_system: boolean;
 
-  ** Created by */
+  /** Created by */
   created_by: string;
 
-  ** Created at */
+  /** Created at */
   created_at: string;
 
-  ** Usage count */
+  /** Usage count */
   usage_count: number;
 }
 
@@ -2615,7 +2615,7 @@ export interface ValidateProgressNoteRequest {
   /** SOAP note data */
   soap_note: Partial<SOAPNote>;
 
-  ** Skip optional fields validation */
+  /** Skip optional fields validation */
   skip_optional_validation?: boolean;
 }
 
@@ -2669,28 +2669,28 @@ export interface ProgressNotesStats {
   /** Total notes */
   total_notes: number;
 
-  ** Notes by type */
+  /** Notes by type */
   notes_by_type: Record<ProgressNoteType, number>;
 
-  ** Notes by category */
+  /** Notes by category */
   notes_by_category: Record<ProgressNoteCategory, number>;
 
-  ** Notes with complications */
+  /** Notes with complications */
   notes_with_complications: number;
 
-  ** Notes with interventions */
+  /** Notes with interventions */
   notes_with_interventions: number;
 
-  ** Most common problems */
+  /** Most common problems */
   common_problems: Array<{
     problem: string;
     count: number;
   }>;
 
-  ** Clinical status distribution */
+  /** Clinical status distribution */
   clinical_status_distribution: Record<ClinicalStatus, number>;
 
-  ** Notes per day */
+  /** Notes per day */
   notes_per_day: Array<{
     date: string;
     count: number;
@@ -2731,7 +2731,7 @@ export interface ProgressNotesValidationConstraints {
     optional_fields: Record<ProgressNoteType, string[]>;
   };
 
-  ** SOAP constraints */
+  /** SOAP constraints */
   soap: {
     /** Subjective max length */
     subjective_max_length: number;
@@ -2749,7 +2749,7 @@ export interface ProgressNotesValidationConstraints {
     required_fields: string[];
   };
 
-  ** Intervention constraints */
+  /** Intervention constraints */
   intervention: {
     /** Max interventions per note */
     max_interventions: number;
@@ -2758,7 +2758,7 @@ export interface ProgressNotesValidationConstraints {
     required_fields: string[];
   };
 
-  ** Medication constraints */
+  /** Medication constraints */
   medication: {
     /** Max medications per note */
     max_medications: number;
@@ -2767,7 +2767,7 @@ export interface ProgressNotesValidationConstraints {
     required_fields: string[];
   };
 
-  ** Timing constraints */
+  /** Timing constraints */
   timing: {
     /** Max time between note creation and sign-off (hours) */
     max_signoff_delay_hours: number;
@@ -2808,37 +2808,37 @@ export interface GetValidationConstraintsResponse {
  * Progress note filter options
  */
 export interface ProgressNoteFilter {
-  ** Note type filter */
+  /** Note type filter */
   note_type?: ProgressNoteType;
 
-  ** Category filter */
+  /** Category filter */
   category?: ProgressNoteCategory;
 
-  ** Priority filter */
+  /** Priority filter */
   priority?: NotePriority;
 
-  ** Date range filter */
+  /** Date range filter */
   date_range?: {
     from: string;
     to: string;
   };
 
-  ** Created by filter */
+  /** Created by filter */
   created_by?: string;
 
-  ** Clinical status filter */
+  /** Clinical status filter */
   clinical_status?: ClinicalStatus;
 
-  ** Has complications filter */
+  /** Has complications filter */
   has_complications?: boolean;
 
-  ** Has interventions filter */
+  /** Has interventions filter */
   has_interventions?: boolean;
 
-  ** Tags filter */
+  /** Tags filter */
   tags?: string[];
 
-  ** Search query */
+  /** Search query */
   search_query?: string;
 }
 
@@ -2871,7 +2871,7 @@ export interface ProgressNoteExportOptions {
   /** Export format */
   format: 'pdf' | 'doc' | 'html' | 'json';
 
-  ** Include sections */
+  /** Include sections */
   include_sections: {
     patient_info: boolean;
     subjective: boolean;
@@ -2883,16 +2883,16 @@ export interface ProgressNoteExportOptions {
     complications: boolean;
   };
 
-  ** Include signatures */
+  /** Include signatures */
   include_signatures: boolean;
 
-  ** Include timestamps */
+  /** Include timestamps */
   include_timestamps: boolean;
 
-  ** Language */
+  /** Language */
   language: 'id' | 'en';
 
-  ** Template ID (if applicable) */
+  /** Template ID (if applicable) */
   template_id?: string;
 }
 
@@ -2944,20 +2944,20 @@ export interface ProgressNoteAuditLog {
   /** Action timestamp */
   timestamp: string;
 
-  ** Changes made (for updates) */
+  /** Changes made (for updates) */
   changes?: {
     field: string;
     old_value: string;
     new_value: string;
   }[];
 
-  ** IP address */
+  /** IP address */
   ip_address?: string;
 
-  ** User agent */
+  /** User agent */
   user_agent?: string;
 
-  ** Reason (for deletions/updates) */
+  /** Reason (for deletions/updates) */
   reason?: string;
 }
 
@@ -2965,24 +2965,24 @@ export interface ProgressNoteAuditLog {
  * Progress note collaboration info
  */
 export interface ProgressNoteCollaboration {
-  ** Can edit */
+  /** Can edit */
   can_edit: boolean;
 
-  ** Can delete */
+  /** Can delete */
   can_delete: boolean;
 
-  ** Can sign off */
+  /** Can sign off */
   can_sign_off: boolean;
 
-  ** Can cosign */
+  /** Can cosign */
   can_cosign: boolean;
 
-  ** Required cosigners */
+  /** Required cosigners */
   required_cosigners?: string[];
 
-  ** Currently locked by */
+  /** Currently locked by */
   locked_by?: string;
 
-  ** Lock expiry */
+  /** Lock expiry */
   lock_expiry?: string;
 }

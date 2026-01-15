@@ -371,7 +371,7 @@ export interface MedicalReportDetails {
   /** Diagnosis/Conclusion */
   diagnosis: string;
 
-  ** Recommendations */
+  /** Recommendations */
   recommendations?: string[];
 
   /** Prognosis */
@@ -416,7 +416,7 @@ export interface CertificateClinicalInfo {
   /** Vital signs */
   vital_signs?: VitalSigns;
 
-  ** Laboratory findings */
+  /** Laboratory findings */
   lab_findings?: string;
 
   /** Imaging findings */
@@ -428,7 +428,7 @@ export interface CertificateClinicalInfo {
   /** Treatment given */
   treatment_given?: string;
 
-  ** Medications prescribed */
+  /** Medications prescribed */
   medications?: MedicationInfo[];
 
   /** Clinical notes */
@@ -506,7 +506,7 @@ export interface ExaminationInfo {
   /** Examination findings */
   findings: string;
 
-  ** Examiner name */
+  /** Examiner name */
   examiner_name?: string;
 
   /** Examiner ID */

@@ -12,7 +12,7 @@
  */
 
 import { useState, useEffect } from "react";
-import { User, FileText, Pills, AlertCircle, CheckCircle, Clock, Video, AlertTriangle } from "lucide-react";
+import { User, FileText, Pill, AlertCircle, CheckCircle, Clock, Video, AlertTriangle } from "lucide-react";
 import { SOAPNoteEditor } from "../clinical/SOAPNoteEditor";
 import { ICD10Selector } from "../patients/ICD10Selector";
 import { PrescriptionWriter } from "../prescriptions/PrescriptionWriter";
@@ -105,7 +105,7 @@ export function ConsultationWorkspace({ patientId, encounterId, onComplete }: Co
     { id: "summary", label: "Patient Summary", icon: User },
     { id: "soap", label: "SOAP Note", icon: FileText },
     { id: "diagnosis", label: "Diagnosis", icon: AlertCircle },
-    { id: "treatment", label: "Treatment", icon: Pills },
+    { id: "treatment", label: "Treatment", icon: Pill },
     { id: "sep", label: "BPJS SEP", icon: CheckCircle },
     { id: "education", label: "Education", icon: Video },
   ];
@@ -169,7 +169,7 @@ export function ConsultationWorkspace({ patientId, encounterId, onComplete }: Co
             </div>
             <div className="flex items-center justify-between text-sm">
               <span className="text-gray-600 flex items-center">
-                <Pills className="w-4 h-4 mr-2 text-blue-500" />
+                <Pill className="w-4 h-4 mr-2 text-blue-500" />
                 Medications
               </span>
               <span className={`font-medium ${patientSummary.current_medications.length > 0 ? 'text-blue-600' : 'text-gray-400'}`}>
@@ -417,7 +417,7 @@ function TreatmentTab({ encounterId }: { encounterId: number }) {
           onClick={() => setShowPrescriptionWriter(true)}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm flex items-center"
         >
-          <Pills className="h-4 w-4 mr-2" />
+          <Pill className="h-4 w-4 mr-2" />
           Write Prescription
         </button>
       </div>
@@ -436,7 +436,7 @@ function TreatmentTab({ encounterId }: { encounterId: number }) {
 
       {prescriptions.length === 0 && !showPrescriptionWriter ? (
         <div className="text-center py-12 text-gray-500">
-          <Pills className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+          <Pill className="h-12 w-12 mx-auto mb-4 text-gray-400" />
           <p>No prescriptions written</p>
           <button
             onClick={() => setShowPrescriptionWriter(true)}

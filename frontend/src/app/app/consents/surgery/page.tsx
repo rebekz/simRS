@@ -137,6 +137,7 @@ export default function SurgeryConsentPage() {
 
       // Set surgeon info from token
       setSurgeonInfo({
+        role: "primary_surgeon",
         doctor_id: payload.id || payload.user_id || 0,
         doctor_name: payload.name || payload.full_name || "Dokter",
         doctor_title: payload.title || "dr.",
@@ -559,6 +560,7 @@ export default function SurgeryConsentPage() {
         severity: "moderate",
         is_life_threatening: false,
         probability_percentage: 5,
+        requires_special_disclosure: false,
       }));
   };
 

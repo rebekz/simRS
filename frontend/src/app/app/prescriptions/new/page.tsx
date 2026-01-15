@@ -12,7 +12,7 @@
 import { useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Prescription } from "lucide-react";
+import { ArrowLeft, FileText } from "lucide-react";
 import { PrescriptionWriter } from "@/components/prescriptions/PrescriptionWriter";
 
 export default function NewPrescriptionPage() {
@@ -51,7 +51,7 @@ export default function NewPrescriptionPage() {
               </Link>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900 flex items-center">
-                  <Prescription className="h-6 w-6 mr-2" />
+                  <FileText className="h-6 w-6 mr-2" />
                   New Prescription
                 </h1>
                 <p className="text-sm text-gray-600 mt-1">

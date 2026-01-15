@@ -1,11 +1,12 @@
-"""Billing Reports Component for STORY-028
-
-Comprehensive billing reports with:
-- Revenue report (daily, weekly, monthly)
-- Aging report (outstanding invoices by age)
-- Payer summary (BPJS, insurance, cash breakdown)
-- Export to CSV/Excel
-"""
+/**
+ * Billing Reports Component for STORY-028
+ *
+ * Comprehensive billing reports with:
+ * - Revenue report (daily, weekly, monthly)
+ * - Aging report (outstanding invoices by age)
+ * - Payer summary (BPJS, insurance, cash breakdown)
+ * - Export to CSV/Excel
+ */
 
 import { useState, useEffect } from 'react';
 import {

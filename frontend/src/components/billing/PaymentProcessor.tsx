@@ -1,12 +1,14 @@
-"""Payment Processor Component for STORY-028
-
+/**
+ * Payment Processor Component for STORY-028
+ *
 Payment processing system with:
 - Payment method selection (cash, card, transfer, BPJS, insurance)
 - Amount entry and validation
 - Reference number capture
 - Receipt generation
 - Payment confirmation
-"""
+
+ */
 
 import { useState, useEffect } from 'react';
 import {
@@ -21,6 +23,7 @@ import {
   AlertCircle,
   RefreshCw,
   FileText,
+  Search,
 } from 'lucide-react';
 
 // Types

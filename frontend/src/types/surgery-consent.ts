@@ -241,10 +241,10 @@ export interface SurgicalProcedureInfo {
   /** Expected duration in minutes */
   expected_duration_minutes: number;
 
-  ** Expected blood loss in mL */
+  /** Expected blood loss in mL */
   expected_blood_loss_ml: number;
 
-  ** Expected hospital stay in days */
+  /** Expected hospital stay in days */
   expected_hospital_stay_days: number;
 
   /** Is this a repeat procedure */
@@ -253,19 +253,19 @@ export interface SurgicalProcedureInfo {
   /** Previous procedure dates */
   previous_procedure_dates?: string[];
 
-  ** Alternative procedures available */
+  /** Alternative procedures available */
   alternative_procedures?: string[];
 
-  ** Consequences of refusing procedure */
+  /** Consequences of refusing procedure */
   consequences_of_refusal: string;
 
-  ** Success rate percentage */
+  /** Success rate percentage */
   success_rate_percentage?: number;
 
-  ** Is this experimental/innovative */
+  /** Is this experimental/innovative */
   is_experimental: boolean;
 
-  ** Research protocol number (if applicable) */
+  /** Research protocol number (if applicable) */
   research_protocol_number?: string;
 }
 
@@ -285,22 +285,22 @@ export interface DiagnosticProcedureInfo {
   /** Diagnostic category */
   diagnostic_category: 'imaging' | 'laboratory' | 'endoscopic' | 'cardiac' | 'neurological' | 'other';
 
-  ** Is contrast required */
+  /** Is contrast required */
   requires_contrast: boolean;
 
-  ** Is sedation required */
+  /** Is sedation required */
   requires_sedation: boolean;
 
-  ** Is fasting required */
+  /** Is fasting required */
   requires_fasting: boolean;
 
-  ** Fasting duration in hours */
+  /** Fasting duration in hours */
   fasting_duration_hours?: number;
 
-  ** Special preparations required */
+  /** Special preparations required */
   special_preparations?: string[];
 
-  ** Expected duration in minutes */
+  /** Expected duration in minutes */
   expected_duration_minutes: number;
 }
 
@@ -320,25 +320,25 @@ export interface BloodTransfusionInfo {
   /** Expected number of units */
   expected_units: number;
 
-  ** Urgency level */
+  /** Urgency level */
   urgency: BloodTransfusionUrgency;
 
-  ** Indication for transfusion */
+  /** Indication for transfusion */
   indication: string;
 
-  ** Is blood matching required */
+  /** Is blood matching required */
   requires_matching: boolean;
 
-  ** Required blood type */
+  /** Required blood type */
   required_blood_type: 'A' | 'B' | 'AB' | 'O';
 
-  ** Required RH factor */
+  /** Required RH factor */
   required_rh: 'positive' | 'negative';
 
-  ** Is autologous transfusion possible */
+  /** Is autologous transfusion possible */
   autologous_possible: boolean;
 
-  ** Transfusion reaction risks */
+  /** Transfusion reaction risks */
   transfusion_risks: string[];
 }
 
@@ -368,16 +368,16 @@ export interface AnesthesiaInfo {
   /** Anesthesiologist license number (SIPA) */
   anesthesiologist_license: string;
 
-  ** Pre-anesthesia assessment required */
+  /** Pre-anesthesia assessment required */
   requires_pre_assessment: boolean;
 
-  ** Pre-anesthesia assessment date */
+  /** Pre-anesthesia assessment date */
   pre_assessment_date?: string;
 
-  ** ASA Physical Status Classification */
+  /** ASA Physical Status Classification */
   asa_classification: 'ASA_I' | 'ASA_II' | 'ASA_III' | 'ASA_IV' | 'ASA_V' | 'ASA_VI';
 
-  ** Airway assessment */
+  /** Airway assessment */
   airway_assessment?: {
     mallampati_score?: number;
     thyromental_distance?: string;
@@ -385,37 +385,37 @@ export interface AnesthesiaInfo {
     neck_mobility?: string;
   };
 
-  ** Fasting status (NPO) */
+  /** Fasting status (NPO) */
   fasting_status?: {
     is_npocompliant: boolean;
     last_food_intake?: string;
     last_fluid_intake?: string;
   };
 
-  ** Premedication required */
+  /** Premedication required */
   requires_premedication: boolean;
 
-  ** Premedication details */
+  /** Premedication details */
   premedication_details?: string;
 
-  ** Regional anesthesia specific */
+  /** Regional anesthesia specific */
   regional_details?: {
     technique: 'spinal' | 'epidural' | 'nerve_block' | 'combined';
     level?: string;
     local_anesthetic: string;
   };
 
-  ** General anesthesia specific */
+  /** General anesthesia specific */
   general_details?: {
     airway_device: 'endotracheal_tube' | 'lma' | 'face_mask' | 'other';
     induction_agent: string;
     maintenance_agent: string;
   };
 
-  ** Post-anesthesia care required */
+  /** Post-anesthesia care required */
   requires_post_anesthesia_care: boolean;
 
-  ** Expected recovery time */
+  /** Expected recovery time */
   expected_recovery_time_minutes?: number;
 }
 
@@ -457,19 +457,19 @@ export interface ProcedureRisk {
   /** Risk description in English */
   risk_description_en?: string;
 
-  ** Risk level */
+  /** Risk level */
   severity: RiskLevel;
 
-  ** Probability percentage */
+  /** Probability percentage */
   probability_percentage?: number;
 
-  ** Is this risk life-threatening */
+  /** Is this risk life-threatening */
   is_life_threatening: boolean;
 
-  ** Mitigation strategies */
+  /** Mitigation strategies */
   mitigation_strategies?: string[];
 
-  ** Requires special consent disclosure */
+  /** Requires special consent disclosure */
   requires_special_disclosure: boolean;
 }
 
@@ -489,10 +489,10 @@ export interface ProcedureBenefit {
   /** Benefit description */
   description: string;
 
-  ** Expected outcome */
+  /** Expected outcome */
   expected_outcome: string;
 
-  ** Time to benefit */
+  /** Time to benefit */
   time_to_benefit?: string;
 }
 
@@ -506,16 +506,16 @@ export interface AlternativeTreatment {
   /** Treatment description */
   description: string;
 
-  ** Pros of this alternative */
+  /** Pros of this alternative */
   pros: string[];
 
-  ** Cons of this alternative */
+  /** Cons of this alternative */
   cons: string[];
 
-  ** Success rate */
+  /** Success rate */
   success_rate_percentage?: number;
 
-  ** Why not chosen (if applicable) */
+  /** Why not chosen (if applicable) */
   why_not_chosen?: string;
 }
 
@@ -526,16 +526,16 @@ export interface NoTreatmentConsequences {
   /** Expected progression without treatment */
   expected_progression: string;
 
-  ** Risks of delaying treatment */
+  /** Risks of delaying treatment */
   delay_risks: string[];
 
-  ** Irreversible consequences */
+  /** Irreversible consequences */
   irreversible_consequences: string[];
 
-  ** Impact on quality of life */
+  /** Impact on quality of life */
   quality_of_life_impact: string;
 
-  ** Life expectancy impact */
+  /** Life expectancy impact */
   life_expectancy_impact?: string;
 }
 
@@ -558,19 +558,19 @@ export interface RisksAndBenefits {
   /** Procedure benefits */
   benefits: ProcedureBenefit[];
 
-  ** Expected success rate */
+  /** Expected success rate */
   expected_success_rate_percentage: number;
 
-  ** Alternative treatments */
+  /** Alternative treatments */
   alternative_treatments: AlternativeTreatment[];
 
-  ** Consequences of refusing treatment */
+  /** Consequences of refusing treatment */
   consequences_of_refusal: NoTreatmentConsequences;
 
-  ** Special risks for this patient */
+  /** Special risks for this patient */
   patient_specific_risks?: string[];
 
-  ** Additional disclosures required */
+  /** Additional disclosures required */
   additional_disclosures?: string[];
 }
 
@@ -645,13 +645,13 @@ export interface PatientConsent {
   /** Witness signature */
   witness_signature?: ConsentSignature;
 
-  ** Additional patient comments */
+  /** Additional patient comments */
   patient_comments?: string;
 
-  ** Special considerations */
+  /** Special considerations */
   special_considerations?: string[];
 
-  ** Translation provided (if needed) */
+  /** Translation provided (if needed) */
   translation_provided?: {
     language: string;
     translator_name: string;
@@ -681,28 +681,28 @@ export interface ConsentSignature {
   /** Date signed */
   date_signed: string;
 
-  ** Time signed */
+  /** Time signed */
   time_signed: string;
 
-  ** IP address (for digital signatures) */
+  /** IP address (for digital signatures) */
   ip_address?: string;
 
-  ** Device information */
+  /** Device information */
   device_info?: string;
 
-  ** Location (if digital) */
+  /** Location (if digital) */
   location?: string;
 
-  ** Thumbprint image (if applicable) */
+  /** Thumbprint image (if applicable) */
   thumbprint_url?: string;
 
-  ** Proxy signer name (if signed by proxy) */
+  /** Proxy signer name (if signed by proxy) */
   proxy_signer_name?: string;
 
-  ** Proxy signer relationship */
+  /** Proxy signer relationship */
   proxy_signer_relationship?: string;
 
-  ** Proxy signature reason */
+  /** Proxy signature reason */
   proxy_reason?: string;
 }
 
@@ -719,22 +719,22 @@ export interface ConsentWitness {
   /** Witness full name */
   full_name: string;
 
-  ** Witness relationship to patient (if family) */
+  /** Witness relationship to patient (if family) */
   relationship?: string;
 
-  ** Witness occupation */
+  /** Witness occupation */
   occupation?: string;
 
-  ** Witness address */
+  /** Witness address */
   address?: string;
 
-  ** Witness phone */
+  /** Witness phone */
   phone?: string;
 
-  ** Witness signature */
+  /** Witness signature */
   signature: ConsentSignature;
 
-  ** Witness statement */
+  /** Witness statement */
   statement?: string;
 }
 
@@ -748,28 +748,28 @@ export interface InformedConsentProcess {
   /** Information provided date */
   information_provided_date: string;
 
-  ** Information provided time */
+  /** Information provided time */
   information_provided_time: string;
 
-  ** Person providing information */
+  /** Person providing information */
   provider_name: string;
 
-  ** Provider role */
+  /** Provider role */
   provider_role: string;
 
-  ** Duration of information session (minutes) */
+  /** Duration of information session (minutes) */
   session_duration_minutes: number;
 
-  ** Topics discussed */
+  /** Topics discussed */
   topics_discussed: string[];
 
-  ** Educational materials provided */
+  /** Educational materials provided */
   educational_materials?: string[];
 
-  ** Patient questions recorded */
+  /** Patient questions recorded */
   patient_questions?: string[];
 
-  ** Patient understanding assessment */
+  /** Patient understanding assessment */
   understanding_assessment?: {
     diagnosis_understood: boolean;
     procedure_understood: boolean;
@@ -779,13 +779,13 @@ export interface InformedConsentProcess {
     consent_voluntary: boolean;
   };
 
-  ** Follow-up discussion required */
+  /** Follow-up discussion required */
   requires_followup: boolean;
 
-  ** Follow-up scheduled date */
+  /** Follow-up scheduled date */
   followup_date?: string;
 
-  ** Interpreter used */
+  /** Interpreter used */
   interpreter_used?: boolean;
   interpreter_name?: string;
 }
@@ -807,61 +807,61 @@ export interface SurgeonInfo {
   /** Doctor's title/degree (e.g., "dr. Sp.B") */
   doctor_title: string;
 
-  ** Specialization */
+  /** Specialization */
   specialization: string;
 
-  ** Sub-specialization (if applicable) */
+  /** Sub-specialization (if applicable) */
   sub_specialization?: string;
 
-  ** SIP number (Surat Izin Praktik) */
+  /** SIP number (Surat Izin Praktik) */
   sip_number: string;
 
-  ** SIP issue date */
+  /** SIP issue date */
   sip_issue_date: string;
 
-  ** SIP expiry date */
+  /** SIP expiry date */
   sip_expiry_date: string;
 
-  ** STR number (Surat Tanda Registrasi) */
+  /** STR number (Surat Tanda Registrasi) */
   str_number: string;
 
-  ** Hospital ID number */
+  /** Hospital ID number */
   hospital_id_number?: string;
 
-  ** Department/Unit */
+  /** Department/Unit */
   department: string;
 
-  ** Phone number */
+  /** Phone number */
   phone?: string;
 
-  ** Email */
+  /** Email */
   email?: string;
 
-  ** Years of experience */
+  /** Years of experience */
   years_of_experience?: number;
 
-  ** Number of similar procedures performed */
+  /** Number of similar procedures performed */
   similar_procedures_count?: number;
 
-  ** Signature status */
+  /** Signature status */
   signature_status: SignatureStatus;
 
-  ** Signature image URL */
+  /** Signature image URL */
   signature_url?: string;
 
-  ** Digital signature ID */
+  /** Digital signature ID */
   digital_signature_id?: string;
 
-  ** Date signed */
+  /** Date signed */
   date_signed?: string;
 
-  ** Stamp image URL */
+  /** Stamp image URL */
   stamp_url?: string;
 
-  ** Additional notes */
+  /** Additional notes */
   notes?: string;
 
-  ** Performing role (primary surgeon, assistant, etc.) */
+  /** Performing role (primary surgeon, assistant, etc.) */
   role: 'primary_surgeon' | 'assistant_surgeon' | 'consultant' | 'supervisor';
 }
 
@@ -886,22 +886,22 @@ export interface MedicalTeam {
   /** Primary surgeon */
   primary_surgeon: SurgeonInfo;
 
-  ** Assistant surgeons */
+  /** Assistant surgeons */
   assistant_surgeons?: SurgeonInfo[];
 
-  ** Anesthesiologist */
+  /** Anesthesiologist */
   anesthesiologist?: SurgeonInfo;
 
-  ** Consulting physicians */
+  /** Consulting physicians */
   consulting_physicians?: SurgeonInfo[];
 
-  ** Scrub nurse */
+  /** Scrub nurse */
   scrub_nurse?: {
     name: string;
     license_number: string;
   };
 
-  ** Circulating nurse */
+  /** Circulating nurse */
   circulating_nurse?: {
     name: string;
     license_number: string;
@@ -961,13 +961,13 @@ export interface ConsentFacilityInfo {
   /** Is BPJS accredited facility */
   is_bpjs_accredited: boolean;
 
-  ** Hospital accreditation status */
+  /** Hospital accreditation status */
   accreditation_status?: 'internasional' | 'paripurna' | 'utama' | 'madya' | 'dasar';
 
-  ** Operating room number */
+  /** Operating room number */
   operating_room_number?: string;
 
-  ** Floor/Unit */
+  /** Floor/Unit */
   floor_unit?: string;
 }
 
@@ -1818,32 +1818,3 @@ export const COMMON_SURGICAL_RISKS: Partial<ProcedureRisk>[] = [
     probability_percentage: 0.01,
   },
 ];
-
-/**
- * Export all types
- */
-export type {
-  // Main interfaces
-  ConsentPatientInfo,
-  SurgicalProcedureInfo,
-  DiagnosticProcedureInfo,
-  BloodTransfusionInfo,
-  AnesthesiaInfo,
-  ProcedureRisk,
-  ProcedureBenefit,
-  AlternativeTreatment,
-  NoTreatmentConsequences,
-  RisksAndBenefits,
-  PatientConsent,
-  ConsentSignature,
-  ConsentWitness,
-  InformedConsentProcess,
-  SurgeonInfo,
-  ConsentFacilityInfo,
-  SurgeryConsentFormState,
-  ConsentAttachment,
-  FormValidationError,
-  SurgeryConsentForm,
-  SurgeryConsentSummary,
-  MedicalTeam,
-};

@@ -17,7 +17,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  XRay,
   Plus,
   Search,
   Filter,
@@ -221,7 +220,7 @@ export default function StaffRadiologyPage() {
 
   const getModalityIcon = (modality: string) => {
     const icons: Record<string, React.ReactNode> = {
-      xray: <XRay className="w-4 h-4" />,
+      xray: <ImageIcon className="w-4 h-4" />,
       ct: <Activity className="w-4 h-4" />,
       mri: <Camera className="w-4 h-4" />,
       ultrasound: <Activity className="w-4 h-4" />,
@@ -230,7 +229,7 @@ export default function StaffRadiologyPage() {
       nuclear_medicine: <Activity className="w-4 h-4" />,
       pet_scan: <Activity className="w-4 h-4" />,
     };
-    return icons[modality] || <XRay className="w-4 h-4" />;
+    return icons[modality] || <ImageIcon className="w-4 h-4" />;
   };
 
   const getModalityColor = (modality: string) => {
@@ -499,7 +498,7 @@ export default function StaffRadiologyPage() {
         </div>
       ) : filteredExams.length === 0 ? (
         <div className="bg-white rounded-lg shadow p-12 text-center">
-          <XRay className="mx-auto h-16 w-16 text-gray-400 mb-4" />
+          <ImageIcon className="mx-auto h-16 w-16 text-gray-400 mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">Tidak ada pemeriksaan radiologi</h3>
           <p className="text-gray-600">
             {searchQuery || statusFilter !== "all" || modalityFilter !== "all"

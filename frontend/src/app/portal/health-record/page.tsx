@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 interface AllergyItem {
@@ -86,7 +86,7 @@ interface HealthRecord {
   };
 }
 
-export default function HealthRecordPage() {
+function HealthRecordPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const section = searchParams.get("section") || "overview";
@@ -539,6 +539,18 @@ function TimelineSection({ record }: { record: HealthRecord }) {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function HealthRecordPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      </div>
+    }>
+      <HealthRecordPageContent />
+    </Suspense>
   );
 }
 

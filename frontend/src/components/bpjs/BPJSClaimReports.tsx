@@ -1,12 +1,14 @@
-"""BPJS Claim Reports Component
-
+/**
+ * BPJS Claim Reports Component
+ *
 Comprehensive BPJS claim reports with:
 - Claim statistics dashboard
 - Upcoming deadlines
 - Claim summary by package
 - Claim summary by status
 - Export to Excel
-"""
+
+ */
 
 import { useState, useEffect } from 'react';
 import {

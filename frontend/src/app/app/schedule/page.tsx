@@ -21,7 +21,7 @@ import {
   Clock,
   MapPin,
   User,
-  SwapHorizontal,
+  RefreshCw,
   Plus,
   Search,
   Filter,
@@ -471,7 +471,7 @@ export default function StaffSchedulePage() {
               <p className="text-sm text-gray-600">Permintaan Tukar</p>
               <p className="text-2xl font-bold text-yellow-600">{pendingSwaps.length}</p>
             </div>
-            <SwapHorizontal className="w-8 h-8 text-yellow-600" />
+            <RefreshCw className="w-8 h-8 text-yellow-600" />
           </div>
         </div>
 
@@ -522,7 +522,7 @@ export default function StaffSchedulePage() {
                   }}
                   className="px-3 py-2 text-blue-600 hover:bg-blue-50 rounded-lg text-sm flex items-center"
                 >
-                  <SwapHorizontal className="w-4 h-4 mr-1" />
+                  <RefreshCw className="w-4 h-4 mr-1" />
                   Tukar
                 </button>
               </div>
@@ -820,7 +820,7 @@ export default function StaffSchedulePage() {
                           className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
                           title="Tukar Shift"
                         >
-                          <SwapHorizontal className="w-4 h-4" />
+                          <RefreshCw className="w-4 h-4" />
                         </button>
                       </div>
                     </td>

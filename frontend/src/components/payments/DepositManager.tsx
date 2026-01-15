@@ -1,12 +1,14 @@
-"""Deposit Manager Component
-
+/**
+ * Deposit Manager Component
+ *
 Deposit management system with:
 - Deposit creation
 - Deposit usage tracking
 - Balance inquiry
 - Deposit history
 - Refund handling
-"""
+
+ */
 
 import { useState, useEffect } from 'react';
 import {

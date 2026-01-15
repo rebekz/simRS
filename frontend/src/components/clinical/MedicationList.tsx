@@ -1,12 +1,13 @@
-"""Medication List UI Component for STORY-014
-
-Provides comprehensive medication list management with:
-- Current medications display
-- Past medications history
-- Drug interaction checking
-- Duplicate therapy warnings
-- Medication reconciliation
-"""
+/**
+ * Medication List UI Component for STORY-014
+ *
+ * Provides comprehensive medication list management with:
+ * - Current medications display
+ * - Past medications history
+ * - Drug interaction checking
+ * - Duplicate therapy warnings
+ * - Medication reconciliation
+ */
 
 import { useState, useEffect } from "react";
 import {

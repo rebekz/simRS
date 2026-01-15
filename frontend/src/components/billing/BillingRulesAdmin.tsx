@@ -1,12 +1,14 @@
-"""Billing Rules Admin Component for STORY-028
-
+/**
+ * Billing Rules Admin Component for STORY-028
+ *
 Billing rules management system with:
 - Rule builder interface
 - Condition editor (patient type, service, payer, etc.)
 - Action configuration (discount, surcharge, waiver)
 - Priority management
 - Testing interface to validate rules
-"""
+
+ */
 
 import { useState, useEffect } from 'react';
 import {
@@ -527,7 +529,7 @@ export function BillingRulesAdmin() {
                     </select>
                     <input
                       type="text"
-                      value={condition.value}
+                      value={String(condition.value ?? '')}
                       onChange={(e) => updateCondition(condition.id, {
                         value: e.target.value
                       })}

@@ -294,7 +294,7 @@ export function ProblemList({ patientId, onProblemClick }: ProblemListProps) {
                         {problem.problem_name}
                       </h3>
                       {problem.is_chronic && (
-                        <AlertCircle className="h-5 w-5 text-purple-600" title="Chronic condition" />
+                        <AlertCircle className="h-5 w-5 text-purple-600" />
                       )}
                     </div>
 

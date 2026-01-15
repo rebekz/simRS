@@ -12,7 +12,7 @@ import type {
   SideEffect,
   Complication,
   ProgressNotesFormStep,
-  FormMode,
+  ProgressNoteFormMode,
   SignOffStatus,
 } from "@/types/progress-notes";
 import {
@@ -40,7 +40,7 @@ export default function ProgressNotesPage() {
   const router = useRouter();
 
   // Form mode
-  const [formMode, setFormMode] = useState<FormMode>("create");
+  const [formMode, setFormMode] = useState<ProgressNoteFormMode>("create");
   const [currentStep, setCurrentStep] = useState<ProgressNotesFormStep>("patient_info");
 
   // Patient selection
@@ -320,7 +320,7 @@ export default function ProgressNotesPage() {
             },
             pain_score: vitalSigns.pain_score,
           },
-          physical_exam: objective.physical_exam,
+          physical_exam: objective.physical_exam ? { general_appearance: objective.physical_exam } : undefined,
           laboratory_results: objective.laboratory_results ? [{ test_name: objective.laboratory_results, result: "", is_abnormal: false, test_datetime: new Date().toISOString() }] : undefined,
         },
         assessment: {
