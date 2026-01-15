@@ -78,7 +78,7 @@
   - Auto-fill capability for registration
   - File: src/components/bpjs/BPJSEligibilityCheck.tsx
 
-- [x] WEB-S-2.2: BPJS SEP Creation Wizard (commit: TBD)
+- [x] WEB-S-2.2: BPJS SEP Creation Wizard (commit: 627a90c)
   - Multi-step wizard (5 steps: Patient→Service→Diagnosis→Doctor→Confirm)
   - Auto-populate from verified BPJS data
   - Form validation at each step
@@ -88,9 +88,15 @@
   - Mock BPJS validation before submission
   - File: src/components/bpjs/SEPWizard.tsx
 
-- [ ] WEB-S-2.3: BPJS Status Indicators
-  - Real-time status badges
-  - Status update notifications
+- [x] WEB-S-2.3: BPJS Status Indicators (commit: c5f6a48)
+  - BPJSStatusBadge: Color-coded badge (Active/Inactive/Expired/Suspended)
+  - BPJSStatusCard: Comprehensive status display with all key info
+  - BPJSStatusIndicator: Auto-fetching with polling support
+  - useBPJSStatus: Custom React hook for status management
+  - Real-time auto-refresh with configurable interval
+  - Status change callbacks
+  - Loading and error states
+  - File: src/components/bpjs/BPJSStatusIndicators.tsx
 
 - [ ] WEB-S-2.4: BPJS Error Handling
   - User-friendly error messages
