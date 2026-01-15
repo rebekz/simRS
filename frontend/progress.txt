@@ -201,8 +201,7 @@
   - Mock patient database: 8 patients with complete details
   - File: src/app/app/patients/search/page.tsx
 
-- [ ] WEB-S-3.5: Online Appointment Booking
-- [x] WEB-S-3.5: Online Appointment Booking (commit: TBD)
+- [x] WEB-S-3.5: Online Appointment Booking (commit: b1f7e9a)
   - Public-facing booking page (no authentication required)
   - 4-step wizard flow (Service→Patient→Confirm→Success)
   - Department selection with icons (6 departments)
@@ -217,10 +216,20 @@
   - Informational messages and warnings
   - File: src/app/appointments/book/page.tsx
 
-- [ ] WEB-S-3.7: Mobile Responsive Registration
+- [x] WEB-S-3.7: Mobile Responsive Registration (commit: TBD)
+  - Mobile-optimized layout (375px breakpoint)
+  - Touch-friendly buttons (minimum 44x44px)
+  - Camera integration for photo capture
+  - Swipe gestures for form navigation (4-directional)
+  - Offline support - data queued until connection
+  - Sync when connection restored
+  - Progress indicator during sync
+  - BPJS-first registration updated for mobile
+  - Quick check-in updated for mobile
+  - Files: src/components/patients/CameraCapture.tsx, src/hooks/mobile/useSwipeable.ts, src/hooks/mobile/useOfflineStorage.tsx, src/app/app/patients/bpjs-first/page.tsx, src/app/app/patients/check-in/page.tsx
 
-**Epic Status:** IN PROGRESS (6/7 stories complete - 86%)
-**Completion Date:** TBD
+**Epic Status:** ✓ COMPLETE
+**Completion Date:** 2026-01-16
 
 ---
 
@@ -234,26 +243,25 @@ Waiting for WEB-EPIC-3 completion.
 ## BLOCKERS / NOTES
 
 ### Current Iteration (2026-01-16)
-- **Completed:** WEB-S-3.5: Online Appointment Booking
+- **Completed:** WEB-S-3.7: Mobile Responsive Registration
 - **Blockers:** None
-- **Notes:** Public-facing appointment booking page with 4-step wizard (Service→Patient→Confirm→Success). Features department selection (6 departments with icons), doctor selection filtered by department with availability status, date picker (today to 30 days), time slot selection with quota management (15 slots/day), patient details form (name, phone, optional BPJS), SMS reminder option, booking confirmation, and success page with booking/queue numbers.
+- **Notes:** Mobile responsive registration with camera capture, swipe gestures, and offline support. Created CameraCapture component with front/back camera support, useSwipeable hook for 4-directional gestures, and useOfflineStorage hook with localStorage persistence and auto-sync. Updated BPJS-first registration with multi-step form navigation and touch-friendly buttons. Updated quick check-in page with mobile-optimized layout and offline queue support.
 
 ### Next Steps
-1. Complete WEB-EPIC-3: WEB-S-3.7 Mobile Responsive Registration (MEDIUM priority - 3 days)
-2. Then start WEB-EPIC-4: Doctor Consultation Workspace (unblocked after WEB-EPIC-3 completes)
+1. Start WEB-EPIC-4: Doctor Consultation Workspace (now unblocked - WEB-EPIC-3 complete)
 
 ---
 
 ## SUMMARY
 
 **Total Epics:** 5
-**Completed:** 3 (WEB-EPIC-1, WEB-EPIC-2, WEB-EPIC-5)
-**In Progress:** 1 (WEB-EPIC-3)
-**Blocked:** 1 (WEB-EPIC-4)
+**Completed:** 4 (WEB-EPIC-1, WEB-EPIC-2, WEB-EPIC-3, WEB-EPIC-5)
+**In Progress:** 0
+**Blocked:** 1 (WEB-EPIC-4 - now unblocked)
 
 **Total Stories:** 34
-**Completed:** 25
+**Completed:** 26
 **In Progress:** 0
-**Remaining:** 9
+**Remaining:** 8
 
-**Overall Progress:** ~74% complete (25/34 stories)
+**Overall Progress:** ~76% complete (26/34 stories)
