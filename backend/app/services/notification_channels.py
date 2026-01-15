@@ -2,25 +2,16 @@
 
 Multi-channel notification delivery system with provider abstraction.
 Supports SMS, Email, Push, In-App, and WhatsApp notifications.
+
+Python 3.5+ compatible - uses .format() instead of f-strings
 """
 
 import asyncio
 import json
 import logging
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any
-
-try:
-    from enum import Enum
-except ImportError:
-    # Python 3.5 compatibility
-    class EnumMeta(type):
-        def __new__(cls, name, bases, attrs):
-            return super(EnumMeta, cls).__new__(cls, name, bases, attrs)
-
-    class Enum(object):
-        __metaclass__ = EnumMeta
+from collections import namedtuple
 
 import httpx
 import aiosmtplib
@@ -32,8 +23,32 @@ from app.core.config import settings
 logger = logging.getLogger(__name__)
 
 
-class ChannelStatus(str, Enum):
-    """Channel delivery status"""
+# Use namedtuple for DeliveryResult instead of dataclass (Python 3.5 compatible)
+DeliveryResult = namedtuple('DeliveryResult', [
+    'success',
+    'status',
+    'message_id',
+    'provider_response',
+    'error_message',
+    'retry_after'
+])
+
+
+def create_delivery_result(success, status, message_id=None, provider_response=None,
+                          error_message=None, retry_after=None):
+    """Factory function for creating DeliveryResult with default values"""
+    return DeliveryResult(
+        success=success,
+        status=status,
+        message_id=message_id,
+        provider_response=provider_response,
+        error_message=error_message,
+        retry_after=retry_after
+    )
+
+
+class ChannelStatus(object):
+    """Channel delivery status constants"""
     PENDING = "pending"
     SENT = "sent"
     DELIVERED = "delivered"
@@ -41,41 +56,16 @@ class ChannelStatus(str, Enum):
     RETRYING = "retrying"
 
 
-class DeliveryResult(object):
-    """Result of notification delivery attempt"""
-
-    def __init__(
-        self,
-        success,  # type: bool
-        status,  # type: ChannelStatus
-        message_id=None,  # type: Optional[str]
-        provider_response=None,  # type: Optional[Dict[str, Any]]
-        error_message=None,  # type: Optional[str]
-        retry_after=None  # type: Optional[timedelta]
-    ):
-        self.success = success
-        self.status = status
-        self.message_id = message_id
-        self.provider_response = provider_response
-        self.error_message = error_message
-        self.retry_after = retry_after
-
-
-class BaseChannelProvider(ABC):
+class BaseChannelProvider(object):
     """Base class for notification channel providers"""
+    __metaclass__ = ABCMeta
 
     def __init__(self):
         self.max_retries = 3
         self.retry_delays = [60, 300, 900]  # 1min, 5min, 15min
 
     @abstractmethod
-    async def send(
-        self,
-        recipient: str,
-        subject: str,
-        message: str,
-        metadata: Optional[Dict[str, Any]] = None
-    ) -> DeliveryResult:
+    async def send(self, recipient, subject, message, metadata=None):
         """Send notification via this channel
 
         Args:
@@ -85,12 +75,12 @@ class BaseChannelProvider(ABC):
             metadata: Additional metadata for the notification
 
         Returns:
-            DeliveryResult with delivery status
+            DeliveryResult namedtuple
         """
         pass
 
     @abstractmethod
-    def validate_recipient(self, recipient: str) -> bool:
+    def validate_recipient(self, recipient):
         """Validate recipient identifier format
 
         Args:
@@ -101,13 +91,7 @@ class BaseChannelProvider(ABC):
         """
         pass
 
-    async def send_with_retry(
-        self,
-        recipient: str,
-        subject: str,
-        message: str,
-        metadata: Optional[Dict[str, Any]] = None
-    ) -> DeliveryResult:
+    async def send_with_retry(self, recipient, subject, message, metadata=None):
         """Send with automatic retry on failure
 
         Args:
@@ -133,24 +117,25 @@ class BaseChannelProvider(ABC):
                 if attempt < self.max_retries - 1:
                     delay = self.retry_delays[min(attempt, len(self.retry_delays) - 1)]
                     logger.warning(
-                        "Channel send failed (attempt {attempt + 1}), ".format()
-                        "retrying in {delay}s: {result.error_message}".format()
+                        "Channel send failed (attempt {}), retrying in {}s: {}".format(
+                            attempt + 1, delay, result.error_message
+                        )
                     )
                     await asyncio.sleep(delay)
 
             except Exception as e:
-                last_result = DeliveryResult(
+                last_result = create_delivery_result(
                     success=False,
                     status=ChannelStatus.FAILED,
                     error_message=str(e)
                 )
-                logger.error("Channel send error (attempt {attempt + 1}): {e}".format())
+                logger.error("Channel send error (attempt {}): {}".format(attempt + 1, e))
 
                 if attempt < self.max_retries - 1:
                     delay = self.retry_delays[min(attempt, len(self.retry_delays) - 1)]
                     await asyncio.sleep(delay)
 
-        return last_result or DeliveryResult(
+        return last_result or create_delivery_result(
             success=False,
             status=ChannelStatus.FAILED,
             error_message="Max retries exceeded"
@@ -161,40 +146,21 @@ class SMSProvider(BaseChannelProvider):
     """SMS notification provider with multiple gateway support"""
 
     def __init__(self):
-        super().__init__()
-        # Configuration - supports multiple providers
-        self.provider = settings.SMS_PROVIDER  # 'twilio', 'nexmo', 'local'
-        self.from_number = settings.SMS_FROM_NUMBER
-
-        # Provider credentials
+        super(SMSProvider, self).__init__()
+        self.provider = getattr(settings, 'SMS_PROVIDER', 'mock')
+        self.from_number = getattr(settings, 'SMS_FROM_NUMBER', '+1234567890')
         self.twilio_account_sid = getattr(settings, 'TWILIO_ACCOUNT_SID', '')
         self.twilio_auth_token = getattr(settings, 'TWILIO_AUTH_TOKEN', '')
         self.nexmo_api_key = getattr(settings, 'NEXMO_API_KEY', '')
         self.nexmo_api_secret = getattr(settings, 'NEXMO_API_SECRET', '')
 
-    async def send(
-        self,
-        recipient: str,
-        subject: str,
-        message: str,
-        metadata: Optional[Dict[str, Any]] = None
-    ) -> DeliveryResult:
-        """Send SMS notification
-
-        Args:
-            recipient: Phone number in E.164 format (e.g., +628123456789)
-            subject: Not used for SMS (included in message)
-            message: SMS body (max 160 chars for single segment)
-            metadata: Optional metadata
-
-        Returns:
-            DeliveryResult
-        """
+    async def send(self, recipient, subject, message, metadata=None):
+        """Send SMS notification"""
         if not self.validate_recipient(recipient):
-            return DeliveryResult(
+            return create_delivery_result(
                 success=False,
                 status=ChannelStatus.FAILED,
-                error_message="Invalid phone number format: {recipient}".format()
+                error_message="Invalid phone number format: {}".format(recipient)
             )
 
         try:
@@ -206,30 +172,26 @@ class SMSProvider(BaseChannelProvider):
             elif self.provider == "nexmo":
                 return await self._send_via_nexmo(recipient, sms_message)
             else:
-                # Mock implementation for development
                 return await self._send_mock(recipient, sms_message)
 
         except Exception as e:
-            logger.error("SMS send failed: {e}".format())
-            return DeliveryResult(
+            logger.error("SMS send failed: {}".format(e))
+            return create_delivery_result(
                 success=False,
                 status=ChannelStatus.FAILED,
                 error_message=str(e)
             )
 
-    def validate_recipient(self, recipient: str) -> bool:
+    def validate_recipient(self, recipient):
         """Validate phone number format (E.164)"""
-        # Basic validation for E.164 format: + followed by 10-15 digits
         import re
         return bool(re.match(r'^\+[1-9]\d{9,14}$', recipient))
 
-    async def _send_via_twilio(
-        self,
-        recipient: str,
-        message: str
-    ) -> DeliveryResult:
+    async def _send_via_twilio(self, recipient, message):
         """Send SMS via Twilio API"""
-        url = "https://api.twilio.com/2010-04-01/Accounts/{self.twilio_account_sid}/Messages.json".format()
+        url = "https://api.twilio.com/2010-04-01/Accounts/{}/Messages.json".format(
+            self.twilio_account_sid
+        )
         data = {
             "From": self.from_number,
             "To": recipient,
@@ -246,18 +208,14 @@ class SMSProvider(BaseChannelProvider):
             response.raise_for_status()
             result = response.json()
 
-        return DeliveryResult(
+        return create_delivery_result(
             success=True,
             status=ChannelStatus.SENT,
             message_id=result.get("sid"),
             provider_response={"twilio_message": result}
         )
 
-    async def _send_via_nexmo(
-        self,
-        recipient: str,
-        message: str
-    ) -> DeliveryResult:
+    async def _send_via_nexmo(self, recipient, message):
         """Send SMS via Vonage/Nexmo API"""
         url = "https://rest.nexmo.com/sms/json"
         data = {
@@ -277,27 +235,22 @@ class SMSProvider(BaseChannelProvider):
         if result.get("messages"):
             message_id = result["messages"][0].get("message-id")
 
-        return DeliveryResult(
+        return create_delivery_result(
             success=True,
             status=ChannelStatus.SENT,
             message_id=message_id,
             provider_response={"nexmo_response": result}
         )
 
-    async def _send_mock(
-        self,
-        recipient: str,
-        message: str
-    ) -> DeliveryResult:
+    async def _send_mock(self, recipient, message):
         """Mock SMS delivery for development/testing"""
-        logger.info("[MOCK SMS] To: {recipient}, Message: {message}".format())
-        # Simulate network delay
+        logger.info("[MOCK SMS] To: {}, Message: {}".format(recipient, message))
         await asyncio.sleep(0.1)
 
-        return DeliveryResult(
+        return create_delivery_result(
             success=True,
             status=ChannelStatus.SENT,
-            message_id="mock_{datetime.utcnow().timestamp()}".format(),
+            message_id="mock_{}".format(datetime.utcnow().timestamp()),
             provider_response={"mock": True, "recipient": recipient}
         )
 
@@ -306,44 +259,28 @@ class EmailProvider(BaseChannelProvider):
     """Email notification provider with SMTP support"""
 
     def __init__(self):
-        super().__init__()
-        self.smtp_host = settings.SMTP_HOST
-        self.smtp_port = settings.SMTP_PORT
-        self.smtp_username = settings.SMTP_USERNAME
-        self.smtp_password = settings.SMTP_PASSWORD
-        self.smtp_use_tls = settings.SMTP_USE_TLS
-        self.from_email = settings.SMTP_FROM_EMAIL
+        super(EmailProvider, self).__init__()
+        self.smtp_host = getattr(settings, 'SMTP_HOST', 'smtp.gmail.com')
+        self.smtp_port = getattr(settings, 'SMTP_PORT', 587)
+        self.smtp_username = getattr(settings, 'SMTP_USERNAME', '')
+        self.smtp_password = getattr(settings, 'SMTP_PASSWORD', '')
+        self.smtp_use_tls = getattr(settings, 'SMTP_USE_TLS', True)
+        self.from_email = getattr(settings, 'SMTP_FROM_EMAIL', 'noreply@simrs.hospital')
         self.from_name = getattr(settings, 'SMTP_FROM_NAME', 'SIMRS Hospital')
 
-    async def send(
-        self,
-        recipient: str,
-        subject: str,
-        message: str,
-        metadata: Optional[Dict[str, Any]] = None
-    ) -> DeliveryResult:
-        """Send email notification
-
-        Args:
-            recipient: Email address
-            subject: Email subject
-            message: Email body (HTML or plain text)
-            metadata: Optional metadata (is_html, attachments, etc.)
-
-        Returns:
-            DeliveryResult
-        """
+    async def send(self, recipient, subject, message, metadata=None):
+        """Send email notification"""
         if not self.validate_recipient(recipient):
-            return DeliveryResult(
+            return create_delivery_result(
                 success=False,
                 status=ChannelStatus.FAILED,
-                error_message="Invalid email format: {recipient}".format()
+                error_message="Invalid email format: {}".format(recipient)
             )
 
         try:
             # Create email message
             email_msg = EmailMessage()
-            email_msg["From"] = "{self.from_name} <{self.from_email}>".format()
+            email_msg["From"] = "{} <{}>".format(self.from_name, self.from_email)
             email_msg["To"] = recipient
             email_msg["Subject"] = subject
 
@@ -365,9 +302,9 @@ class EmailProvider(BaseChannelProvider):
                 timeout=30
             )
 
-            message_id = "<{datetime.utcnow().timestamp()}@{self.smtp_host}>".format()
+            message_id = "<{}@{}>".format(datetime.utcnow().timestamp(), self.smtp_host)
 
-            return DeliveryResult(
+            return create_delivery_result(
                 success=True,
                 status=ChannelStatus.SENT,
                 message_id=message_id,
@@ -375,21 +312,21 @@ class EmailProvider(BaseChannelProvider):
             )
 
         except aiosmtplib.SMTPException as e:
-            logger.error("SMTP error: {e}".format())
-            return DeliveryResult(
+            logger.error("SMTP error: {}".format(e))
+            return create_delivery_result(
                 success=False,
                 status=ChannelStatus.FAILED,
-                error_message="SMTP error: {str(e)}".format()
+                error_message="SMTP error: {}".format(str(e))
             )
         except Exception as e:
-            logger.error("Email send failed: {e}".format())
-            return DeliveryResult(
+            logger.error("Email send failed: {}".format(e))
+            return create_delivery_result(
                 success=False,
                 status=ChannelStatus.FAILED,
                 error_message=str(e)
             )
 
-    def validate_recipient(self, recipient: str) -> bool:
+    def validate_recipient(self, recipient):
         """Validate email address format"""
         import re
         pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
@@ -400,32 +337,16 @@ class PushNotificationProvider(BaseChannelProvider):
     """Push notification provider for mobile apps (Firebase/FCM, APNS)"""
 
     def __init__(self):
-        super().__init__()
-        self.provider = settings.PUSH_PROVIDER  # 'firebase', 'apns', 'mock'
+        super(PushNotificationProvider, self).__init__()
+        self.provider = getattr(settings, 'PUSH_PROVIDER', 'mock')
         self.firebase_server_key = getattr(settings, 'FIREBASE_SERVER_KEY', '')
         self.apns_key_id = getattr(settings, 'APNS_KEY_ID', '')
         self.apns_team_id = getattr(settings, 'APNS_TEAM_ID', '')
 
-    async def send(
-        self,
-        recipient: str,
-        subject: str,
-        message: str,
-        metadata: Optional[Dict[str, Any]] = None
-    ) -> DeliveryResult:
-        """Send push notification
-
-        Args:
-            recipient: Device token or registration ID
-            subject: Notification title
-            message: Notification body
-            metadata: Optional data payload, sound, badge, etc.
-
-        Returns:
-            DeliveryResult
-        """
+    async def send(self, recipient, subject, message, metadata=None):
+        """Send push notification"""
         if not self.validate_recipient(recipient):
-            return DeliveryResult(
+            return create_delivery_result(
                 success=False,
                 status=ChannelStatus.FAILED,
                 error_message="Invalid device token format"
@@ -447,27 +368,22 @@ class PushNotificationProvider(BaseChannelProvider):
                 return await self._send_mock(recipient, payload)
 
         except Exception as e:
-            logger.error("Push notification failed: {e}".format())
-            return DeliveryResult(
+            logger.error("Push notification failed: {}".format(e))
+            return create_delivery_result(
                 success=False,
                 status=ChannelStatus.FAILED,
                 error_message=str(e)
             )
 
-    def validate_recipient(self, recipient: str) -> bool:
+    def validate_recipient(self, recipient):
         """Validate device token"""
-        # Basic validation - token should be at least 32 chars
         return len(recipient) >= 32
 
-    async def _send_via_firebase(
-        self,
-        device_token: str,
-        payload: Dict[str, Any]
-    ) -> DeliveryResult:
+    async def _send_via_firebase(self, device_token, payload):
         """Send via Firebase Cloud Messaging (FCM)"""
         url = "https://fcm.googleapis.com/fcm/send"
         headers = {
-            "Authorization": "key={self.firebase_server_key}".format(),
+            "Authorization": "key={}".format(self.firebase_server_key),
             "Content-Type": "application/json"
         }
         data = {
@@ -486,44 +402,34 @@ class PushNotificationProvider(BaseChannelProvider):
 
         message_id = result.get("message_id") or result.get("multicast_id")
 
-        return DeliveryResult(
+        return create_delivery_result(
             success=True,
             status=ChannelStatus.SENT,
             message_id=str(message_id),
             provider_response={"fcm_response": result}
         )
 
-    async def _send_via_apns(
-        self,
-        device_token: str,
-        payload: Dict[str, Any]
-    ) -> DeliveryResult:
+    async def _send_via_apns(self, device_token, payload):
         """Send via Apple Push Notification Service (APNS)"""
-        # APNS requires http/2 - simplified implementation
-        # In production, use httpx with http2 or apns2 library
-        logger.info("[APNS MOCK] To: {device_token}, Payload: {payload}".format())
+        logger.info("[APNS MOCK] To: {}, Payload: {}".format(device_token, payload))
         await asyncio.sleep(0.1)
 
-        return DeliveryResult(
+        return create_delivery_result(
             success=True,
             status=ChannelStatus.SENT,
-            message_id="apns_{datetime.utcnow().timestamp()}".format(),
-            provider_response={"apns_id": "apns_{datetime.utcnow().timestamp()}".format()}
+            message_id="apns_{}".format(datetime.utcnow().timestamp()),
+            provider_response={"apns_id": "apns_{}".format(datetime.utcnow().timestamp())}
         )
 
-    async def _send_mock(
-        self,
-        device_token: str,
-        payload: Dict[str, Any]
-    ) -> DeliveryResult:
+    async def _send_mock(self, device_token, payload):
         """Mock push notification for development"""
-        logger.info("[MOCK PUSH] To: {device_token}, Title: {payload['title']}".format())
+        logger.info("[MOCK PUSH] To: {}, Title: {}".format(device_token, payload['title']))
         await asyncio.sleep(0.1)
 
-        return DeliveryResult(
+        return create_delivery_result(
             success=True,
             status=ChannelStatus.SENT,
-            message_id="mock_push_{datetime.utcnow().timestamp()}".format(),
+            message_id="mock_push_{}".format(datetime.utcnow().timestamp()),
             provider_response={"mock": True, "token": device_token}
         )
 
@@ -531,41 +437,23 @@ class PushNotificationProvider(BaseChannelProvider):
 class InAppNotificationProvider(BaseChannelProvider):
     """In-app notification provider (stores in database for real-time delivery)"""
 
-    def __init__(self, db):
-        super().__init__()
+    def __init__(self, db=None):
+        super(InAppNotificationProvider, self).__init__()
         self.db = db
 
-    async def send(
-        self,
-        recipient: str,
-        subject: str,
-        message: str,
-        metadata: Optional[Dict[str, Any]] = None
-    ) -> DeliveryResult:
-        """Store in-app notification
-
-        Args:
-            recipient: User ID or patient ID
-            subject: Notification title
-            message: Notification body
-            metadata: Optional metadata
-
-        Returns:
-            DeliveryResult
-        """
-        # In-app notifications don't need validation
-        # They're stored in database and retrieved by frontend polling or WebSocket
-        return DeliveryResult(
+    async def send(self, recipient, subject, message, metadata=None):
+        """Store in-app notification"""
+        return create_delivery_result(
             success=True,
             status=ChannelStatus.DELIVERED,
-            message_id="inapp_{datetime.utcnow().timestamp()}".format(),
+            message_id="inapp_{}".format(datetime.utcnow().timestamp()),
             provider_response={
                 "stored_for": recipient,
                 "delivered_via": "polling_or_websocket"
             }
         )
 
-    def validate_recipient(self, recipient: str) -> bool:
+    def validate_recipient(self, recipient):
         """In-app recipients are user/patient IDs"""
         return recipient.isdigit() or len(recipient) > 0
 
@@ -574,34 +462,18 @@ class WhatsAppProvider(BaseChannelProvider):
     """WhatsApp Business API provider"""
 
     def __init__(self):
-        super().__init__()
+        super(WhatsAppProvider, self).__init__()
         self.api_url = getattr(settings, 'WHATSAPP_API_URL', 'https://graph.facebook.com/v17.0')
         self.phone_number_id = getattr(settings, 'WHATSAPP_PHONE_NUMBER_ID', '')
         self.access_token = getattr(settings, 'WHATSAPP_ACCESS_TOKEN', '')
 
-    async def send(
-        self,
-        recipient: str,
-        subject: str,
-        message: str,
-        metadata: Optional[Dict[str, Any]] = None
-    ) -> DeliveryResult:
-        """Send WhatsApp message
-
-        Args:
-            recipient: Phone number with country code (e.g., 628123456789)
-            subject: Not used for WhatsApp (included in message)
-            message: Message text
-            metadata: Optional template name, parameters, etc.
-
-        Returns:
-            DeliveryResult
-        """
+    async def send(self, recipient, subject, message, metadata=None):
+        """Send WhatsApp message"""
         if not self.validate_recipient(recipient):
-            return DeliveryResult(
+            return create_delivery_result(
                 success=False,
                 status=ChannelStatus.FAILED,
-                error_message="Invalid phone number format: {recipient}".format()
+                error_message="Invalid phone number format: {}".format(recipient)
             )
 
         try:
@@ -618,28 +490,23 @@ class WhatsAppProvider(BaseChannelProvider):
                 return await self._send_free_form_message(phone, message)
 
         except Exception as e:
-            logger.error("WhatsApp send failed: {e}".format())
-            return DeliveryResult(
+            logger.error("WhatsApp send failed: {}".format(e))
+            return create_delivery_result(
                 success=False,
                 status=ChannelStatus.FAILED,
                 error_message=str(e)
             )
 
-    def validate_recipient(self, recipient: str) -> bool:
+    def validate_recipient(self, recipient):
         """Validate phone number for WhatsApp"""
         import re
         return bool(re.match(r'^\+?[1-9]\d{9,14}$', recipient))
 
-    async def _send_template_message(
-        self,
-        phone: str,
-        template_name: str,
-        params: Dict[str, str]
-    ) -> DeliveryResult:
-        """Send WhatsApp template message (requires pre-approved template)"""
-        url = "{self.api_url}/{self.phone_number_id}/messages".format()
+    async def _send_template_message(self, phone, template_name, params):
+        """Send WhatsApp template message"""
+        url = "{}/{}/messages".format(self.api_url, self.phone_number_id)
         headers = {
-            "Authorization": "Bearer {self.access_token}".format(),
+            "Authorization": "Bearer {}".format(self.access_token),
             "Content-Type": "application/json"
         }
         data = {
@@ -648,7 +515,7 @@ class WhatsAppProvider(BaseChannelProvider):
             "type": "template",
             "template": {
                 "name": template_name,
-                "language": {"code": "id"},  # Indonesian
+                "language": {"code": "id"},
                 "components": [
                     {
                         "type": "body",
@@ -668,22 +535,18 @@ class WhatsAppProvider(BaseChannelProvider):
 
         message_id = result.get("messages", [{}])[0].get("id")
 
-        return DeliveryResult(
+        return create_delivery_result(
             success=True,
             status=ChannelStatus.SENT,
             message_id=message_id,
             provider_response={"whatsapp_response": result}
         )
 
-    async def _send_free_form_message(
-        self,
-        phone: str,
-        message: str
-    ) -> DeliveryResult:
-        """Send free-form WhatsApp message (session must be active)"""
-        url = "{self.api_url}/{self.phone_number_id}/messages".format()
+    async def _send_free_form_message(self, phone, message):
+        """Send free-form WhatsApp message"""
+        url = "{}/{}/messages".format(self.api_url, self.phone_number_id)
         headers = {
-            "Authorization": "Bearer {self.access_token}".format(),
+            "Authorization": "Bearer {}".format(self.access_token),
             "Content-Type": "application/json"
         }
         data = {
@@ -700,7 +563,7 @@ class WhatsAppProvider(BaseChannelProvider):
 
         message_id = result.get("messages", [{}])[0].get("id")
 
-        return DeliveryResult(
+        return create_delivery_result(
             success=True,
             status=ChannelStatus.SENT,
             message_id=message_id,
@@ -708,47 +571,46 @@ class WhatsAppProvider(BaseChannelProvider):
         )
 
 
-class ChannelProviderFactory:
+class ChannelProviderFactory(object):
     """Factory for creating channel provider instances"""
 
-    _providers: Dict[str, BaseChannelProvider] = {}
+    _providers = {}
 
     @classmethod
-    def get_sms_provider(cls) -> SMSProvider:
+    def get_sms_provider(cls):
         """Get or create SMS provider instance"""
         if "sms" not in cls._providers:
             cls._providers["sms"] = SMSProvider()
         return cls._providers["sms"]
 
     @classmethod
-    def get_email_provider(cls) -> EmailProvider:
+    def get_email_provider(cls):
         """Get or create Email provider instance"""
         if "email" not in cls._providers:
             cls._providers["email"] = EmailProvider()
         return cls._providers["email"]
 
     @classmethod
-    def get_push_provider(cls) -> PushNotificationProvider:
+    def get_push_provider(cls):
         """Get or create Push notification provider instance"""
         if "push" not in cls._providers:
             cls._providers["push"] = PushNotificationProvider()
         return cls._providers["push"]
 
     @classmethod
-    def get_whatsapp_provider(cls) -> WhatsAppProvider:
+    def get_whatsapp_provider(cls):
         """Get or create WhatsApp provider instance"""
         if "whatsapp" not in cls._providers:
             cls._providers["whatsapp"] = WhatsAppProvider()
         return cls._providers["whatsapp"]
 
     @classmethod
-    def get_inapp_provider(cls, db) -> InAppNotificationProvider:
+    def get_inapp_provider(cls, db=None):
         """Get or create In-App provider instance"""
-        # In-App provider needs database, create new instance each time
         return InAppNotificationProvider(db)
 
     @classmethod
-    def get_provider(cls, channel: str, db=None) -> BaseChannelProvider:
+    def get_provider(cls, channel, db=None):
         """Get provider by channel name
 
         Args:
@@ -757,19 +619,16 @@ class ChannelProviderFactory:
 
         Returns:
             Channel provider instance
-
-        Raises:
-            ValueError: If channel is not supported
         """
         channel_map = {
             "sms": cls.get_sms_provider,
             "email": cls.get_email_provider,
             "push": cls.get_push_provider,
             "whatsapp": cls.get_whatsapp_provider,
-            "in_app": lambda: cls.get_inapp_provider(db) if db else InAppNotificationProvider(None),
+            "in_app": lambda: cls.get_inapp_provider(db) if db else InAppNotificationProvider(),
         }
 
         if channel not in channel_map:
-            raise ValueError("Unsupported channel: {channel}".format())
+            raise ValueError("Unsupported channel: {}".format(channel))
 
         return channel_map[channel]()
