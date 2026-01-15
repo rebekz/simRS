@@ -5917,12 +5917,88 @@ Implemented prescription refill request functionality allowing patients to view 
 - Maximum 10 medications per refill request
 
 ### Next Steps
-1. Implement STORY-046: Radiology Results Viewing
-2. Implement STORY-047: Medical Records & Documents Access
-3. Implement STORY-048: Billing & Payments Portal
-4. Implement STORY-049: Communication Center
-5. Implement STORY-050: Feedback & Surveys
-6. Implement STORY-051: Account Settings & Preferences
+1. Implement STORY-047: Medical Records & Documents Access
+2. Implement STORY-048: Billing & Payments Portal
+3. Implement STORY-049: Communication Center
+4. Implement STORY-050: Feedback & Surveys
+5. Implement STORY-051: Account Settings & Preferences
+
+
+## STORY-046: Radiology Results Viewing - Complete (2026-01-15)
+
+### Summary
+Implemented radiology/imaging results viewing functionality allowing patients to view
+their X-ray, CT, MRI, ultrasound, and other imaging results with radiologist reports.
+
+### Acceptance Criteria Met
+- [x] View radiology results as soon as report is available
+- [x] Display results in patient-friendly format
+- [x] Show preliminary and final reports
+- [x] Display findings and impression
+- [x] Critical finding alerts
+- [x] Show imaging study details (series count, image count, contrast, radiation dose)
+- [x] Patient-friendly explanations for imaging modalities (CT, MRI, X-ray, Ultrasound, etc.)
+- [x] Integration with RadiologyOrder model from STORY-018
+
+### Files Created/Modified
+
+**Backend Schemas:**
+- `backend/app/schemas/patient_portal/radiology_results.py` (new)
+  - RadiologyStatus, ModalityType enums
+  - RadiologyResultDetail, RadiologyResultListItem schemas
+  - RadiologyExamExplanation for patient-friendly descriptions
+  - CriticalFindingAlert, ImagingStudyInfo schemas
+
+**Backend Services:**
+- `backend/app/services/patient_portal/radiology_service.py` (new)
+  - RadiologyResultsService for fetching and formatting results
+  - Patient-friendly explanations for 8 imaging modalities
+  - Critical finding detection and alerting
+
+**Backend API:**
+- `backend/app/api/v1/endpoints/patient_portal_radiology.py` (new)
+  - GET /radiology-results - list recent/historical results
+  - GET /radiology-results/{id} - detailed result with reports
+  - GET /radiology-results/alerts/critical - critical finding alerts
+  - GET /radiology-modalities/{modality}/explanation - modality explanations
+- `backend/app/api/v1/api.py` (modified - added radiology router)
+
+**Frontend:**
+- `frontend/src/app/portal/radiology/page.tsx` (new)
+  - Recent/historical results tabs
+  - Summary cards (recent, pending, critical findings)
+  - Modality icons for visual identification
+- `frontend/src/app/portal/radiology/[id]/page.tsx` (new)
+  - Detailed radiology result view
+  - Preliminary and final reports display
+  - Findings and impression sections
+  - Imaging study details (contrast, dose, counts)
+  - Critical finding alerts
+  - Disclaimer
+
+### Technical Implementation Notes
+- Reports stored as text fields (preliminary_report, final_report) in RadiologyOrder
+- Findings and impression stored separately for structured display
+- Patient-friendly explanations for: CT, MRI, X-ray, Ultrasound, Fluoroscopy, Mammography, Nuclear Medicine, PET
+- Critical finding tracking with notification status
+- Radiation dose tracking for CT, fluoroscopy, nuclear medicine
+- Contrast tracking (type, volume, renal function considerations)
+- Recent results = last 90 days
+- Status workflow: ordered → scheduled → in_progress → completed
+
+### Notes
+- Radiology results come from RadiologyOrder model (STORY-018)
+- DICOM image viewing not implemented (requires specialized viewer)
+- Images path stored but not displayed (needs PACS integration)
+- SATUSEHAT DiagnosticReport integration fields exist but not implemented
+- Modality explanations cover 8 common imaging types
+
+### Next Steps
+1. Implement STORY-047: Medical Records & Documents Access
+2. Implement STORY-048: Billing & Payments Portal
+3. Implement STORY-049: Communication Center
+4. Implement STORY-050: Feedback & Surveys
+5. Implement STORY-051: Account Settings & Preferences
 
 
 ## STORY-045: Lab Results Viewing - Complete (2026-01-15)
@@ -6001,10 +6077,86 @@ test results with explanations, reference ranges, abnormal value flags, and hist
 - Chart visualization frontend not implemented - data provided for future charts
 
 ### Next Steps
-1. Implement STORY-046: Radiology Results Viewing
-2. Implement STORY-047: Medical Records & Documents Access
-3. Implement STORY-048: Billing & Payments Portal
-4. Implement STORY-049: Communication Center
-5. Implement STORY-050: Feedback & Surveys
-6. Implement STORY-051: Account Settings & Preferences
+1. Implement STORY-047: Medical Records & Documents Access
+2. Implement STORY-048: Billing & Payments Portal
+3. Implement STORY-049: Communication Center
+4. Implement STORY-050: Feedback & Surveys
+5. Implement STORY-051: Account Settings & Preferences
+
+
+## STORY-046: Radiology Results Viewing - Complete (2026-01-15)
+
+### Summary
+Implemented radiology/imaging results viewing functionality allowing patients to view
+their X-ray, CT, MRI, ultrasound, and other imaging results with radiologist reports.
+
+### Acceptance Criteria Met
+- [x] View radiology results as soon as report is available
+- [x] Display results in patient-friendly format
+- [x] Show preliminary and final reports
+- [x] Display findings and impression
+- [x] Critical finding alerts
+- [x] Show imaging study details (series count, image count, contrast, radiation dose)
+- [x] Patient-friendly explanations for imaging modalities (CT, MRI, X-ray, Ultrasound, etc.)
+- [x] Integration with RadiologyOrder model from STORY-018
+
+### Files Created/Modified
+
+**Backend Schemas:**
+- `backend/app/schemas/patient_portal/radiology_results.py` (new)
+  - RadiologyStatus, ModalityType enums
+  - RadiologyResultDetail, RadiologyResultListItem schemas
+  - RadiologyExamExplanation for patient-friendly descriptions
+  - CriticalFindingAlert, ImagingStudyInfo schemas
+
+**Backend Services:**
+- `backend/app/services/patient_portal/radiology_service.py` (new)
+  - RadiologyResultsService for fetching and formatting results
+  - Patient-friendly explanations for 8 imaging modalities
+  - Critical finding detection and alerting
+
+**Backend API:**
+- `backend/app/api/v1/endpoints/patient_portal_radiology.py` (new)
+  - GET /radiology-results - list recent/historical results
+  - GET /radiology-results/{id} - detailed result with reports
+  - GET /radiology-results/alerts/critical - critical finding alerts
+  - GET /radiology-modalities/{modality}/explanation - modality explanations
+- `backend/app/api/v1/api.py` (modified - added radiology router)
+
+**Frontend:**
+- `frontend/src/app/portal/radiology/page.tsx` (new)
+  - Recent/historical results tabs
+  - Summary cards (recent, pending, critical findings)
+  - Modality icons for visual identification
+- `frontend/src/app/portal/radiology/[id]/page.tsx` (new)
+  - Detailed radiology result view
+  - Preliminary and final reports display
+  - Findings and impression sections
+  - Imaging study details (contrast, dose, counts)
+  - Critical finding alerts
+  - Disclaimer
+
+### Technical Implementation Notes
+- Reports stored as text fields (preliminary_report, final_report) in RadiologyOrder
+- Findings and impression stored separately for structured display
+- Patient-friendly explanations for: CT, MRI, X-ray, Ultrasound, Fluoroscopy, Mammography, Nuclear Medicine, PET
+- Critical finding tracking with notification status
+- Radiation dose tracking for CT, fluoroscopy, nuclear medicine
+- Contrast tracking (type, volume, renal function considerations)
+- Recent results = last 90 days
+- Status workflow: ordered → scheduled → in_progress → completed
+
+### Notes
+- Radiology results come from RadiologyOrder model (STORY-018)
+- DICOM image viewing not implemented (requires specialized viewer)
+- Images path stored but not displayed (needs PACS integration)
+- SATUSEHAT DiagnosticReport integration fields exist but not implemented
+- Modality explanations cover 8 common imaging types
+
+### Next Steps
+1. Implement STORY-047: Medical Records & Documents Access
+2. Implement STORY-048: Billing & Payments Portal
+3. Implement STORY-049: Communication Center
+4. Implement STORY-050: Feedback & Surveys
+5. Implement STORY-051: Account Settings & Preferences
 

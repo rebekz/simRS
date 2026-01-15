@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import health, auth, audit, monitoring, patients, encounters, bpjs, bpjs_verification, bpjs_aplicare, bpjs_claims, icd10, allergies, clinical_notes, consultation, sep, inventory, user_management, medications, drug_interactions, prescriptions, dispensing, queue, bed, hospital, admission, daily_care, discharge, satusehat, lab_orders, radiology_orders, procedure_codes, training, appointments, billing, payments, patient_portal, patient_portal_auth, patient_portal_linking, patient_portal_health, patient_portal_appointments, patient_portal_prescriptions, patient_portal_lab_results
+from app.api.v1.endpoints import health, auth, audit, monitoring, patients, encounters, bpjs, bpjs_verification, bpjs_aplicare, bpjs_claims, icd10, allergies, clinical_notes, consultation, sep, inventory, user_management, medications, drug_interactions, prescriptions, dispensing, queue, bed, hospital, admission, daily_care, discharge, satusehat, lab_orders, radiology_orders, procedure_codes, training, appointments, billing, payments, patient_portal, patient_portal_auth, patient_portal_linking, patient_portal_health, patient_portal_appointments, patient_portal_prescriptions, patient_portal_lab_results, patient_portal_radiology
 
 api_router = APIRouter()
 
@@ -128,4 +128,7 @@ api_router.include_router(patient_portal_prescriptions.router, prefix="/portal",
 
 # Include Patient Portal Lab Results endpoints
 api_router.include_router(patient_portal_lab_results.router, prefix="/portal", tags=["Patient Portal Lab Results"])
+
+# Include Patient Portal Radiology Results endpoints
+api_router.include_router(patient_portal_radiology.router, prefix="/portal", tags=["Patient Portal Radiology Results"])
 
