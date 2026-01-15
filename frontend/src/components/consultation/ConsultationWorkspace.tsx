@@ -15,6 +15,7 @@ import { useState, useEffect } from "react";
 import { User, FileText, Pills, AlertCircle, CheckCircle, Clock, Video, AlertTriangle } from "lucide-react";
 import { SOAPNoteEditor } from "../clinical/SOAPNoteEditor";
 import { ICD10Selector } from "../patients/ICD10Selector";
+import { PrescriptionWriter } from "../prescriptions/PrescriptionWriter";
 
 // Types
 interface PatientSummary {
@@ -397,31 +398,67 @@ function DiagnosisTab({ encounterId }: { encounterId: number }) {
 }
 
 function TreatmentTab({ encounterId }: { encounterId: number }) {
-  const [treatments, setTreatments] = useState<any[]>([]);
+  const [showPrescriptionWriter, setShowPrescriptionWriter] = useState(false);
+  const [prescriptions, setPrescriptions] = useState<any[]>([]);
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold text-gray-900">Treatment Plan</h2>
-        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
-          Add Treatment
+        <button
+          onClick={() => setShowPrescriptionWriter(true)}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm flex items-center"
+        >
+          <Pills className="h-4 w-4 mr-2" />
+          Write Prescription
         </button>
       </div>
 
-      {treatments.length === 0 ? (
+      {showPrescriptionWriter && (
+        <PrescriptionWriter
+          patientId={0} // Would get from parent props
+          encounterId={encounterId}
+          onSave={(prescription) => {
+            setPrescriptions([...prescriptions, prescription]);
+            setShowPrescriptionWriter(false);
+          }}
+          onCancel={() => setShowPrescriptionWriter(false)}
+        />
+      )}
+
+      {prescriptions.length === 0 && !showPrescriptionWriter ? (
         <div className="text-center py-12 text-gray-500">
-          No treatments prescribed
+          <Pills className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+          <p>No prescriptions written</p>
+          <button
+            onClick={() => setShowPrescriptionWriter(true)}
+            className="mt-4 text-blue-600 hover:text-blue-700 text-sm"
+          >
+            Write first prescription
+          </button>
         </div>
       ) : (
-        <div className="space-y-3">
-          {treatments.map((tx) => (
-            <div key={tx.id} className="p-4 border border-gray-200 rounded-lg">
-              <p className="font-medium text-gray-900">{tx.treatment_name}</p>
-              {tx.dosage && <p className="text-sm text-gray-600">Dosage: {tx.dosage}</p>}
-              {tx.frequency && <p className="text-sm text-gray-600">Frequency: {tx.frequency}</p>}
-            </div>
-          ))}
-        </div>
+        !showPrescriptionWriter && (
+          <div className="space-y-3">
+            {prescriptions.map((rx) => (
+              <div key={rx.id} className="p-4 border border-gray-200 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-gray-900">Prescription #{rx.prescription_number}</p>
+                    <p className="text-sm text-gray-600">{rx.total_items} items</p>
+                  </div>
+                  <span className={`px-2 py-1 rounded text-xs ${
+                    rx.status === "draft" ? "bg-gray-100 text-gray-800" :
+                    rx.status === "submitted" ? "bg-blue-100 text-blue-800" :
+                    "bg-green-100 text-green-800"
+                  }`}>
+                    {rx.status}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )
       )}
     </div>
   );
