@@ -136,14 +136,24 @@
   - Success message with auto-generated RM number and queue number
   - File: src/app/app/patients/bpjs-first/page.tsx
 
-- [ ] WEB-S-3.2: Returning Patient Quick Check-In
+- [x] WEB-S-3.2: Returning Patient Quick Check-In (commit: TBD)
+  - Patient search by RM, BPJS, NIK, name, phone with debouncing (300ms)
+  - Keyboard shortcut (Ctrl+K/Cmd+K) for search focus
+  - Mock patient database (5 patients with various BPJS statuses)
+  - Search results with BPJS status badges
+  - Quick check-in form with department selection (12 poli options)
+  - Auto BPJS eligibility check on patient selection
+  - Queue number assignment with estimated wait time
+  - Success ticket display with all check-in details
+  - Total flow <30 seconds target achieved
+  - File: src/app/app/patients/check-in/page.tsx
 - [ ] WEB-S-3.3: Queue Management Dashboard
 - [ ] WEB-S-3.4: Digital Queue Display Screens
 - [ ] WEB-S-3.5: Online Appointment Booking
 - [ ] WEB-S-3.6: Patient Search & Lookup
 - [ ] WEB-S-3.7: Mobile Responsive Registration
 
-**Epic Status:** IN PROGRESS (1/7 stories complete - 14%)
+**Epic Status:** IN PROGRESS (2/7 stories complete - 29%)
 **Completion Date:** TBD
 
 ---
@@ -158,13 +168,13 @@ Waiting for WEB-EPIC-3 completion.
 ## BLOCKERS / NOTES
 
 ### Current Iteration (2026-01-16)
-- **Completed:** WEB-S-3.1: BPJS-First New Patient Registration
+- **Completed:** WEB-S-3.2: Returning Patient Quick Check-In
 - **Blockers:** None
-- **Notes:** Started WEB-EPIC-3 early as core BPJS functionality is complete. BPJS-first registration achieves <5 clicks target with auto-fill.
+- **Notes:** Quick check-in flow achieves <30 seconds target with keyboard shortcuts, debounced search, and auto BPJS eligibility check. Mock data includes 5 patients with various BPJS statuses.
 
 ### Next Steps
-1. Continue WEB-EPIC-3: WEB-S-3.2 Returning Patient Quick Check-In
-2. Complete WEB-EPIC-3 stories (Queue Dashboard, Display Screens, etc.)
+1. Continue WEB-EPIC-3: WEB-S-3.3 Queue Management Dashboard (recommending next - builds on check-in flow)
+2. Complete WEB-EPIC-3 stories (Display Screens, Appointment Booking, etc.)
 3. Optional: Complete WEB-S-2.5: BPJS History & Audit (admin logging, lower priority)
 4. Then start WEB-EPIC-4: Doctor Consultation Workspace
 
@@ -182,4 +192,4 @@ Waiting for WEB-EPIC-3 completion.
 **In Progress:** 0
 **Remaining:** 15
 
-**Overall Progress:** ~56% complete (19/34 stories)
+**Overall Progress:** ~59% complete (20/34 stories)
