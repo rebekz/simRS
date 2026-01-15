@@ -65,6 +65,31 @@ class Settings(BaseSettings):
         ".jpg", ".jpeg", ".png", ".gif", ".pdf", ".doc", ".docx", ".xls", ".xlsx"
     }
 
+    # Notification Channels
+    SMS_PROVIDER: str = Field(default="mock", env="SMS_PROVIDER")  # twilio, nexmo, mock
+    SMS_FROM_NUMBER: str = Field(default="+1234567890", env="SMS_FROM_NUMBER")
+    TWILIO_ACCOUNT_SID: Optional[str] = Field(default="", env="TWILIO_ACCOUNT_SID")
+    TWILIO_AUTH_TOKEN: Optional[str] = Field(default="", env="TWILIO_AUTH_TOKEN")
+    NEXMO_API_KEY: Optional[str] = Field(default="", env="NEXMO_API_KEY")
+    NEXMO_API_SECRET: Optional[str] = Field(default="", env="NEXMO_API_SECRET")
+
+    SMTP_HOST: str = Field(default="smtp.gmail.com", env="SMTP_HOST")
+    SMTP_PORT: int = Field(default=587, env="SMTP_PORT")
+    SMTP_USERNAME: str = Field(default="", env="SMTP_USERNAME")
+    SMTP_PASSWORD: str = Field(default="", env="SMTP_PASSWORD")
+    SMTP_USE_TLS: bool = Field(default=True, env="SMTP_USE_TLS")
+    SMTP_FROM_EMAIL: str = Field(default="noreply@simrs.hospital", env="SMTP_FROM_EMAIL")
+    SMTP_FROM_NAME: str = Field(default="SIMRS Hospital", env="SMTP_FROM_NAME")
+
+    PUSH_PROVIDER: str = Field(default="mock", env="PUSH_PROVIDER")  # firebase, apns, mock
+    FIREBASE_SERVER_KEY: Optional[str] = Field(default="", env="FIREBASE_SERVER_KEY")
+    APNS_KEY_ID: Optional[str] = Field(default="", env="APNS_KEY_ID")
+    APNS_TEAM_ID: Optional[str] = Field(default="", env="APNS_TEAM_ID")
+
+    WHATSAPP_API_URL: str = Field(default="https://graph.facebook.com/v17.0", env="WHATSAPP_API_URL")
+    WHATSAPP_PHONE_NUMBER_ID: Optional[str] = Field(default="", env="WHATSAPP_PHONE_NUMBER_ID")
+    WHATSAPP_ACCESS_TOKEN: Optional[str] = Field(default="", env="WHATSAPP_ACCESS_TOKEN")
+
     class Config:
         env_file = ".env"
         case_sensitive = True

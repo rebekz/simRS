@@ -509,29 +509,79 @@ class NotificationService:
         sent_count = 0
         failed_count = 0
 
-        # Mock processing - in real implementation, this would send via external services
+        # Process notifications using channel providers
         for notification in notifications:
             try:
-                # Update status to sent
-                notification.status = NotificationStatus.SENT.value
-                notification.sent_at = datetime.utcnow()
-                notification.updated_at = datetime.utcnow()
+                # Import channel provider factory
+                from app.services.notification_channels import ChannelProviderFactory
 
-                # Create log
-                log = NotificationLog(
-                    notification_id=notification.id,
-                    status="sent",
-                    message="Notification sent via {channel} (mock)".format(channel=notification.channel)
+                # Get appropriate channel provider
+                provider = ChannelProviderFactory.get_provider(
+                    notification.channel,
+                    self.db
                 )
-                self.db.add(log)
 
-                sent_count += 1
+                # Get recipient contact info
+                recipient = await self._get_recipient_contact(
+                    notification.recipient_id,
+                    notification.user_type,
+                    notification.channel
+                )
+
+                # Send notification
+                delivery_result = await provider.send(
+                    recipient=recipient,
+                    subject=notification.title or "",
+                    message=notification.message,
+                    metadata=notification.metadata
+                )
+
+                # Update based on result
+                if delivery_result.success:
+                    notification.status = NotificationStatus.SENT.value
+                    notification.sent_at = datetime.utcnow()
+                    notification.message_id = delivery_result.message_id
+                    sent_count += 1
+
+                    # Create success log
+                    log = NotificationLog(
+                        notification_id=notification.id,
+                        status="sent",
+                        message=f"Sent via {notification.channel}: {delivery_result.message_id}",
+                    )
+                    self.db.add(log)
+                else:
+                    notification.status = NotificationStatus.FAILED.value
+                    notification.failed_at = datetime.utcnow()
+                    notification.failed_reason = delivery_result.error_message
+                    notification.retry_count += 1
+                    failed_count += 1
+
+                    # Create failure log
+                    log = NotificationLog(
+                        notification_id=notification.id,
+                        status="failed",
+                        message=f"Failed via {notification.channel}: {delivery_result.error_message}",
+                    )
+                    self.db.add(log)
+
+                notification.updated_at = datetime.utcnow()
 
             except Exception as e:
                 notification.status = NotificationStatus.FAILED.value
                 notification.failed_at = datetime.utcnow()
                 notification.failed_reason = str(e)
+                notification.retry_count += 1
+                notification.updated_at = datetime.utcnow()
                 failed_count += 1
+
+                # Create error log
+                log = NotificationLog(
+                    notification_id=notification.id,
+                    status="error",
+                    message=f"Processing error: {str(e)}",
+                )
+                self.db.add(log)
 
         await self.db.commit()
 
@@ -545,6 +595,86 @@ class NotificationService:
                 failed=failed_count
             )
         }
+
+    async def _get_recipient_contact(
+        self,
+        recipient_id: int,
+        user_type: str,
+        channel: str
+    ) -> str:
+        """Get recipient contact information for notification channel
+
+        Args:
+            recipient_id: Recipient ID
+            user_type: User type (patient, doctor, staff, etc.)
+            channel: Notification channel
+
+        Returns:
+            Contact info (phone, email, device token, etc.)
+
+        Raises:
+            ValueError: If recipient not found or no contact info available
+        """
+        from app.models.notifications import NotificationChannel
+
+        # Query based on user type
+        if user_type in ["doctor", "nurse", "staff", "admin"]:
+            result = await self.db.execute(
+                select(User).where(User.id == recipient_id)
+            )
+            user = result.scalar_one_or_none()
+
+            if not user:
+                raise ValueError(f"User {recipient_id} not found")
+
+            # Return appropriate contact based on channel
+            if channel == NotificationChannel.EMAIL.value:
+                return user.email
+            elif channel == NotificationChannel.SMS.value:
+                return user.phone_number or ""
+            elif channel == NotificationChannel.PUSH.value:
+                return user.push_token or ""
+            else:
+                return str(recipient_id)
+
+        elif user_type == "patient":
+            # Check Patient table first
+            result = await self.db.execute(
+                select(Patient).where(Patient.id == recipient_id)
+            )
+            patient = result.scalar_one_or_none()
+
+            if patient:
+                if channel == NotificationChannel.EMAIL.value:
+                    return patient.email or ""
+                elif channel == NotificationChannel.SMS.value or channel == NotificationChannel.WHATSAPP.value:
+                    return patient.phone_number or ""
+                elif channel == NotificationChannel.PUSH.value:
+                    return patient.push_token or ""
+                else:
+                    return str(recipient_id)
+
+            # Fallback to PatientPortalUser
+            result = await self.db.execute(
+                select(PatientPortalUser).where(PatientPortalUser.id == recipient_id)
+            )
+            portal_user = result.scalar_one_or_none()
+
+            if not portal_user:
+                raise ValueError(f"Patient {recipient_id} not found")
+
+            if channel == NotificationChannel.EMAIL.value:
+                return portal_user.email
+            elif channel == NotificationChannel.SMS.value or channel == NotificationChannel.WHATSAPP.value:
+                return portal_user.phone_number or ""
+            elif channel == NotificationChannel.PUSH.value:
+                return portal_user.push_token or ""
+            else:
+                return str(recipient_id)
+
+        else:
+            # Default to returning ID for unknown user types
+            return str(recipient_id)
 
     # Template methods
 
@@ -1103,12 +1233,23 @@ class NotificationService:
     ) -> None:
         """Queue notification for delivery
 
-        Mock implementation - in production, this would integrate with
-        message queue (RabbitMQ, Redis, etc.)
+        Integrates with Redis-based queue processor for async delivery.
 
         Args:
             notification: The notification to queue
         """
-        # Mock implementation
-        # In production: await message_queue.publish(notification)
-        pass
+        try:
+            # Import here to avoid circular dependency
+            from app.services.notification_queue import get_queue_processor
+
+            # Get queue processor and enqueue notification
+            processor = get_queue_processor(self.db)
+            await processor.enqueue(
+                notification.id,
+                NotificationPriority(notification.priority)
+            )
+
+        except Exception as e:
+            # If queue is unavailable, fall back to immediate processing
+            logger.warning(f"Queue unavailable, processing immediately: {e}")
+            # Notification will remain in PENDING status for background job

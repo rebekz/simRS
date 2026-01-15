@@ -1,10 +1,49 @@
 from datetime import datetime
 from typing import Optional
+from enum import Enum
 from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, ForeignKey, Enum as SQLEnum, Index, Time
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import relationship
 from app.db.session import Base
 import uuid
+
+
+class NotificationStatus(str, Enum):
+    """Notification delivery status"""
+    PENDING = "pending"
+    PROCESSING = "processing"
+    SENT = "sent"
+    DELIVERED = "delivered"
+    FAILED = "failed"
+    CANCELLED = "cancelled"
+
+
+class NotificationChannel(str, Enum):
+    """Notification delivery channels"""
+    SMS = "sms"
+    EMAIL = "email"
+    WHATSAPP = "whatsapp"
+    PUSH = "push"
+    IN_APP = "in_app"
+
+
+class NotificationPriority(str, Enum):
+    """Notification priority levels"""
+    LOW = "low"
+    NORMAL = "normal"
+    HIGH = "high"
+    URGENT = "urgent"
+
+
+class NotificationType(str, Enum):
+    """Notification types"""
+    APPOINTMENT_REMINDER = "appointment_reminder"
+    MEDICATION_REMINDER = "medication_reminder"
+    LAB_RESULT = "lab_result"
+    PAYMENT_REMINDER = "payment_reminder"
+    CRITICAL_ALERT = "critical_alert"
+    SYSTEM_ALERT = "system_alert"
+    QUEUE_UPDATE = "queue_update"
 
 
 class Notification(Base):
@@ -16,8 +55,8 @@ class Notification(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
     recipient_id = Column(Integer, nullable=False, index=True)
-    recipient_type = Column(
-        SQLEnum("patient", "staff", "system", name="notification_recipient_type"),
+    user_type = Column(
+        SQLEnum("patient", "doctor", "nurse", "staff", "admin", name="notification_user_type"),
         nullable=False,
         default="staff",
         index=True
@@ -52,8 +91,9 @@ class Notification(Base):
         ForeignKey("notification_templates.id", ondelete="SET NULL"),
         nullable=True
     )
-    subject = Column(String(500), nullable=True)
-    content = Column(Text, nullable=False)
+    title = Column(String(500), nullable=True)  # Subject line for notifications
+    message = Column(Text, nullable=False)  # Main message content
+    message_id = Column(String(255), nullable=True)  # External provider message ID
     metadata = Column(JSONB, nullable=True)
     scheduled_at = Column(DateTime(timezone=True), nullable=True, index=True)
     sent_at = Column(DateTime(timezone=True), nullable=True)
@@ -110,8 +150,11 @@ class NotificationTemplate(Base):
     )
     language = Column(String(10), default="id", nullable=False, index=True)
     subject_template = Column(String(500), nullable=True)
-    content_template = Column(Text, nullable=False)
+    body_template = Column(Text, nullable=False)  # Changed from content_template to body_template
     variables = Column(JSONB, nullable=True)  # List of available variables for template
+    description = Column(Text, nullable=True)  # Added description field
+    tags = Column(JSONB, nullable=True)  # Added tags field
+    is_active = Column(Boolean, default=True, nullable=False)  # Added is_active field
     status = Column(
         SQLEnum("draft", "active", "archived", name="template_status"),
         nullable=False,
@@ -156,6 +199,45 @@ class NotificationTemplate(Base):
     )
 
 
+class NotificationTemplateVersion(Base):
+    """
+    NotificationTemplateVersion model for tracking template version history.
+    Stores historical versions of templates for audit trail and rollback.
+    """
+    __tablename__ = "notification_template_versions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    template_id = Column(
+        Integer,
+        ForeignKey("notification_templates.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True
+    )
+    version = Column(Integer, nullable=False)
+    subject_template = Column(String(500), nullable=True)
+    body_template = Column(Text, nullable=False)
+    variables = Column(JSONB, nullable=True)
+    change_description = Column(Text, nullable=True)
+    created_by = Column(
+        Integer,
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True
+    )
+    created_at = Column(
+        DateTime(timezone=True),
+        server_default=datetime.utcnow,
+        nullable=False
+    )
+
+    # Relationships
+    template = relationship("NotificationTemplate")
+
+    # Indexes for common queries
+    __table_args__ = (
+        Index("ix_template_versions_template_version", "template_id", "version"),
+    )
+
+
 class NotificationLog(Base):
     """
     NotificationLog model for audit trail of notifications.
@@ -170,15 +252,9 @@ class NotificationLog(Base):
         nullable=False,
         index=True
     )
-    event_type = Column(
-        SQLEnum("created", "queued", "sent", "delivered", "failed", "opened", "clicked",
-                name="log_event_type"),
-        nullable=False,
-        index=True
-    )
-    channel = Column(String(50), nullable=False)
-    status = Column(String(50), nullable=False)
-    details = Column(JSONB, nullable=True)
+    status = Column(String(50), nullable=False)  # queued, sent, delivered, failed, etc.
+    message = Column(Text, nullable=True)  # Human-readable log message
+    error_details = Column(JSONB, nullable=True)  # Additional error/response details
     created_at = Column(
         DateTime(timezone=True),
         server_default=datetime.utcnow,
@@ -194,7 +270,7 @@ class NotificationLog(Base):
 
     # Indexes for common queries
     __table_args__ = (
-        Index("ix_notification_logs_notification_event", "notification_id", "event_type"),
+        Index("ix_notification_logs_notification_status", "notification_id", "status"),
         Index("ix_notification_logs_created_at", "created_at"),
     )
 
@@ -212,22 +288,15 @@ class NotificationPreference(Base):
         SQLEnum("patient", "staff", name="preference_user_type"),
         nullable=False
     )
-    notification_type = Column(String(100), nullable=False)
-    channel_enabled = Column(
-        JSONB,
-        nullable=False,
-        default={"sms": True, "email": False, "whatsapp": True, "push": True, "in_app": True}
-    )
-    frequency = Column(
-        SQLEnum("immediate", "hourly", "daily", "weekly", name="preference_frequency"),
-        nullable=False,
-        default="immediate"
-    )
+    notification_type = Column(String(100), nullable=False, index=True)
+    email_enabled = Column(Boolean, default=True, nullable=False)
+    sms_enabled = Column(Boolean, default=False, nullable=False)
+    push_enabled = Column(Boolean, default=True, nullable=False)
+    in_app_enabled = Column(Boolean, default=True, nullable=False)
+    whatsapp_enabled = Column(Boolean, default=False, nullable=False)
     quiet_hours_start = Column(Time, nullable=True)
     quiet_hours_end = Column(Time, nullable=True)
-    language = Column(String(10), default="id", nullable=False)
-    consent_given = Column(Boolean, default=True, nullable=False)
-    consent_date = Column(DateTime(timezone=True), nullable=True)
+    timezone = Column(String(50), default="Asia/Jakarta", nullable=True)
     created_at = Column(
         DateTime(timezone=True),
         server_default=datetime.utcnow,
