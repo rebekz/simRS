@@ -1,0 +1,88 @@
+"""Patient Portal Schemas for STORY-041: Patient Registration & Account Creation
+
+This module contains Pydantic schemas for patient portal registration,
+authentication, and account management.
+"""
+from app.schemas.patient_portal.registration import (
+    PatientRegistrationCreate,
+    PatientRegistrationResponse,
+    EmailVerificationRequest,
+    EmailVerificationResponse,
+    PhoneVerificationRequest,
+    PhoneVerificationResponse,
+    IdentityVerificationRequest,
+    IdentityVerificationResponse,
+    RegistrationCheckRequest,
+    RegistrationCheckResponse,
+    AccountActivationRequest,
+)
+from app.schemas.patient_portal.auth import (
+    PatientPortalLogin,
+    PatientPortalToken,
+    PatientPortalPasswordChange,
+    PatientPortalPasswordResetRequest,
+    PatientPortalPasswordResetConfirm,
+    SecurityQuestionsSetup,
+    MFADisabledResponse,
+    MFASetupResponse,
+    MFAVerifyRequest,
+    MFAVerifyResponse,
+)
+from app.schemas.patient_portal.patient_link import (
+    PatientLinkRequest,
+    PatientLinkResponse,
+    ExistingPatientSearchRequest,
+    ExistingPatientSearchResponse,
+    BPJSCardLinkRequest,
+    MedicalRecordNumberSearchRequest,
+    MedicalRecordNumberSearchResponse,
+)
+from app.schemas.patient_portal.caregiver import (
+    CaregiverLinkCreate,
+    CaregiverLinkResponse,
+    CaregiverLinkListResponse,
+    CaregiverAccessLevelUpdate,
+)
+from app.schemas.patient_portal.profile import (
+    PatientPortalProfile,
+    PatientPortalProfileUpdate,
+    SecuritySettings,
+)
+
+__all__ = [
+    "PatientRegistrationCreate",
+    "PatientRegistrationResponse",
+    "EmailVerificationRequest",
+    "EmailVerificationResponse",
+    "PhoneVerificationRequest",
+    "PhoneVerificationResponse",
+    "IdentityVerificationRequest",
+    "IdentityVerificationResponse",
+    "RegistrationCheckRequest",
+    "RegistrationCheckResponse",
+    "AccountActivationRequest",
+    "PatientPortalLogin",
+    "PatientPortalToken",
+    "PatientPortalPasswordChange",
+    "PatientPortalPasswordResetRequest",
+    "PatientPortalPasswordResetConfirm",
+    "SecurityQuestionsSetup",
+    "MFADisabledResponse",
+    "MFASetupResponse",
+    "MFAVerifyRequest",
+    "MFAVerifyResponse",
+    "PatientLinkRequest",
+    "PatientLinkResponse",
+    "ExistingPatientSearchRequest",
+    "ExistingPatientSearchResponse",
+    "BPJSCardLinkRequest",
+    "MedicalRecordNumberSearchRequest",
+    "MedicalRecordNumberSearchResponse",
+    "CaregiverLinkCreate",
+    "CaregiverLinkResponse",
+    "CaregiverLinkListResponse",
+    "CaregiverAccessLevelUpdate",
+    "PatientPortalProfile",
+    "PatientPortalProfileUpdate",
+    "SecuritySettings",
+]

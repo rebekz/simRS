@@ -76,6 +76,8 @@ class Patient(Base):
     emergency_contacts = relationship("EmergencyContact", back_populates="patient", cascade="all, delete-orphan")
     insurance_policies = relationship("PatientInsurance", back_populates="patient", cascade="all, delete-orphan")
     encounters = relationship("Encounter", back_populates="patient", cascade="all, delete-orphan")
+    portal_user = relationship("PatientPortalUser", back_populates="patient", uselist=False, cascade="all, delete-orphan")
+    caregiver_links = relationship("CaregiverLink", foreign_keys="CaregiverLink.linked_patient_id", back_populates="linked_patient", cascade="all, delete-orphan")
 
 
 class EmergencyContact(Base):
@@ -89,7 +91,7 @@ class EmergencyContact(Base):
     id = Column(Integer, primary_key=True, index=True)
     patient_id = Column(Integer, ForeignKey("patients.id", ondelete="CASCADE"), nullable=False, index=True, comment="Reference to patient")
     name = Column(String(255), nullable=False, comment="Emergency contact full name")
-    relationship = Column(String(100), nullable=False, comment="Relationship to patient (e.g., spouse, parent, sibling)")
+    relationship_type = Column(String(100), nullable=False, comment="Relationship to patient (e.g., spouse, parent, sibling)")
     phone = Column(String(20), nullable=False, comment="Emergency contact phone number")
     address = Column(Text, nullable=True, comment="Emergency contact address")
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False, comment="Record creation timestamp")

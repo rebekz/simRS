@@ -9,9 +9,10 @@ from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, Foreign
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.db.session import Base
+from enum import Enum
 
 
-class TrainingCategory(str, SQLEnum):
+class TrainingCategory(str, Enum):
     """Training module categories"""
     SYSTEM_USAGE = "system_usage"
     PATIENT_REGISTRATION = "patient_registration"
@@ -20,7 +21,7 @@ class TrainingCategory(str, SQLEnum):
     SAFETY_COMPLIANCE = "safety_compliance"
 
 
-class TrainingStatus(str, SQLEnum):
+class TrainingStatus(str, Enum):
     """Training assignment status"""
     ASSIGNED = "assigned"
     IN_PROGRESS = "in_progress"
@@ -29,7 +30,7 @@ class TrainingStatus(str, SQLEnum):
     EXPIRED = "expired"
 
 
-class DifficultyLevel(str, SQLEnum):
+class DifficultyLevel(str, Enum):
     """Training module difficulty levels"""
     BEGINNER = "beginner"
     INTERMEDIATE = "intermediate"

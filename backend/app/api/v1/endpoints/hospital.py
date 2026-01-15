@@ -13,7 +13,7 @@ from datetime import date
 from fastapi import APIRouter, Depends, HTTPException, Query, status, UploadFile, File
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_current_active_user, get_current_superuser, get_db
+from app.core.deps import get_current_active_user, get_current_superuser, get_db
 from app.models.user import User
 from app.schemas.hospital import (
     # Hospital profile schemas

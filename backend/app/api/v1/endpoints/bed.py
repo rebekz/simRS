@@ -13,7 +13,7 @@ from datetime import date, datetime
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_current_active_user, get_db
+from app.core.deps import get_current_active_user, get_db
 from app.core.config import settings
 from app.models.user import User
 from app.schemas.bed import (

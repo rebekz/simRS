@@ -4,6 +4,16 @@ from app.models.session import Session
 from app.models.permission import Permission, PREDEFINED_PERMISSIONS
 from app.models.audit_log import AuditLog
 from app.models.password_reset import PasswordResetToken
+from app.models.patient_portal import (
+    PatientPortalUser,
+    PatientPortalVerification,
+    PatientPortalSession,
+    PatientPortalPasswordReset,
+    CaregiverLink,
+    ProxyAccessLevel,
+    VerificationType,
+    VerificationStatus,
+)
 from app.models.training import (
     TrainingModule,
     TrainingAssignment,
@@ -62,6 +72,14 @@ __all__ = [
     "PREDEFINED_PERMISSIONS",
     "AuditLog",
     "PasswordResetToken",
+    "PatientPortalUser",
+    "PatientPortalVerification",
+    "PatientPortalSession",
+    "PatientPortalPasswordReset",
+    "CaregiverLink",
+    "ProxyAccessLevel",
+    "VerificationType",
+    "VerificationStatus",
     "TrainingModule",
     "TrainingAssignment",
     "TrainingProgress",

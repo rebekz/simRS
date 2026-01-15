@@ -10,7 +10,7 @@ from typing import Dict, Any
 import logging
 from datetime import datetime
 
-from app.api.deps import get_current_user, get_db, require_permission
+from app.core.deps import get_current_user, get_db, PermissionChecker
 from app.core.config import settings
 from app.core.metrics import (
     system_health_status,
@@ -212,7 +212,7 @@ async def metrics():
 @router.get("/monitoring/config")
 async def get_monitoring_config(
     current_user = Depends(get_current_user),
-    _: None = Depends(require_permission("system", "read"))
+    _: None = Depends(PermissionChecker("system", "read"))
 ):
     """
     Get monitoring configuration.
@@ -247,7 +247,7 @@ async def get_monitoring_config(
 @router.post("/monitoring/test-alert")
 async def test_alert(
     current_user = Depends(get_current_user),
-    _: None = Depends(require_permission("system", "admin"))
+    _: None = Depends(PermissionChecker("system", "admin"))
 ):
     """
     Test alerting system.

@@ -47,7 +47,7 @@ class BPJSEligibilityCheck(Base):
     # Error handling
     api_error = Column(Text, nullable=True)
     api_error_code = Column(String(50), nullable=True)
-    retry_count = Column(Integer, server_default=0, nullable=False)
+    retry_count = Column(Integer, default=0, nullable=False)
     last_retry_at = Column(DateTime(timezone=True), nullable=True)
 
     # Audit

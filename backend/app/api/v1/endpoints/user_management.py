@@ -13,7 +13,7 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_user, get_current_admin_user, get_db
+from app.core.deps import get_current_user, get_current_admin_user, get_db
 from app.models.user import User, UserRole
 from app.schemas.user_management import (
     UserCreate, UserUpdate, UserResponse, UserListResponse, UserSearchQuery,

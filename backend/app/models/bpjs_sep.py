@@ -55,8 +55,8 @@ class BPJSSEP(Base):
     referral_ppk_code = Column(String(20), nullable=True)
 
     # Service flags
-    is_executive = Column(Boolean, server_default=False, nullable=False)
-    cob_flag = Column(Boolean, server_default=False, nullable=False)  # COB (Coordination of Benefits)
+    is_executive = Column(Boolean, default=False, nullable=False)
+    cob_flag = Column(Boolean, default=False, nullable=False)  # COB (Coordination of Benefits)
 
     # Additional information
     notes = Column(Text, nullable=True)  # Catatan
@@ -75,7 +75,7 @@ class BPJSSEP(Base):
     updated_at = Column(DateTime(timezone=True), server_default="NOW()", nullable=False)
 
     # Soft delete
-    is_deleted = Column(Boolean, server_default=False, nullable=False)
+    is_deleted = Column(Boolean, default=False, nullable=False)
     deleted_at = Column(DateTime(timezone=True), nullable=True)
     deleted_by = Column(Integer, ForeignKey("users.id"), nullable=True)
     deletion_reason = Column(Text, nullable=True)

@@ -14,7 +14,7 @@ from datetime import datetime, date
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_current_active_user, get_db
+from app.core.deps import get_current_active_user, get_db
 from app.models.user import User
 from app.schemas.admission import (
     AdmissionOrderCreate, AdmissionOrderResponse,

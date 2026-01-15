@@ -49,10 +49,10 @@ class Drug(Base):
     bpjs_price = Column(Numeric(12, 2), nullable=True)  # BPJS claim price
 
     # Drug properties
-    is_narcotic = Column(Boolean, server_default=False, nullable=False)  # Controlled substance
-    is_antibiotic = Column(Boolean, server_default=False, nullable=False)
-    requires_prescription = Column(Boolean, server_default=True, nullable=False)
-    requires_cold_chain = Column(Boolean, server_default=False, nullable=False)
+    is_narcotic = Column(Boolean, default=False, nullable=False)  # Controlled substance
+    is_antibiotic = Column(Boolean, default=False, nullable=False)
+    requires_prescription = Column(Boolean, default=True, nullable=False)
+    requires_cold_chain = Column(Boolean, default=False, nullable=False)
 
     # Storage requirements
     storage_conditions = Column(Text, nullable=True)  # e.g., "Store at 2-8°C"
@@ -70,7 +70,7 @@ class Drug(Base):
     warnings = Column(Text, nullable=True)
 
     # Status
-    is_active = Column(Boolean, server_default=True, nullable=False, index=True)
+    is_active = Column(Boolean, default=True, nullable=False, index=True)
 
     # Audit fields
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
@@ -105,7 +105,7 @@ class DrugBatch(Base):
     unit_cost = Column(Numeric(12, 2), nullable=True)
 
     # Status
-    is_quarantined = Column(Boolean, server_default=False, nullable=False)  # Expired or defective
+    is_quarantined = Column(Boolean, default=False, nullable=False)  # Expired or defective
     quarantine_reason = Column(Text, nullable=True)
 
     # Audit fields
@@ -134,7 +134,7 @@ class Supplier(Base):
     address = Column(Text, nullable=True)
 
     # BPJS information
-    is_bpjs_supplier = Column(Boolean, server_default=False, nullable=False)
+    is_bpjs_supplier = Column(Boolean, default=False, nullable=False)
     bpjs_facility_code = Column(String(50), nullable=True)
 
     # Payment terms
@@ -142,7 +142,7 @@ class Supplier(Base):
     credit_limit = Column(Numeric(15, 2), nullable=True)
 
     # Status
-    is_active = Column(Boolean, server_default=True, nullable=False)
+    is_active = Column(Boolean, default=True, nullable=False)
 
     # Audit fields
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
@@ -261,7 +261,7 @@ class PurchaseOrderItem(Base):
 
     # Order details
     quantity_ordered = Column(Integer, nullable=False)
-    quantity_received = Column(Integer, server_default=0, nullable=False)
+    quantity_received = Column(Integer, default=0, nullable=False)
     unit_price = Column(Numeric(12, 2), nullable=False)
 
     # Subtotal
@@ -315,7 +315,7 @@ class GoodsReceiptItem(Base):
     # Receipt details
     quantity_received = Column(Integer, nullable=False)
     quantity_accepted = Column(Integer, nullable=False)  # After quality check
-    quantity_rejected = Column(Integer, server_default=0, nullable=False)
+    quantity_rejected = Column(Integer, default=0, nullable=False)
     rejection_reason = Column(Text, nullable=True)
 
     # Batch information
@@ -346,7 +346,7 @@ class NearExpiryAlert(Base):
     current_quantity = Column(Integer, nullable=False)
 
     # Alert status
-    is_notified = Column(Boolean, server_default=False, nullable=False)
+    is_notified = Column(Boolean, default=False, nullable=False)
     notification_date = Column(DateTime(timezone=True), nullable=True)
 
     # Action taken

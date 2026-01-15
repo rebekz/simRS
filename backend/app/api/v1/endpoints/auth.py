@@ -3,7 +3,7 @@ from fastapi.security import HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
-from app.models.user import User
+from app.models.user import User as UserModel
 from app.schemas.auth import (
     LoginRequest,
     TokenResponse,
@@ -17,7 +17,7 @@ from app.schemas.auth import (
     SessionResponse,
     LoginHistoryResponse,
 )
-from app.schemas.user import UserResponse
+from app.schemas.user import User
 from app.crud.user import (
     authenticate_user,
     update_last_login,
@@ -250,7 +250,7 @@ async def refresh_token(
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
 async def logout(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: UserModel = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """
@@ -295,7 +295,7 @@ async def logout(
 @router.post("/logout-all", status_code=status.HTTP_204_NO_CONTENT)
 async def logout_all(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: UserModel = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """
@@ -326,9 +326,9 @@ async def logout_all(
     )
 
 
-@router.get("/me", response_model=UserResponse, status_code=status.HTTP_200_OK)
+@router.get("/me", response_model=User, status_code=status.HTTP_200_OK)
 async def get_current_user_info(
-    current_user: User = Depends(get_current_user),
+    current_user: UserModel = Depends(get_current_user),
 ):
     """
     Get current user information
@@ -346,7 +346,7 @@ async def get_current_user_info(
 async def setup_mfa(
     request: Request,
     mfa_setup: MFASetupRequest,
-    current_user: User = Depends(get_current_user),
+    current_user: UserModel = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """
@@ -410,7 +410,7 @@ async def setup_mfa(
 async def verify_and_enable_mfa(
     request: Request,
     mfa_verify: MFAVerifyRequest,
-    current_user: User = Depends(get_current_user),
+    current_user: UserModel = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """
@@ -455,7 +455,7 @@ async def verify_and_enable_mfa(
 async def disable_mfa_endpoint(
     request: Request,
     mfa_setup: MFASetupRequest,
-    current_user: User = Depends(get_current_user),
+    current_user: UserModel = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """
@@ -503,7 +503,7 @@ async def disable_mfa_endpoint(
 async def change_password_endpoint(
     request: Request,
     password_change: PasswordChangeRequest,
-    current_user: User = Depends(get_current_user),
+    current_user: UserModel = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """
@@ -655,7 +655,7 @@ async def confirm_password_reset(
 
 @router.get("/sessions", response_model=list[SessionResponse], status_code=status.HTTP_200_OK)
 async def get_sessions(
-    current_user: User = Depends(get_current_user),
+    current_user: UserModel = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """
@@ -690,7 +690,7 @@ async def get_sessions(
 async def revoke_session_endpoint(
     session_id: int,
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: UserModel = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """
@@ -732,7 +732,7 @@ async def revoke_session_endpoint(
 
 @router.get("/login-history", response_model=list[LoginHistoryResponse], status_code=status.HTTP_200_OK)
 async def get_login_history(
-    current_user: User = Depends(get_current_user),
+    current_user: UserModel = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
     limit: int = 20,
 ):
