@@ -570,3 +570,43 @@
 1. Complete remaining EPIC-022 stories (06, 07, 08)
 2. Integrate with lab result workflow for automatic notifications
 3. Consider frontend components for lab result notification display
+
+- [x] STORY-022-08: Payment Due Reminders (commit: TBD)
+  - PaymentReminderService with invoice and payment tracking
+  - Schedule reminders (7 days, 3 days before, due date, overdue)
+  - Send invoice delivery immediately after service
+  - Payment confirmation with automatic reminder cancellation
+  - Insurance claim notifications (submitted, approved, rejected)
+  - Escalating priority for overdue payments
+  - Multiple payment options in notifications
+  - API endpoints: /payment-reminders/schedule-reminders, /payment-reminders/send-invoice, /payment-reminders/payment-confirmation, /payment-reminders/insurance-claim, /payment-reminders/cancel-reminders/{id}, /payment-reminders/invoice/{id}/reminders, /payment-reminders/patient/{id}/reminders, /payment-reminders/stats/patient/{id}
+  - Python 3.5 compatible service layer
+  - Files: backend/app/services/payment_reminders.py, backend/app/api/v1/endpoints/payment_reminders.py
+
+**Epic Status:** IN PROGRESS (7+ stories completed, 2 remaining)
+
+---
+
+## CURRENT ITERATION (2026-01-16) - Update 5
+
+**Working On:** STORY-022-08: Payment Due Reminders
+
+**Implementation Summary:**
+- Created PaymentReminderService with multi-stage reminder system
+- Implemented invoice delivery with payment links and options
+- Payment confirmation that automatically cancels pending reminders
+- Insurance claim notifications (BPJS submitted, approved, rejected)
+- Escalating priority for overdue payments (NORMAL → HIGH)
+- Patient payment statistics with outstanding invoice tracking
+
+**Technical Notes:**
+- Service layer (payment_reminders.py): Python 3.5 compatible using .format()
+- Reminder schedules: 7d before, 3d before, due date, 1d overdue, 7d overdue
+- Payment confirmations sent via In-App + Email
+- Invoice delivery defaults to Email + In-App regardless of preferences
+- Rejected claims include appeal information (30 days)
+
+**Next Steps:**
+1. Complete remaining EPIC-022 stories (06, 07)
+2. Integrate with billing workflow for automatic invoice delivery
+3. Consider frontend components for payment reminder display
