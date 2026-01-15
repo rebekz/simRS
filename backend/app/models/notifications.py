@@ -315,3 +315,124 @@ class NotificationPreference(Base):
               unique=True),
         Index("ix_notification_preferences_user_id", "user_id"),
     )
+
+
+class CriticalAlert(Base):
+    """
+    CriticalAlert model for tracking critical value alerts.
+    Stores records of all critical values detected and their acknowledgment status.
+    """
+    __tablename__ = "critical_alerts"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    patient_id = Column(Integer, nullable=False, index=True)
+    patient_name = Column(String(255), nullable=False)
+    mrn = Column(String(50), nullable=False, index=True)
+
+    # Test information
+    test_name = Column(String(255), nullable=False)
+    test_value = Column(String(100), nullable=False)
+    test_unit = Column(String(50), nullable=False)
+    critical_range = Column(String(100), nullable=False)
+
+    # Ordering information
+    ordering_physician_id = Column(Integer, nullable=True, index=True)
+    patient_location = Column(String(255), nullable=True)
+
+    # Result information
+    result_timestamp = Column(DateTime(timezone=True), nullable=False, index=True)
+
+    # Notification tracking
+    notification_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("notifications.id", ondelete="SET NULL"),
+        nullable=True
+    )
+
+    # Acknowledgment tracking
+    acknowledged = Column(Boolean, default=False, nullable=False, index=True)
+    acknowledged_at = Column(DateTime(timezone=True), nullable=True)
+    acknowledged_by = Column(Integer, nullable=True)
+    action_taken = Column(Text, nullable=True)
+
+    # Escalation tracking
+    escalation_level = Column(Integer, default=0, nullable=False)
+    escalated_at = Column(DateTime(timezone=True), nullable=True)
+
+    # Resolution tracking
+    resolved = Column(Boolean, default=False, nullable=False)
+    resolved_at = Column(DateTime(timezone=True), nullable=True)
+    resolved_by = Column(Integer, nullable=True)
+
+    created_at = Column(
+        DateTime(timezone=True),
+        server_default=datetime.utcnow,
+        nullable=False,
+        index=True
+    )
+    updated_at = Column(
+        DateTime(timezone=True),
+        server_default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+        nullable=False
+    )
+
+    # Relationships
+    notification = relationship("Notification", foreign_keys=[notification_id])
+
+    # Indexes for common queries
+    __table_args__ = (
+        Index("ix_critical_alerts_patient_ack", "patient_id", "acknowledged"),
+        Index("ix_critical_alerts_physician_unack", "ordering_physician_id", "acknowledged"),
+        Index("ix_critical_alerts_result_time", "result_timestamp"),
+        Index("ix_critical_alerts_escalation", "escalation_level", "acknowledged"),
+    )
+
+
+class AlertAcknowledgment(Base):
+    """
+    AlertAcknowledgment model for tracking detailed acknowledgment history.
+    Stores all acknowledgment attempts and actions taken for critical alerts.
+    """
+    __tablename__ = "alert_acknowledgments"
+
+    id = Column(Integer, primary_key=True, index=True)
+    critical_alert_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("critical_alerts.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True
+    )
+    physician_id = Column(Integer, nullable=False, index=True)
+    acknowledgment_type = Column(
+        SQLEnum("acknowledged", "escalated", "resolved", name="acknowledgment_type"),
+        nullable=False
+    )
+    action_taken = Column(Text, nullable=False)
+    notes = Column(Text, nullable=True)
+
+    # Timestamp tracking
+    acknowledged_at = Column(
+        DateTime(timezone=True),
+        server_default=datetime.utcnow,
+        nullable=False,
+        index=True
+    )
+
+    # Response time tracking
+    response_time_seconds = Column(Integer, nullable=True)
+
+    created_at = Column(
+        DateTime(timezone=True),
+        server_default=datetime.utcnow,
+        nullable=False
+    )
+
+    # Relationships
+    critical_alert = relationship("CriticalAlert", cascade="all, delete")
+
+    # Indexes for common queries
+    __table_args__ = (
+        Index("ix_alert_acknowledgments_alert_time", "critical_alert_id", "acknowledged_at"),
+        Index("ix_alert_acknowledgments_physician", "physician_id", "acknowledged_at"),
+    )

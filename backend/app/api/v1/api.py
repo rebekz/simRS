@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import health, auth, audit, monitoring, patients, encounters, bpjs, bpjs_verification, bpjs_aplicare, bpjs_claims, icd10, allergies, clinical_notes, consultation, sep, inventory, user_management, medications, drug_interactions, prescriptions, dispensing, queue, bed, hospital, admission, daily_care, discharge, satusehat, lab_orders, radiology_orders, procedure_codes, training, appointments, appointment_reminders, billing, payments, patient_portal, patient_portal_auth, patient_portal_linking, patient_portal_health, patient_portal_appointments, patient_portal_prescriptions, patient_portal_lab_results, patient_portal_radiology, patient_portal_billing, patient_portal_account, patient_portal_vaccinations, patient_portal_messaging, patient_portal_medical_records, notifications, system_alerts
+from app.api.v1.endpoints import health, auth, audit, monitoring, patients, encounters, bpjs, bpjs_verification, bpjs_aplicare, bpjs_claims, icd10, allergies, clinical_notes, consultation, sep, inventory, user_management, medications, drug_interactions, prescriptions, dispensing, queue, bed, hospital, admission, daily_care, discharge, satusehat, lab_orders, radiology_orders, procedure_codes, training, appointments, appointment_reminders, billing, payments, patient_portal, patient_portal_auth, patient_portal_linking, patient_portal_health, patient_portal_appointments, patient_portal_prescriptions, patient_portal_lab_results, patient_portal_radiology, patient_portal_billing, patient_portal_account, patient_portal_vaccinations, patient_portal_messaging, patient_portal_medical_records, notifications, system_alerts, critical_values
 
 api_router = APIRouter()
 
@@ -155,4 +155,7 @@ api_router.include_router(notifications.router, prefix="/notifications", tags=["
 
 # Include System Alerts endpoints
 api_router.include_router(system_alerts.router, tags=["System Alerts"])
+
+# Include Critical Values endpoints
+api_router.include_router(critical_values.router, prefix="/critical-values", tags=["Critical Values"])
 
