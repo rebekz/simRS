@@ -12974,3 +12974,142 @@ Notes:
 - BPJS and insurance ready
 
 =============================================================================
+
+STORY-058: Appointment Booking Form - COMPLETED
+Implemented: /frontend/src/app/app/appointments/book/page.tsx
+
+Features Implemented:
+- Department selection (11 departments): Penyakit Dalam, Bedah, Anak, Kandungan, Mata, THT, Kulit & Kelamin, Saraf, Jiwa, Gigi, Orthopedi
+- Specialty selection filtered by department
+- Doctor selection cards showing:
+  - Name, specialty, department
+  - Availability status
+  - Consultation fee (IDR formatting)
+  - BPJS tariff display
+- Date picker with minimum date set to today
+- Time slot grid (30-minute intervals from 08:00-17:00):
+  - Green slots: available
+  - Red slots: full/booked
+  - Indigo slot: selected
+  - Disabled state for unavailable slots
+- Appointment details:
+  - Type: new, follow_up, consultation
+  - Urgency: routine, urgent, emergency
+  - Chief complaint (required)
+  - Symptoms (optional)
+  - Phone number
+  - Notes (optional)
+- Patient information display:
+  - Name, MRN, age/gender
+  - Blood type
+  - Insurance type with icons (BPJS/Insurance/Corporate/Self-pay)
+- Allergy warnings with red alert box
+- Summary section showing:
+  - Patient, doctor, specialty
+  - Date (full Indonesian date format)
+  - Time
+  - Appointment type
+  - Consultation fee (IDR formatting)
+- Form validation:
+  - Patient required
+  - Doctor required
+  - Date required
+  - Time slot required
+  - Chief complaint required
+- JWT authentication check
+- Loading states
+- Error handling with user-friendly messages
+- Success notification with queue number
+- Redirect to appointments list after success
+
+Technical Implementation:
+- TypeScript with full type safety (Patient, Doctor, Schedule, TimeSlot interfaces)
+- React hooks: useState, useEffect, useRouter, useSearchParams
+- Dynamic doctor fetching based on department/specialty
+- Dynamic slot availability fetching
+- Time slot generation with 30-minute intervals
+- Currency formatting with Intl.NumberFormat (IDR)
+- Responsive grid layouts
+- Color-coded availability indicators
+- Disabled state handling for unavailable options
+- "use client" directive for Next.js App Router
+- All UI text in Indonesian
+- Query parameter support for patient_id
+
+API Integration:
+- GET /api/v1/patients/{id} - Fetch patient details
+- GET /api/v1/doctors/available?specialty=&department= - Fetch available doctors
+- GET /api/v1/appointments/slots?doctor_id=&date= - Fetch available time slots
+- POST /api/v1/appointments - Create appointment
+
+UI/UX Features:
+- Patient info header with quick stats
+- Department → Specialty → Doctor cascade selection
+- Doctor cards with consultation fees and BPJS tariffs
+- Visual time slot grid with color coding
+- Selected time highlighting
+- Summary section before submission
+- Disabled submit button until all required fields filled
+- Loading spinner during submission
+- Confirmation with queue number on success
+- Cancel button to navigate back
+
+Testing Considerations:
+- Test department selection flow
+- Test specialty filtering
+- Test doctor selection (available vs unavailable)
+- Test date selection (past dates should be disabled)
+- Test time slot availability
+- Test appointment type and urgency selection
+- Test form validation (missing required fields)
+- Test BPJS vs self-pay fee display
+- Test allergy display for allergic patients
+- Test success flow and redirect
+- Test error handling (API failures)
+- Test currency formatting
+- Test Indonesian date formatting
+
+Potential Enhancements:
+- Add doctor photo/profile picture
+- Add doctor ratings/reviews
+- Add waiting time estimation
+- Add SMS/email confirmation
+- Add calendar view instead of date picker
+- Add recurring appointment support
+- Add appointment rescheduling
+- Add telemedicine appointment option
+- Add insurance eligibility check
+- Add pre-authorization requirement check
+
+Dependencies:
+- Requires patient selection flow (from patient list)
+- Requires doctor availability endpoint
+- Requires appointment slot management endpoint
+- Requires appointment creation endpoint
+- Should integrate with insurance verification
+
+Blockers:
+- None
+
+Next Steps:
+- Implement appointment list view (/app/appointments/page.tsx)
+- Implement appointment detail/edit view
+- Implement appointment rescheduling
+- Implement appointment cancellation
+- Implement waiting room management
+- Implement telemedicine integration
+- Implement appointment reminders
+- Implement patient self-scheduling portal
+
+Notes:
+- Completes the outpatient scheduling workflow
+- Essential for patient access management
+- Foundation for appointment management system
+- Provides transparent fee display
+- Supports BPJS integration
+- Indonesian language interface
+- Compliant with local appointment scheduling standards
+- Patient-centric with clear information display
+- Staff-friendly with efficient workflow
+
+=============================================================================
