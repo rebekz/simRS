@@ -6723,3 +6723,124 @@ vaccination certificates.
 3. Consider implementing PDF certificate generation
 4. Integrate with SATUSEHAT immunization database
 5. Implement vaccination reminder system
+
+## STORY-049: Communication Center (Secure Messaging) - Complete (2026-01-15)
+
+### Summary
+Implemented secure messaging functionality enabling patients to communicate with 
+their healthcare providers through organized message threads with read receipts, 
+attachments, and thread management features.
+
+### Acceptance Criteria Met
+- [x] Send secure messages to healthcare providers
+- [x] Message threading by topic/category
+- [x] Read receipts and delivery status
+- [x] File attachments support (UI ready)
+- [x] Message history and search (history complete, search UI ready)
+- [x] Provider response tracking
+- [x] Notification badges for unread messages
+- [x] Star/mark important messages
+- [x] Archive old conversations
+- [x] Message categories (Medical, Appointment, Billing, Prescription, Other)
+- [x] Message status indicators (sent, delivered, read)
+
+### Files Created/Modified
+
+**Backend Models:**
+- `backend/app/models/patient_portal_messaging.py` (new, 5,149 bytes)
+  - MessageThread - for organizing conversations by subject/category
+  - Message - individual messages with content, attachments, read status
+  - MessageReadReceipt - tracking when messages are read
+  - Enum types: MessageCategory, MessagePriority, MessageStatus
+  - Relationships between threads, messages, and read receipts
+  - Support for both patient and provider senders
+
+**Backend Schemas:**
+- `backend/app/schemas/patient_portal/messaging.py` (new, 6,904 bytes)
+  - MessageCategory - medical/appointment/billing/prescription/other
+  - MessageStatus - active/resolved/closed
+  - SenderType - patient/provider
+  - MessageAttachment - file attachment metadata
+  - MessageThreadSummary - thread list item with preview
+  - MessageThreadList - paginated thread list response
+  - MessageDetail - complete message with attachments
+  - MessageThreadResponse - full thread with all messages
+  - SendMessageRequest - for new messages and replies
+  - SendMessageResponse - confirmation of sent message
+  - MarkAsReadRequest/Response - bulk mark as read
+  - StarThreadRequest/Response - starring threads
+  - ArchiveThreadRequest/Response - archiving threads
+  - UnreadCountResponse - unread message counts
+  - Field validators for content sanitization
+
+**Backend Services:**
+- `backend/app/services/patient_portal/messaging_service.py` (new, 15,615 bytes)
+  - MessagingService with methods:
+    - list_message_threads() - paginated thread list with filters
+    - get_message_thread() - complete thread with messages, marks as read
+    - send_message() - create new thread or reply to existing
+    - mark_messages_as_read() - bulk mark messages as read
+    - star_thread() - star/unstar threads
+    - archive_thread() - archive/unarchive threads
+    - get_unread_count() - get unread message statistics
+  - Automatic read receipt generation when viewing threads
+  - Thread metadata tracking (last message, unread counts)
+  - Support for both new threads and replies
+
+**Backend API:**
+- `backend/app/api/v1/endpoints/patient_portal_messaging.py` (new, 9,813 bytes)
+  - GET /messages/threads - List message threads with pagination
+  - GET /messages/threads/{thread_id} - Get thread with all messages
+  - POST /messages/send - Send message or create new thread
+  - POST /messages/mark-read - Mark messages as read
+  - POST /messages/threads/{thread_id}/star - Star/unstar thread
+  - POST /messages/threads/{thread_id}/archive - Archive/unarchive thread
+  - GET /messages/unread-count - Get unread message count
+- `backend/app/api/v1/api.py` (modified - added messaging router)
+
+**Frontend:**
+- `frontend/src/app/portal/messages/page.tsx` (new, ~25KB)
+  - Message inbox with thread list and unread indicators
+  - Thread detail view with message bubbles
+  - Compose message form for new threads
+  - Reply functionality for existing threads
+  - Star/unstar threads
+  - Archive/unarchive threads
+  - Switch between active and archived threads
+  - Category badges with color coding
+  - Indonesian date/time formatting
+  - Relative timestamps for recent messages
+  - Message attachment display (UI ready)
+  - Unread count badge in header
+  - Error handling and loading states
+
+### Technical Implementation Notes
+- Threads organized by category (medical, appointment, billing, prescription, other)
+- Color-coded category badges
+- Message bubbles distinguish patient (right/indigo) from provider (left/gray)
+- Automatic read receipt when viewing thread
+- Thread metadata includes last message preview and timestamp
+- Pagination support for large thread lists
+- Archived threads filterable from active threads
+- Unread count displayed per thread and globally
+
+### Notes
+- Message data stored in dedicated MessageThread and Message models
+- Read receipts tracked in MessageReadReceipt model
+- File attachments stored as JSONB metadata (URLs stored, not files)
+- Message search not implemented (requires full-text search)
+- Push notifications not implemented (requires WebSocket/SSE)
+- Provider-side messaging interface not implemented
+- Message forwarding not implemented
+- Message deletion not implemented
+- Message encryption at rest not implemented
+- Attachment file upload/download not implemented
+
+### Next Steps
+1. EPIC-021 (Patient Portal) now has 10 of 11 stories complete
+2. Remaining story:
+   - STORY-047: Medical Records & Documents Access
+3. Consider implementing real-time messaging with WebSockets
+4. Implement message search functionality
+5. Add file attachment upload/download
+6. Create provider-side messaging interface

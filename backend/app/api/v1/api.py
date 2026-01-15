@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import health, auth, audit, monitoring, patients, encounters, bpjs, bpjs_verification, bpjs_aplicare, bpjs_claims, icd10, allergies, clinical_notes, consultation, sep, inventory, user_management, medications, drug_interactions, prescriptions, dispensing, queue, bed, hospital, admission, daily_care, discharge, satusehat, lab_orders, radiology_orders, procedure_codes, training, appointments, billing, payments, patient_portal, patient_portal_auth, patient_portal_linking, patient_portal_health, patient_portal_appointments, patient_portal_prescriptions, patient_portal_lab_results, patient_portal_radiology, patient_portal_billing, patient_portal_account, patient_portal_vaccinations
+from app.api.v1.endpoints import health, auth, audit, monitoring, patients, encounters, bpjs, bpjs_verification, bpjs_aplicare, bpjs_claims, icd10, allergies, clinical_notes, consultation, sep, inventory, user_management, medications, drug_interactions, prescriptions, dispensing, queue, bed, hospital, admission, daily_care, discharge, satusehat, lab_orders, radiology_orders, procedure_codes, training, appointments, billing, payments, patient_portal, patient_portal_auth, patient_portal_linking, patient_portal_health, patient_portal_appointments, patient_portal_prescriptions, patient_portal_lab_results, patient_portal_radiology, patient_portal_billing, patient_portal_account, patient_portal_vaccinations, patient_portal_messaging
 
 api_router = APIRouter()
 
@@ -140,4 +140,7 @@ api_router.include_router(patient_portal_account.router, prefix="/portal", tags=
 
 # Include Patient Portal Vaccinations endpoints
 api_router.include_router(patient_portal_vaccinations.router, prefix="/portal", tags=["Patient Portal Vaccinations"])
+
+# Include Patient Portal Messaging endpoints
+api_router.include_router(patient_portal_messaging.router, prefix="/portal", tags=["Patient Portal Messaging"])
 
