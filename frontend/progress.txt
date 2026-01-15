@@ -302,23 +302,37 @@
   - Mock database: 6 lab tests + 5 radiology tests
   - File: src/components/consultation/TestOrdering.tsx
 
-- [ ] WEB-S-4.6: Patient History Timeline
+- [x] WEB-S-4.6: Patient History Timeline (commit: TBD)
+  - Timeline showing visits, hospitalizations, surgeries, lab results, imaging
+  - Visual timeline with icons for each event type (color-coded)
+  - Chronological sorting with newest first
+  - Filtering by event type (visit, hospitalization, surgery, lab, imaging)
+  - Allergies timeline (diagnosed date, reactions, severity, status)
+  - Chronic conditions tracking (diagnosis date, provider, status, medications, last visit)
+  - Medication history visualization (active vs discontinued)
+  - Medication discontinuation tracking with reason
+  - Four tabs: Timeline, Allergies, Chronic Conditions, Medications
+  - Event cards with clickable details
+  - Severity indicators (mild, moderate, severe)
+  - Status badges (active, resolved, controlled, chronic)
+  - Mock data: 10 timeline events, 2 allergies, 3 chronic conditions, 5 medications
+  - File: src/components/consultation/PatientTimeline.tsx
+
 - [ ] WEB-S-4.7: Allergy & Medication Alerts
 
-**Epic Status:** IN PROGRESS (5/7 stories complete - 71%)
+**Epic Status:** IN PROGRESS (6/7 stories complete - 86%)
 
 ---
 
 ## BLOCKERS / NOTES
 
 ### Current Iteration (2026-01-16)
-- **Completed:** WEB-S-4.5: Lab/Radiology Ordering
+- **Completed:** WEB-S-4.6: Patient History Timeline
 - **Blockers:** None
-- **Notes:** Unified test ordering component for Lab and Radiology. Test catalog search with category filtering. Priority assignment (routine/urgent/STAT). Clinical indication required for specific tests. BPJS pre-authorization with request/approval/rejection flow. Order tracking with status updates. Results viewing with abnormal value flags (high/low/critical) and reference ranges. Result attachment to encounter. Fasting warnings and preparation instructions. TAT estimation displayed.
+- **Notes:** Comprehensive patient history timeline visualization. Four tabs: Timeline, Allergies, Chronic Conditions, Medications. Timeline shows visits/hospitalizations/surgeries/lab results/imaging with visual icons and color-coding. Filtering by event type. Allergies timeline shows diagnosis date, reactions, severity. Chronic conditions tracking with medications and last visit. Medication history with active vs discontinued sections. Chronological sorting newest first.
 
 ### Next Steps
-1. Continue WEB-EPIC-4: WEB-S-4.6 Patient History Timeline (MEDIUM priority)
-2. Then WEB-S-4.7: Allergy & Medication Alerts (LOW priority)
+1. Continue WEB-EPIC-4: WEB-S-4.7 Allergy & Medication Alerts (LOW priority)
 
 ---
 
@@ -330,8 +344,8 @@
 **Blocked:** 0
 
 **Total Stories:** 34
-**Completed:** 31
+**Completed:** 32
 **In Progress:** 0
-**Remaining:** 3
+**Remaining:** 2
 
-**Overall Progress:** ~91% complete (31/34 stories)
+**Overall Progress:** ~94% complete (32/34 stories)
