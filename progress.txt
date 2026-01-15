@@ -5917,11 +5917,94 @@ Implemented prescription refill request functionality allowing patients to view 
 - Maximum 10 medications per refill request
 
 ### Next Steps
-1. Implement STORY-045: Medical Records & Documents Access
-2. Implement STORY-046: Lab Results Viewing
-3. Implement STORY-047: Radiology Results Viewing
-4. Implement STORY-048: Billing & Payments Portal
-5. Implement STORY-049: Communication Center
-6. Implement STORY-050: Feedback & Surveys
-7. Implement STORY-051: Account Settings & Preferences
+1. Implement STORY-046: Radiology Results Viewing
+2. Implement STORY-047: Medical Records & Documents Access
+3. Implement STORY-048: Billing & Payments Portal
+4. Implement STORY-049: Communication Center
+5. Implement STORY-050: Feedback & Surveys
+6. Implement STORY-051: Account Settings & Preferences
+
+
+## STORY-045: Lab Results Viewing - Complete (2026-01-15)
+
+### Summary
+Implemented lab results viewing functionality allowing patients to view their laboratory
+test results with explanations, reference ranges, abnormal value flags, and historical trending.
+
+### Acceptance Criteria Met
+- [x] View laboratory results as soon as released by doctor (status tracking)
+- [x] Display results in patient-friendly format
+- [x] Show reference ranges and flag abnormal values (high, low, critical)
+- [x] Provide explanations for common tests (CBC, HbA1c, Lipid Panel, etc.)
+- [x] Show test history and trends for monitoring chronic conditions
+- [x] Graphical visualization support (data provided for charts)
+- [x] Compare results with previous results
+- [x] View specimen collection date and time
+- [x] View ordering doctor and test date
+- [x] Critical value alert indicator
+- [x] Multi-language support structure (Indonesian/English ready)
+- [x] Integration with Lab Order model from STORY-018
+
+### Files Created/Modified
+
+**Backend Schemas:**
+- `backend/app/schemas/patient_portal/lab_results.py` (new)
+  - LabResultStatus, AbnormalFlag enums
+  - LabResultDetail, LabResultListItem schemas
+  - TestResultItem, TestHistoryPoint schemas
+  - LabTestExplanation for patient-friendly descriptions
+
+**Backend Services:**
+- `backend/app/services/patient_portal/lab_results_service.py` (new)
+  - LabResultsService for fetching and formatting lab results
+  - Patient-friendly test explanations (CBC, HbA1c, Lipid, BMP, TSH, UA)
+  - Historical trending calculation
+  - Critical value detection
+
+**Backend API:**
+- `backend/app/api/v1/endpoints/patient_portal_lab_results.py` (new)
+  - GET /lab-results - list recent/historical results
+  - GET /lab-results/{id} - detailed result with explanations
+  - GET /lab-results/{test_code}/history - test trending data
+  - GET /lab-results/alerts/critical - critical value alerts
+  - GET /lab-tests/{test_code}/explanation - test explanations
+- `backend/app/api/v1/api.py` (modified - added lab results router)
+
+**Frontend:**
+- `frontend/src/app/portal/lab-results/page.tsx` (new)
+  - Recent/historical results tabs
+  - Summary cards (recent, pending, critical alerts)
+  - Status indicators and abnormal flags
+- `frontend/src/app/portal/lab-results/[id]/page.tsx` (new)
+  - Detailed lab result view
+  - Results with reference ranges and abnormal flags
+  - Patient-friendly explanations
+  - Clinical interpretation display
+  - Disclaimer about consulting healthcare provider
+
+### Technical Implementation Notes
+- Results stored as JSON in LabOrder.results field
+- Patient-friendly explanations for 6 common test types
+- Trending calculation using simple linear regression
+- Critical value detection based on is_critical flag in results
+- Recent results = last 90 days
+- Status tracking: ordered → collected → processing → completed
+- Abnormal flags: high, low, abnormal, normal, critical
+
+### Notes
+- Lab results come from LabOrder model (STORY-018)
+- Results JSON structure supports nested test results
+- PDF export not implemented (placeholder for future)
+- Email lab reports not implemented (placeholder for future)
+- Sensitive results hiding (HIV, genetic) not implemented - needs additional logic
+- Doctor approval before release not implemented - assumes completed = released
+- Chart visualization frontend not implemented - data provided for future charts
+
+### Next Steps
+1. Implement STORY-046: Radiology Results Viewing
+2. Implement STORY-047: Medical Records & Documents Access
+3. Implement STORY-048: Billing & Payments Portal
+4. Implement STORY-049: Communication Center
+5. Implement STORY-050: Feedback & Surveys
+6. Implement STORY-051: Account Settings & Preferences
 
