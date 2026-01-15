@@ -461,3 +461,165 @@ async def lookup_patient_advanced(
         insurance_status=insurance_status,
         has_unpaid_bills=False
     )
+
+
+# ============================================================================
+# Patient History Endpoints (STORY-011)
+# ============================================================================
+
+@router.get("/{patient_id}/history", response_model=dict)
+async def get_patient_history(
+    patient_id: int,
+    include_allergies: bool = Query(True, description="Include allergy history"),
+    include_medications: bool = Query(True, description="Include current medications"),
+    include_conditions: bool = Query(True, description="Include chronic conditions"),
+    include_encounters: bool = Query(True, description="Include encounter history"),
+    include_lab_results: bool = Query(True, description="Include lab results"),
+    include_vital_signs: bool = Query(True, description="Include vital signs"),
+    include_surgical_history: bool = Query(True, description="Include surgical history"),
+    include_immunizations: bool = Query(True, description="Include immunization records"),
+    include_family_history: bool = Query(True, description="Include family history"),
+    include_social_history: bool = Query(True, description="Include social history"),
+    encounter_limit: int = Query(10, ge=1, le=50, description="Max encounters to return"),
+    lab_results_limit: int = Query(10, ge=1, le=50, description="Max lab results to return"),
+    vital_signs_limit: int = Query(5, ge=1, le=20, description="Max vital signs to return"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_permission("patient", "read"))
+):
+    """
+    Get comprehensive patient history for STORY-011.
+
+    Aggregates all patient historical data including demographics,
+    encounters, allergies, medications, lab results, and more.
+
+    **Authentication**: Patient read permission required
+
+    **Usage**:
+    ```bash
+    curl -X GET "https://api.simrs-hospital.com/v1/patients/123/history" \\
+      -H "Authorization: Bearer YOUR_TOKEN"
+    ```
+
+    **Response**:
+    ```json
+    {
+      "patient_id": 123,
+      "medical_record_number": "RM-2026-00123",
+      "full_name": "John Doe",
+      "age": 45,
+      "gender": "male",
+      "blood_type": "A",
+      "allergies": [...],
+      "current_medications": [...],
+      "recent_encounters": [...],
+      "encounter_timeline": [...],
+      "total_encounters": 15,
+      "last_encounter_date": "2026-01-10T09:00:00"
+    }
+    ```
+    """
+    from app.services.patient_history_service import PatientHistoryService
+    from app.schemas.patient_history import PatientHistoryFilter
+
+    service = PatientHistoryService(db)
+
+    # Build filter from query params
+    filters = PatientHistoryFilter(
+        include_allergies=include_allergies,
+        include_medications=include_medications,
+        include_conditions=include_conditions,
+        include_encounters=include_encounters,
+        include_lab_results=include_lab_results,
+        include_vital_signs=include_vital_signs,
+        include_surgical_history=include_surgical_history,
+        include_immunizations=include_immunizations,
+        include_family_history=include_family_history,
+        include_social_history=include_social_history,
+        encounter_limit=encounter_limit,
+        lab_results_limit=lab_results_limit,
+        vital_signs_limit=vital_signs_limit
+    )
+
+    try:
+        history = await service.get_patient_history(patient_id, filters)
+        return history.model_dump()
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve patient history: {error}".format(error=str(e))
+        )
+
+
+@router.get("/{patient_id}/history/summary", response_model=dict)
+async def get_patient_history_summary(
+    patient_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_permission("patient", "read"))
+):
+    """
+    Get lightweight patient history summary for quick reference.
+
+    Returns key indicators like allergies, chronic conditions, last visit,
+    and flags for unpaid bills or pending appointments.
+
+    **Usage**:
+    ```bash
+    curl -X GET "https://api.simrs-hospital.com/v1/patients/123/history/summary" \\
+      -H "Authorization: Bearer YOUR_TOKEN"
+    ```
+    """
+    from app.services.patient_history_service import PatientHistoryService
+
+    service = PatientHistoryService(db)
+
+    try:
+        summary = await service.get_patient_history_summary(patient_id)
+        return summary.model_dump()
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve patient history summary: {error}".format(error=str(e))
+        )
+
+
+@router.get("/history/search", response_model=List[dict])
+async def search_patient_history(
+    search: str = Query(..., min_length=2, description="Search term (name, MRN, or NIK)"),
+    limit: int = Query(20, ge=1, le=100, description="Maximum results"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_permission("patient", "read"))
+):
+    """
+    Search patients with history summary.
+
+    Returns patient search results with key history indicators for
+    quick clinical decision-making.
+
+    **Usage**:
+    ```bash
+    curl -X GET "https://api.simrs-hospital.com/v1/patients/history/search?search=john&limit=10" \\
+      -H "Authorization: Bearer YOUR_TOKEN"
+    ```
+    """
+    from app.services.patient_history_service import PatientHistoryService
+
+    service = PatientHistoryService(db)
+
+    try:
+        results = await service.search_patient_history(search, limit)
+        return [r.model_dump() for r in results]
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to search patient history: {error}".format(error=str(e))
+        )
