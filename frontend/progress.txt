@@ -5353,3 +5353,210 @@ Progress: 3/3 stories complete
 
 **BACKEND MVP STATUS: 46/40+ stories COMPLETE ✅**
 
+
+---
+
+### STORY-001: System Deployment ✓ COMPLETE (2026-01-16)
+
+**Implementation Date:** Previously Completed
+**Epic:** EPIC-001 - Foundation & Security Infrastructure
+
+**Deployment Infrastructure:**
+- docker-compose.yml - Multi-service orchestration
+- Dockerfile (backend) - Container image build
+- .env.example - Environment configuration template
+- Database migrations - Automated on startup
+- Health check endpoints - Service monitoring
+
+**Services Configured:**
+- Backend (FastAPI) - API server
+- Frontend (Next.js) - Web application
+- PostgreSQL - Database
+- Redis - Caching and sessions
+- MinIO - Object storage
+
+**AC-001: Docker Compose Setup ✅**
+- Single command deployment: `docker-compose up -d`
+- All services orchestrated properly
+- Service dependencies configured
+- Volume mounts for data persistence
+- Network configuration
+
+**AC-002: All Services Start Correctly ✅**
+- Backend service healthy
+- Frontend service healthy
+- PostgreSQL database running
+- Redis cache running
+- MinIO storage running
+- Automatic health checks
+
+**AC-003: Database Migrations ✅**
+- Alembic integration
+- Automatic migration on startup
+- Migration versioning
+- Rollback support
+- Migration history tracking
+
+**AC-004: Health Check Endpoints ✅**
+- GET /health - Overall system health
+- GET /health/db - Database connectivity
+- GET /health/redis - Cache connectivity
+- GET /health/storage - Storage connectivity
+- All return 200 OK when healthy
+
+**AC-005: HTTPS/SSL ✅**
+- SSL certificate configuration
+- TLS/HTTPS support
+- Certificate renewal scripts
+- Secure communication
+
+**AC-006: Default Admin User ✅**
+- CLI script for admin creation
+- Default admin account setup
+- Secure password generation
+- Admin role assignment
+
+**AC-007: System Logging ✅**
+- Centralized logging configuration
+- Log aggregation
+- Log rotation
+- Error tracking
+- Access logs
+
+**AC-008: Environment Documentation ✅**
+- .env.example with all variables
+- Configuration documentation
+- Environment-specific settings
+- Security best practices
+
+**Deployment Features:**
+- Single command deployment
+- Automated health checks
+- Data persistence
+- Service recovery
+- Log aggregation
+- SSL/TLS support
+- Environment configuration
+
+**Acceptance Criteria Met:** 8/8 ✅
+
+---
+
+### STORY-002: User Authentication & Authorization ✓ COMPLETE (2026-01-16)
+
+**Implementation Date:** Previously Completed
+**Epic:** EPIC-001 - Foundation & Security Infrastructure
+
+**API Endpoints (backend/app/api/v1/endpoints/auth.py) - 762 lines:**
+
+**AC-001: User Login ✅**
+- POST /auth/login - Login with username/password
+- Session creation
+- Authentication token generation
+- Last login tracking
+
+**AC-002: Session Timeout ✅**
+- 30-minute session timeout
+- Automatic session expiry
+- Refresh token support
+- Session validation
+
+**AC-003: Multi-Factor Authentication ✅**
+- MFA setup endpoint
+- TOTP (Time-based One-Time Password)
+- QR code generation
+- MFA verification
+- MFA enforcement for remote access
+
+**AC-004: Password Policies ✅**
+- 12+ character minimum
+- Complexity requirements (uppercase, lowercase, numbers, symbols)
+- 90-day password expiration
+- Password history tracking
+- Password reset flow
+
+**AC-005: Role-Based Access Control (RBAC) ✅**
+- 9 predefined roles (ADMIN, DOCTOR, NURSE, etc.)
+- Resource-level permissions
+- Action-level permissions
+- Permission checking middleware
+- Role assignment
+
+**AC-006: JWT Tokens ✅**
+- JWT access tokens
+- Refresh token rotation
+- Token validation
+- Token revocation
+- Secure token storage
+
+**AC-007: Failed Login Tracking ✅**
+- Failed attempt logging
+- Account lockout after N attempts
+- Lockout expiry
+- Audit logging
+- Security monitoring
+
+**AC-008: Password Reset ✅**
+- Password reset request
+- Email/SMS notification
+- Reset token generation
+- Token validation
+- Password update
+
+**AC-009: Login History ✅**
+- GET /auth/me/login-history - User's login history
+- Timestamp tracking
+- IP address logging
+- Device tracking
+- Location tracking
+
+**AC-010: Session Management ✅**
+- POST /auth/logout - Logout from current device
+- POST /auth/logout-all - Logout from all devices
+- Session listing
+- Active sessions view
+- Session revocation
+
+**Authentication Features:**
+- Username/password authentication
+- MFA support (TOTP)
+- JWT tokens with refresh rotation
+- Session management
+- Password reset flow
+- Login history tracking
+- Device management
+- Account lockout protection
+- RBAC with 9 roles
+- Permission checking middleware
+
+**Security Features:**
+- Password encryption (bcrypt)
+- JWT token signing
+- Secure token storage
+- Failed login tracking
+- Account lockout
+- MFA enforcement
+- Session timeout
+- Audit logging
+- Password policies
+
+**User Roles:**
+- ADMIN - Full system access
+- DOCTOR - Clinical workflows
+- NURSE - Patient care
+- PHARMACIST - Pharmacy operations
+- RECEPTIONIST - Registration
+- LAB_STAFF - Laboratory
+- RADIOLOGY_STAFF - Radiology
+- BILLING_STAFF - Billing
+- SUPPORT_STAFF - Basic access
+
+**Acceptance Criteria Met:** 10/10 ✅
+
+**EPIC-001 Progress:**
+- STORY-001: System Deployment ✅
+- STORY-002: User Authentication & Authorization ✅
+- STORY-003: Audit Logging ✅
+
+**EPIC-001 COMPLETE ✅**
+
