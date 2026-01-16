@@ -426,7 +426,102 @@
   - Python 3.5 compatible service layer
   - Files: backend/app/services/notification_preferences.py, backend/app/api/v1/endpoints/notification_preferences.py
 
-**Epic Status:** IN PROGRESS (3+ stories completed, more to implement)
+**Epic Status:** IN PROGRESS (4+ stories completed, more to implement)
+
+---
+
+## STORY-022-02: Appointment Reminders and Confirmations ✓ COMPLETE
+
+**Completed:** 2026-01-16 (Ralph Loop Iteration 1/20)
+
+**Implementation Summary:**
+- AppointmentReminder model already exists in appointments.py (184-217)
+- Created AppointmentReminderService with full scheduling logic
+- Indonesian message templates for all notification types (SMS, WhatsApp, Email)
+- Multi-channel delivery with fallback mechanism
+- Patient response processing (YES, CANCEL, RESCHEDULE)
+- Reminder effectiveness tracking and statistics
+- 24-hour and 2-hour automatic reminders
+- Immediate confirmation on booking
+- Rescheduling and cancellation confirmations
+
+**Files Created/Modified:**
+- backend/app/services/appointment_reminders.py (NEW - 587 lines)
+  - AppointmentReminderService class
+  - Message templates (Indonesian)
+  - Channel preference management
+  - Patient response processing
+  - Reminder scheduling (24h, 2h)
+  - Effectiveness statistics
+- backend/app/api/v1/endpoints/appointment_reminders.py (EXISTS - 650 lines)
+  - Comprehensive API endpoints already implemented
+  - Webhook for patient responses
+  - Manual reminder sending
+  - Bulk reminder operations
+  - Statistics and health check
+  - Template management
+
+**API Endpoints (from existing file):**
+- POST /webhook/reply - Process patient responses (YES/CANCEL/RESCHEDULE)
+- GET /my-reminders - Get patient's upcoming reminders
+- GET /templates - Get reminder templates
+- POST /schedule - Schedule reminders for appointment
+- POST /send-manual - Send manual reminder immediately
+- POST /send-bulk - Bulk reminder sending
+- GET /stats - Reminder statistics
+- POST /process-pending - Process pending reminders (cron trigger)
+- GET /upcoming - Get all upcoming reminders
+- GET /health - Service health check
+
+**Message Templates Implemented:**
+- Confirmation (SMS, WhatsApp, Email)
+- Reminder 24h (SMS, WhatsApp, Email)
+- Reminder 2h (SMS, WhatsApp, Email)
+- Rescheduled (SMS, WhatsApp, Email)
+- Cancelled (SMS, WhatsApp, Email)
+
+**Acceptance Criteria Met:**
+- [x] Send reminders 24 hours before appointment
+- [x] Send reminders 2 hours before appointment
+- [x] Include appointment details (date, time, doctor, location, queue number)
+- [x] Include cancellation/rescheduling instructions
+- [x] Support multiple reminder frequencies
+- [x] Automatic reminder scheduling upon appointment booking
+- [x] Stop reminders if appointment is cancelled
+- [x] Send immediate confirmation upon booking
+- [x] Include appointment reference number
+- [x] Include preparation instructions
+- [x] Include estimated wait time
+- [x] Send rescheduling confirmation
+- [x] Send cancellation confirmation
+- [x] Support confirmation replies (YES)
+- [x] Support cancellation replies (CANCEL)
+- [x] Support rescheduling requests (RESCHEDULE)
+- [x] Process reply keywords in multiple languages
+- [x] Update appointment status based on patient response
+- [x] Send follow-up acknowledgment
+- [x] Respect patient's preferred channel
+- [x] Fallback to secondary channel if primary fails
+- [x] Allow patient to change preference via reply
+- [x] Do not send reminders if opted out
+- [x] Track reminder delivery status
+- [x] Track patient response rates
+- [x] Track no-show rates with vs without reminders
+- [x] Generate reminder effectiveness reports
+
+**Technical Notes:**
+- Python 3.5 compatible service layer (uses .format() not f-strings)
+- Async/await pattern throughout
+- Integrates with existing notification infrastructure (STORY-022-01)
+- Uses existing AppointmentReminder model from appointments.py
+- Indonesian language templates for patient communication
+- Multi-channel support (SMS, WhatsApp, Email)
+- Webhook endpoint for gateway integration
+- Comprehensive statistics and reporting
+
+**Next Steps:**
+1. Continue with next EPIC-022 story
+2. Consider frontend integration for reminder preferences UI
 
 ---
 
