@@ -3680,3 +3680,40 @@ Started: 1/2 stories implementable (1 blocked)
 9. User acceptance testing with doctors
 10. Performance testing and optimization
 
+
+---
+
+### EPIC-005: Inpatient Management ✓ COMPLETE (2026-01-16)
+
+**All 4 stories in EPIC-005 are already implemented:**
+
+#### STORY-020: Bed Management ✓ COMPLETE
+**API Endpoints:** `backend/app/api/v1/endpoints/bed.py` (642 lines)
+**Features:** Real-time bed dashboard, assignment, transfer, room status, BPJS Aplicare sync
+
+#### STORY-021: Admission Workflow ✓ COMPLETE
+**API Endpoints:** `backend/app/api/v1/endpoints/admission.py` (539 lines)
+**Features:** Admission <5 min, bed selection, BPJS SEP update, transfer workflow
+
+#### STORY-022: Daily Care Documentation ✓ COMPLETE
+**API Endpoints:** `backend/app/api/v1/endpoints/daily_care.py` (610 lines)
+**Features:** Nursing notes, physician rounds, vital signs, meds administration
+
+#### STORY-023: Discharge Planning ✓ COMPLETE
+**API Endpoints:** `backend/app/api/v1/endpoints/discharge.py` (523 lines)
+**Features:** Discharge readiness, orders, summary, reconciliation, BPJS SEP update
+
+**EPIC-005 (Inpatient Management) - COMPLETE ✓**
+
+---
+
+### STORY-030: BPJS VClaim API Integration ✓ COMPLETE (2026-01-16)
+
+**API Endpoints:** `backend/app/api/v1/endpoints/bpjs.py` (507 lines)
+**Features:** Eligibility, SEP CRUD, referrals, claim status, SRB, reference data
+**Dependencies:** STORY-002 ✓ (Met)
+
+**EPIC-010 (BPJS Kesehatan Integration) - IN PROGRESS**
+- STORY-030: BPJS VClaim API Integration ✓
+- STORY-031: BPJS Antrean API Integration (check status)
+
