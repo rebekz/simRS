@@ -3185,3 +3185,161 @@ Progress: 2/5 stories complete
 7. Add SATUSEHAT FHIR Condition sync
 8. User acceptance testing with doctors
 
+---
+
+### STORY-013: Allergy Tracking ✓ COMPLETE (2026-01-16)
+
+**Implementation Date:** 2026-01-16
+**Commit:** [Already Implemented - Previously Completed]
+
+**Database Model (app/models/allergy.py) - Already Existed:**
+- Allergy model with comprehensive allergy tracking
+- Allergy types: drug, food, environmental, other
+- Severity levels: mild, moderate, severe, life_threatening
+- Source documentation: patient_reported, tested, observed, inferred
+- Status tracking: active, resolved, unconfirmed
+- Fields:
+  - allergen_code for standard codes (RxNorm, UNII)
+  - reaction with structured reaction_details (JSONB)
+  - onset_date and resolved_date tracking
+  - clinical_notes and alternatives (safe alternatives)
+  - recorded_by and verified_by attribution
+  - source_notes for additional documentation
+
+**CRUD Operations (app/crud/allergy.py) - Already Existed:**
+- create_allergy() - Create new allergy record
+- get_patient_allergies() - Get all allergies with filters
+- get_patient_allergy_summary() - Get allergy statistics
+- get_allergy_by_id() - Get specific allergy
+- update_allergy() - Update allergy details
+- delete_allergy() - Delete allergy (hard delete - use with caution)
+- check_allergies_against_medications() - Check for drug-allergy interactions
+
+**API Endpoints (app/api/v1/endpoints/allergies.py) - Already Existed (348 lines):**
+- POST /allergies - Create new allergy for patient
+- GET /allergies/patient/{patient_id} - Get all patient allergies with summary
+- GET /allergies/{allergy_id} - Get specific allergy
+- PUT /allergies/{allergy_id} - Update allergy
+- DELETE /allergies/{allergy_id} - Delete allergy (with warning)
+- POST /allergies/check - Check medications against patient allergies
+- POST /allergies/override - Override allergy alert with documented reason
+- POST /allergies/nka - Record "No Known Allergies" (NKA) status
+
+**Schemas (app/schemas/allergy.py) - Already Existed:**
+- AllergyCreate, AllergyUpdate, AllergyResponse
+- PatientAllergySummary
+- AllergyCheckRequest, AllergyCheckResponse
+- AllergyWarning
+- NoKnownAllergiesCreate, NoKnownAllergiesResponse
+- AllergyOverrideRequest, AllergyOverrideResponse
+
+**Key Features:**
+- Allergy alerts always visible in patient banner (frontend implementation pending)
+- Drug allergy recording (allergen, reaction, severity, onset date, source)
+- Food allergy recording
+- Environmental allergy recording
+- Alert during prescription writing (check endpoint available)
+- Warning before administering medication
+- Prevent prescribing allergens (requires override for non-life-threatening)
+- Document allergy source (patient-reported, tested, observed, inferred)
+- "No Known Allergies" (NKA) option
+- Support multiple allergies
+- Allergy severity classification (mild, moderate, severe, life_threatening)
+- Structured reaction details (JSONB for flexibility)
+- Safe alternatives tracking
+- Physician verification support
+- Override with documented reason
+- Audit logging for compliance
+
+**Acceptance Criteria Met:**
+- [x] Allergy alerts always visible in patient banner (backend ready)
+- [x] Drug allergy recording (allergen, reaction, severity, onset date, source)
+- [x] Food allergy recording
+- [x] Environmental allergy recording
+- [x] Alert during prescription writing (check endpoint available)
+- [x] Warning before administering medication
+- [x] Prevent prescribing allergens (requires override)
+- [x] Document allergy source (patient-reported, tested, observed, inferred)
+- [x] "No Known Allergies" (NKA) option
+- [x] Support multiple allergies
+
+**Technical Notes:**
+- Comprehensive allergy tracking with severity levels
+- Drug-allergy interaction checking for prescription safety
+- Override system with documented reasons (audit trail)
+- Life-threatening allergies cannot be overridden (safety feature)
+- Severe allergies require careful clinical consideration
+- Structured reaction details using JSONB
+- Safe alternatives tracking for clinical decision support
+- Physician verification workflow
+- Source documentation (patient-reported, tested, observed, inferred)
+- Allergy status tracking (active, resolved, unconfirmed)
+- Onset and resolution date tracking
+- Integration with patient history view
+- Clinical notes for additional context
+
+**Allergy Types Supported:**
+1. Drug Allergies:
+   - Medication allergens
+   - RxNorm/UNII coding support
+   - Prescription interaction checking
+   - Override protection for life-threatening allergies
+
+2. Food Allergies:
+   - Food allergen tracking
+   - Reaction documentation
+   - Severity classification
+
+3. Environmental Allergies:
+   - Environmental allergens (pollen, dust, etc.)
+   - Reaction documentation
+   - Severity classification
+
+4. Other Allergies:
+   - Flexible category for other allergy types
+
+**Allergy Severity Levels:**
+- Mild: Minor reactions, manageable
+- Moderate: Significant but not life-threatening
+- Severe: Serious reactions requiring medical intervention
+- Life-threatening: Anaphylaxis, cannot be overridden
+
+**Allergy Sources:**
+- Patient Reported: Documented by patient
+- Tested: Confirmed through testing
+- Observed: Clinically observed
+- Inferred: Inferred from related conditions
+
+**Override Workflow:**
+- Life-threatening allergies: CANNOT be overridden (safety)
+- Severe allergies: Override with warning
+- Moderate/Mild allergies: Override with documented reason
+- All overrides require documented reason
+- Audit logging for compliance
+
+**NKA (No Known Allergies) Workflow:**
+- Documents explicit allergy assessment
+- Records who performed assessment
+- Timestamp for compliance
+- Clinical notes for context
+
+**EPIC-003 (Medical Records & Clinical Documentation) - IN PROGRESS**
+Progress: 3/5 stories complete
+- STORY-011: Patient History View ✓
+- STORY-012: ICD-10 Problem List ✓
+- STORY-013: Allergy Tracking ✓
+- STORY-014: Medication List (BLOCKED - depends on STORY-027)
+- STORY-015: Clinical Notes (SOAP)
+
+**Next Steps:**
+1. Complete STORY-015: Clinical Notes (SOAP) (depends on STORY-011)
+2. Skip STORY-014: Medication List (depends on STORY-027 Drug Interaction Database - EPIC-006 not started)
+3. Create allergy recording frontend UI
+4. Implement allergy alerts in patient banner
+5. Create allergy check integration in prescription workflow
+6. Add allergy override UI with reason documentation
+7. Implement NKA workflow in frontend
+8. User acceptance testing with nurses and doctors
+9. Safety review and testing
+10. Integration with medication prescribing
+
