@@ -596,9 +596,10 @@ These represent separate applications/services that extend SIMRS:
 - ✅ EPIC-019 Story 4: Expiry Date Management & Automated Discounts
 - ✅ EPIC-019 Story 5: Supplier Performance Tracking & Scoring
 - ✅ EPIC-019 Story 6: Inventory Valuation & Cost Analysis Reports
+- ✅ EPIC-019 Story 8: Return & Recall Management
 
 **In Progress:**
-- EPIC-019: Advanced Inventory Management (5/8 stories)
+- EPIC-019: Advanced Inventory Management (6/8 stories complete - 75%)
 
 ---
 
@@ -7800,4 +7801,130 @@ All backend stories have been implemented.
 **EPIC-019 Progress:** 5/8 stories complete
 
 ---
+
+
+---
+
+### Story 8: Return & Recall Management ✓ COMPLETE
+
+**Completed:** 2026-01-16 (Ralph Loop Iteration 8/20)
+
+**Implementation Summary:**
+- ReturnRecallManagementService with comprehensive return and recall management
+- Product returns to suppliers (6 reason codes)
+- Return Material Authorization (RMA) generation
+- Manufacturer recall tracking with severity levels
+- Automatic quarantine of recalled items
+- Credit note tracking and reconciliation
+- Return shipping documentation
+- Recall compliance reporting framework
+- Supplier return performance metrics
+
+**Files Created:**
+- backend/app/services/return_recall_management.py (500+ lines)
+  - ReturnRecallManagementService main service
+  - Return request creation with validation
+  - Return authorization (RMA) workflow
+  - Return shipping tracking
+  - Credit note processing
+  - Recall notice creation
+  - Affected batch identification
+  - Automatic quarantine workflow
+  - Return eligibility checking
+  - Supplier return performance metrics
+  - Return and recall summary reports
+
+- backend/app/api/v1/endpoints/return_recall_management.py (550+ lines)
+  - POST /returns - Create return request
+  - PUT /returns/{id}/authorize - Authorize with RMA
+  - PUT /returns/{id}/ship - Mark as shipped
+  - PUT /returns/{id}/credit - Process credit note
+  - POST /recalls - Create recall notice
+  - POST /recalls/{id}/quarantine - Quarantine recalled items
+  - GET /returns/summary - Return summary
+  - GET /recalls/summary - Recall summary
+  - GET /returns/check-eligibility - Check return eligibility
+  - GET /returns/supplier-performance/{id} - Supplier metrics
+  - GET /return-reasons - List return reason codes
+  - GET /health - Health check
+
+**Features Implemented:**
+
+**Return Management:**
+- [x] Return request creation
+- [x] Multiple return reason codes (DAMAGED, WRONG_ITEM, EXPIRY, QUALITY, OVERSTOCK, RECALL)
+- [x] Return Material Authorization (RMA) workflow
+- [x] Return shipping documentation with tracking
+- [x] Credit note tracking and reconciliation
+- [x] Multi-item return support
+- [x] Return value calculation
+
+**Recall Management:**
+- [x] Manufacturer recall notice creation
+- [x] Affected batch identification
+- [x] Automatic quarantine of recalled items
+- [x] Severity levels (CRITICAL, HIGH, MEDIUM, LOW)
+- [x] Recall types (VOLUNTARY, MANDATORY)
+- [x] Batch range filtering
+- [x] Expiry date range filtering
+- [x] Recall compliance reporting framework
+
+**Return Eligibility:**
+- [x] Check if item is eligible for return
+- [x] Batch validation
+- [x] Quantity verification
+- [x] Return type specific checks
+- [x] Expiry-based eligibility
+
+**Reporting & Analytics:**
+- [x] Return summary by supplier, status, date range
+- [x] Recall summary by severity, status
+- [x] Supplier return performance metrics
+- [x] Return rate calculation
+- [x] Authorization rate tracking
+- [x] Credit rate tracking
+- [x] Average credit days tracking
+
+**Acceptance Criteria Met:**
+- [x] Product returns to suppliers
+- [x] Return Material Authorization (RMA) generation
+- [x] Return shipping tracking
+- [x] Credit note tracking
+- [x] Manufacturer recalls
+- [x] Recall notice creation
+- [x] Affected inventory identification
+- [x] Automatic quarantine of recalled items
+- [x] Recall compliance reports
+- [x] Supplier return performance metrics
+
+**Technical Notes:**
+- Python 3.5 compatible (uses .format() not f-strings)
+- Async/await pattern throughout
+- Integrates with existing DrugBatch, Drug, Supplier models
+- Comprehensive return workflow (PENDING → AUTHORIZED → SHIPPED → CREDITED)
+- Batch-level quarantine management
+- Recall severity-based prioritization
+- Multi-condition filtering (batch range, expiry range)
+
+**Business Value:**
+- Reduced losses through efficient returns
+- Regulatory compliance for recalls
+- Improved supplier accountability
+- Better cost recovery tracking
+- Automatic safety controls (quarantine)
+- Data-driven supplier performance evaluation
+
+**EPIC-019 Progress:** 6/8 stories complete
+**Remaining EPIC-019 Stories:**
+- Story 2: Multi-Location Inventory Tracking (requires location schema)
+- Story 7: Physical Inventory Count with Barcode Scanning (requires mobile hardware)
+
+---
+
+**EPIC-019 Status: 6/8 stories (75% complete)**
+
+All implementable backend stories for EPIC-019 are now complete.
+The remaining 2 stories require additional infrastructure:
+- Story 2: Location schema and multi-location data model
+- Story 7: Mobile app and barcode scanning hardware
 
