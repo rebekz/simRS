@@ -594,7 +594,98 @@ These represent separate applications/services that extend SIMRS:
 - ✅ EPIC-019 Story 1: Demand Forecasting & Predictive Ordering
 
 **In Progress:**
-- EPIC-019: Advanced Inventory Management (3/8 stories)
+- EPIC-019: Advanced Inventory Management (4/8 stories)
+
+---
+
+### Story 5: Supplier Performance Tracking & Scoring ✓ COMPLETE
+
+**Completed:** 2026-01-16 (Ralph Loop Iteration 6/20)
+
+**Implementation Summary:**
+- SupplierPerformanceService with multi-dimensional scoring
+- 4-dimension scoring: Delivery (40%), Quality (30%), Price (20%), Service (10%)
+- On-time delivery rate tracking
+- Complete fulfillment rate monitoring
+- Lead time adherence measurement
+- Damage/wrong item/expiry rate tracking
+- E-Katalog price comparison framework
+- Performance trend analysis (monthly)
+- Supplier rankings
+- Performance level classification (excellent to unacceptable)
+
+**Files Created:**
+- backend/app/services/supplier_performance.py (500+ lines)
+  - SupplierPerformanceService main service
+  - Multi-dimensional scoring algorithm
+  - Delivery score calculation (on-time, fulfillment, lead time)
+  - Quality score calculation (damage, wrong items, expiry, documentation)
+  - Price score calculation (E-Katalog, stability, discounts)
+  - Service score calculation (responsiveness, communication, problem resolution)
+  - Batch score calculation for multiple suppliers
+  - Performance trend analysis
+  - Supplier rankings
+
+- backend/app/api/v1/endpoints/supplier_performance.py (350+ lines)
+  - POST /score - Calculate supplier score
+  - GET /rankings - Supplier rankings
+  - GET /trends/{supplier_id} - Performance trends
+  - GET /batch-scores - Batch score calculation
+  - GET /scoring-methodology - Explain scoring
+  - GET /health - Health check
+
+**Features Implemented:**
+
+**Delivery Performance:**
+- [x] On-time delivery rate tracking (60% weight)
+- [x] Complete fulfillment rate (30% weight)
+- [x] Lead time adherence (10% weight)
+- [x] Auto-collection from purchase orders
+
+**Quality Performance:**
+- [x] Damage rate tracking (40% weight)
+- [x] Wrong item rate (30% weight)
+- [x] Expiry rate tracking (20% weight)
+- [x] Documentation quality (10% weight)
+
+**Price Performance:**
+- [x] E-Katalog price comparison (60% weight)
+- [x] Price stability measurement (20% weight)
+- [x] Volume discount tracking (20% weight)
+- [x] Price variance alerts
+
+**Supplier Management:**
+- [x] Performance score calculation
+- [x] Performance level classification
+- [x] Supplier rankings
+- [x] Trend analysis (improving vs declining)
+- [x] Recommendations engine
+- [x] Periodic recalculations
+
+**Acceptance Criteria Met:**
+- [x] Multi-dimensional scoring (Delivery, Quality, Price, Service)
+- [x] Score weights and components
+- [x] Performance levels (Excellent to Unacceptable)
+- [x] Trend analysis
+- [x] Score history tracking
+- [x] E-Katalog integration framework
+- [x] Performance reports
+- [x] Supplier reviews framework
+
+**Technical Notes:**
+- Python 3.5 compatible (uses .format() not f-strings)
+- Async/await pattern throughout
+- Integrates with existing Supplier, DrugBatch, PurchaseOrder models
+- Statistical algorithms for scoring
+- Comprehensive error handling
+- Recommendation engine based on component scores
+
+**Business Value:**
+- Data-driven supplier selection
+- Improved negotiation leverage
+- Reduced supply chain risks
+- Better quality control
+- Cost optimization through competitive analysis
 
 ---
 
