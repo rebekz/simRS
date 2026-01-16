@@ -592,9 +592,13 @@ These represent separate applications/services that extend SIMRS:
 **Completed Extensions:**
 - ✅ EPIC-022: Notification System (10/10 stories)
 - ✅ EPIC-019 Story 1: Demand Forecasting & Predictive Ordering
+- ✅ EPIC-019 Story 3: Reorder Point Optimization & Safety Stock
+- ✅ EPIC-019 Story 4: Expiry Date Management & Automated Discounts
+- ✅ EPIC-019 Story 5: Supplier Performance Tracking & Scoring
+- ✅ EPIC-019 Story 6: Inventory Valuation & Cost Analysis Reports
 
 **In Progress:**
-- EPIC-019: Advanced Inventory Management (4/8 stories)
+- EPIC-019: Advanced Inventory Management (5/8 stories)
 
 ---
 
@@ -7681,6 +7685,119 @@ When implementation is complete, the loop naturally concludes.
 
 **The Ralph Loop mission is COMPLETE.**
 All backend stories have been implemented.
+
+---
+
+
+---
+
+### Story 6: Inventory Valuation & Cost Analysis Reports ✓ COMPLETE
+
+**Completed:** 2026-01-16 (Ralph Loop Iteration 7/20)
+
+**Implementation Summary:**
+- InventoryValuationService with multiple costing methods
+- FIFO (First In, First Out) valuation
+- Weighted Average Cost valuation
+- Standard Cost valuation
+- Inventory aging analysis (fast/slow/non-moving/obsolete)
+- Turnover ratio calculation with DSI (Days Sales of Inventory)
+- Holding cost analysis (23% annual rate)
+- Regulatory reports (POM, Narcotics)
+- Balance sheet valuation reports
+
+**Files Created:**
+- backend/app/services/inventory_valuation.py (544 lines)
+  - InventoryValuationService main service
+  - FIFO valuation algorithm
+  - Weighted Average Cost (WAC) calculation
+  - Standard Cost valuation
+  - Inventory aging analysis with 4 categories
+  - Turnover ratio and DSI calculation
+  - Holding cost calculation (capital + storage + risk)
+  - POM (Psychotropic & Narcotic) report generation
+  - Narcotics consumption report
+
+- backend/app/api/v1/endpoints/inventory_valuation.py (360 lines)
+  - POST /valuation - Calculate inventory valuation
+  - GET /aging-analysis - Inventory aging report
+  - GET /turnover - Turnover ratio and DSI
+  - GET /holding-costs - Holding cost breakdown
+  - GET /regulatory-reports/{type} - POM/narcotics reports
+  - GET /costing-methods - List costing methods
+  - GET /health - Health check
+
+**Features Implemented:**
+
+**Inventory Valuation:**
+- [x] FIFO (First In, First Out) costing
+- [x] Weighted Average Cost (WAC) calculation
+- [x] Standard Cost valuation
+- [x] Valuation as of specific date
+- [x] Total inventory value calculation
+- [x] Per-item valuation breakdown
+- [x] Currency support (IDR)
+
+**Inventory Aging Analysis:**
+- [x] Fast Moving (< 3 months)
+- [x] Slow Moving (3-6 months)
+- [x] Non-Moving (6-12 months)
+- [x] Obsolete (> 2 years)
+- [x] Value by category
+- [x] Item count by category
+
+**Turnover & Performance:**
+- [x] Inventory turnover ratio calculation
+- [x] Days Sales of Inventory (DSI)
+- [x] COGS (Cost of Goods Sold) tracking
+- [x] Average inventory calculation
+- [x] Performance classification (excellent/good/acceptable/poor)
+- [x] By-drug breakdown
+
+**Holding Cost Analysis:**
+- [x] Capital cost (15% annually)
+- [x] Storage cost (5% annually)
+- [x] Risk cost (3% annually)
+- [x] Total holding cost (23% annually)
+- [x] Daily holding cost calculation
+- [x] Period-based cost calculation
+
+**Regulatory Reports:**
+- [x] POM (Psychotropic & Narcotic) report
+- [x] Narcotics consumption tracking
+- [x] Monthly report generation
+- [x] Opening/closing balance tracking
+- [x] Dispense quantity tracking
+
+**Acceptance Criteria Met:**
+- [x] Multiple costing methods (FIFO, WAC, Standard Cost)
+- [x] Inventory valuation reports
+- [x] Balance sheet valuation
+- [x] Inventory aging analysis
+- [x] Turnover ratio calculation
+- [x] DSI (Days Sales of Inventory) calculation
+- [x] Holding cost analysis
+- [x] Regulatory reports (POM, Narcotics)
+- [x] Cost analysis reports
+
+**Technical Notes:**
+- Python 3.5 compatible (uses .format() not f-strings)
+- Async/await pattern throughout
+- Integrates with existing DrugBatch, Drug, MedicationDispense models
+- Statistical calculations for turnover ratios
+- Aging thresholds configurable
+- Holding cost rates configurable
+- Multi-dimensional analysis
+
+**Business Value:**
+- Accurate balance sheet valuation
+- Better inventory investment decisions
+- Identification of slow-moving/obsolete stock
+- Cash flow optimization through turnover analysis
+- Regulatory compliance for narcotics
+- Holding cost visibility for decision making
+
+**EPIC-019 Progress:** 5/8 stories complete
 
 ---
 
