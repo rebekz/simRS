@@ -2412,3 +2412,89 @@ rate limiting, and improved session management. Completes the authentication fou
 7. Add security question/answer fallback
 8. Create authentication dashboard UI
 
+
+**STORY-006: Patient Registration Enhancement - Complete**
+
+Implemented enhanced patient registration service layer with duplicate detection and MRN generation.
+Foundation for clinical workflow patient management.
+
+**Models (app/models/patient.py) - Already Existed:**
+- Patient - Patient demographic and medical information
+- EmergencyContact - Patient emergency contacts
+- PatientInsurance - Patient insurance policies
+
+**Service Layer (app/services/patient_registration.py) - Created:**
+- PatientRegistrationService - Patient registration and management:
+  - register_patient() - Register new patient with MRN generation
+  - search_patients() - Multi-criteria patient search
+  - get_patient_by_mrn() - Retrieve patient by MRN
+  - get_patient_by_nik() - Retrieve patient by NIK
+  - update_patient() - Update patient information
+  - deactivate_patient() - Deactivate patient record
+  - get_patient_statistics() - Patient registration statistics
+  - _generate_medical_record_number() - MRN generation
+  - _validate_patient_data() - Patient data validation
+  - _check_duplicate_patient() - Duplicate patient checking
+- MRN format: RM + YYYY(4) + sequence(6)
+- Validation rules (NIK 16 digits, DOB not in future)
+- Audit logging integration
+
+**Service Layer (app/services/patient_deduplication.py) - Created:**
+- PatientDeduplicationService - Duplicate detection and merging:
+  - find_potential_duplicates() - Find duplicate patients
+  - _calculate_name_similarity() - Name similarity algorithm
+  - merge_patient_records() - Merge duplicate records
+  - _transfer_patient_relationships() - Transfer encounters
+  - _create_merge_audit_log() - Merge audit logging
+- PatientMergeRequestService - Merge request management
+- Duplicate detection by NIK, name+DOB, phone
+- Similarity threshold: 0.7 (70%)
+- Match types: nik_exact, name_dob_exact, name_dob_fuzzy, phone
+
+**API Endpoints (app/api/v1/endpoints/patient_registration.py) - Created:**
+- POST /patient-registration/register - Register new patient
+- POST /patient-registration/check-duplicate - Check for duplicates
+- GET /patient-registration/search - Search patients
+- GET /patient-registration/statistics - Patient statistics
+- GET /patient-registration/{mrn} - Get patient by MRN
+- PUT /patient-registration/{mrn} - Update patient (admin)
+- POST /patient-registration/{mrn}/deactivate - Deactivate patient (admin)
+- POST /patient-registration/merge - Merge duplicate records (admin)
+
+**Router Integration:**
+- Updated app/api/v1/api.py to include patient_registration router
+
+**Pydantic Request Models:**
+- PatientRegistrationRequest - Patient registration data
+- PatientUpdateRequest - Patient update data
+- PatientSearchRequest - Patient search criteria
+- DuplicateCheckRequest - Duplicate check criteria
+- PatientMergeRequest - Patient merge request
+
+**Acceptance Criteria Met:**
+- [x] Auto-generate unique MRN (RM + YYYY + 6-digit sequence)
+- [x] Patient data validation (NIK, DOB, required fields)
+- [x] Duplicate patient detection by NIK, name+DOB, phone
+- [x] Patient search by multiple criteria
+- [x] Patient registration with emergency contacts and insurance
+- [x] Patient update and deactivation
+- [x] Patient merge functionality
+- [x] Patient registration statistics
+- [x] Audit logging for all operations
+- [x] Service layer for business logic encapsulation
+
+**Technical Notes:**
+- Python 3.5+ compatible using .format()
+- MRN generation with year-based sequence
+- Duplicate detection with similarity scoring
+- Patient merge with relationship transfer
+- Comprehensive validation and error handling
+- Integration with audit logging
+
+**Next Steps:**
+1. Complete remaining EPIC-002 stories (007-010)
+2. Integrate with BPJS and SATUSEHAT for patient data synchronization
+3. Implement patient photo upload functionality
+4. Add patient document attachments
+5. Create patient registration frontend UI
+
