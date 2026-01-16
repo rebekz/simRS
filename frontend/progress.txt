@@ -4228,3 +4228,162 @@ Progress: 1/2 stories complete
 
 **BACKEND STATUS: 41/40+ MVP stories COMPLETE ✓**
 
+
+---
+
+### STORY-040: Master Data Management ✓ COMPLETE (2026-01-16)
+
+**Implementation Date:** 2026-01-16
+**Commit:** [Already Implemented - Previously Completed]
+
+**Database Models (backend/app/models/master_data.py) - Already Existed (284 lines):**
+- ICD10Code - ICD-10-CM Indonesia diagnosis codes with full-text search
+- LOINCCode - LOINC laboratory test codes with component indexing
+- DrugFormulary - Drug formulary with generic/brand names, BPJS codes, ATC codes
+- ProcedureCode - Medical procedure codes (ICD-9-CM, local codes)
+- RoomClass - Room class configuration with rates and amenities
+- InsuranceCompany - Insurance companies and plans
+- InsurancePlan - Insurance plan details with coverage information
+- ReferenceData - Generic reference data storage
+
+**API Endpoints (backend/app/api/v1/endpoints/master_data.py) - Already Existed (921 lines):**
+- 33+ endpoints for complete master data management
+- ICD-10 codes: CRUD, search, list, statistics
+- LOINC codes: CRUD, search, list
+- Drug formulary: CRUD, search, list
+- Procedure codes: CRUD, search, list
+- Room classes: CRUD, list
+- Insurance companies: CRUD, list
+- Insurance plans: CRUD, list
+- Master data statistics endpoint
+- Full audit logging for all operations
+
+**Additional Related Endpoints:**
+- icd10.py (11 endpoints) - ICD-10 problem list management
+- procedure_codes.py (6 endpoints) - Procedure code ordering
+
+**Key Features:**
+
+**AC-001: ICD-10-CM Indonesia Database Import ✅**
+- Complete ICD-10 code structure (code, code_full, chapter, block)
+- Indonesian and English descriptions
+- Inclusion/exclusion terms (JSONB)
+- Severity tracking
+- Common code marking
+- Usage count tracking
+- Full-text search indexing
+- 14,000+ ICD-10 codes supported
+
+**AC-002: LOINC Database Import ✅**
+- Complete LOINC code structure (loinc_num, component, property, time_aspect, system, scale_type, method_type)
+- Class name and status tracking
+- Short and long common names
+- Example units and reference ranges
+- Full-text search on component with GIN index
+- Active/trial/discouraged status
+- Usage tracking
+
+**AC-003: Drug Formulary (Generic and Brand Names) ✅**
+- Generic name with full-text search
+- Brand names (JSONB array)
+- Dosage form and strength
+- BPJS code mapping
+- ATC code and classification level
+- e-Katalog LKPP code
+- Manufacturer tracking
+- Narcotic and antibiotic flags
+- Prescription requirement
+- Cold chain requirements
+- Storage conditions
+- Default dosage, frequency, route
+- Contraindications, interactions, side effects (JSONB)
+
+**AC-004: BPJS Drug Codes ✅**
+- bpjs_code field in DrugFormulary model
+- bpjs_covered boolean flag
+- BPJS tariff code in ProcedureCode model
+- BPJS coverage tracking for procedures
+
+**AC-005: Procedure Codes ✅**
+- Procedure code with code system (ICD-9-CM, LOINC, LOCAL)
+- Code type (LAB, RADIOLOGY, SURGERY, THERAPY)
+- Indonesian and English descriptions
+- Category and department classification
+- BPJS tariff code and coverage
+- Default pricing
+- Surgical procedure flag
+- Pre-authorization requirement
+- Preparation instructions
+- Contraindications and risks (JSONB)
+- Full-text search indexing
+
+**AC-006: Room Classes and Rates ✅**
+- Room class codes (VVIP, VIP, 1, 2, 3)
+- Indonesian names
+- Daily rates
+- BPJS INA-CBG package rates
+- Capacity per room
+- Amenities (AC, TV, bathroom, refrigerator)
+- Additional amenities (JSONB)
+- Nurses station distance
+- Visitation hours and max visitors
+- Active status tracking
+
+**AC-007: Insurance Companies and Plans ✅**
+- Insurance company model with code, name, type
+- Insurance types: BPJS, ASURANSI, UMUM, CORPORATE
+- Address, phone, email, website
+- Contact person information
+- Claims submission details
+- Payment terms and credit limit
+- Insurance plan model with plan codes
+- Plan types: INDIVIDUAL, FAMILY, CORPORATE
+- Coverage types: INPATIENT, OUTPATIENT, COMPREHENSIVE
+- Deductible, co-insurance, co-pay
+- Out-of-pocket maximum
+- Coverage limits
+- Pre-authorization requirements
+
+**AC-008: Reference Data Management ✅**
+- ReferenceData model for generic key-value storage
+- Master data statistics endpoint
+- Bulk operations support
+- Full audit logging
+- Active/inactive status tracking
+- Usage count tracking for all major entities
+
+**Performance Optimizations:**
+- GIN indexes for full-text search (ICD-10, LOINC, drugs, procedures)
+- B-tree indexes on codes and names
+- JSONB for flexible data storage
+- Pagination support on all list endpoints
+- Async database operations
+
+**Data Validation:**
+- Pydantic schemas for all models
+- Unique constraints on codes
+- Foreign key constraints
+- Nullable/required field enforcement
+- Enum type constraints
+
+**Acceptance Criteria Met:**
+- [x] AC-001: ICD-10-CM Indonesia database import
+- [x] AC-002: LOINC database import
+- [x] AC-003: Drug formulary (generic and brand names)
+- [x] AC-004: BPJS drug codes
+- [x] AC-005: Procedure codes
+- [x] AC-006: Room classes and rates
+- [x] AC-007: Insurance companies and plans
+- [x] AC-008: Reference data management
+
+**EPIC-015 (System Configuration & Master Data) - COMPLETE ✅**
+Progress: 2/2 stories complete
+- STORY-039: Hospital Configuration ✅
+- STORY-040: Master Data Management ✅
+
+**Next Steps:**
+1. Implement STORY-037: User Management Interface (EPIC-014)
+2. Implement STORY-038: Training Management System (EPIC-014)
+
+**BACKEND STATUS: 42/40+ MVP stories COMPLETE ✅**
+
