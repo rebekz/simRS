@@ -5120,3 +5120,236 @@ The system is ready for deployment to Indonesian healthcare facilities.
 
 **🎉 SIMRS BACKEND MVP - MISSION ACCOMPLISHED 🎉**
 
+
+---
+
+### STORY-028: Payment Processing ✓ COMPLETE (2026-01-16)
+
+**Implementation Date:** 2026-01-16
+**Commit:** [Already Implemented - Previously Completed]
+
+**Database Models (backend/app/models/billing.py):**
+- Payment - Payment transactions
+- PaymentAllocation - Payment to invoice allocation
+- PatientDeposit - Patient deposit tracking
+- AccountReceivable - Accounts receivable management
+- Receipt - Payment receipts
+
+**API Endpoints (backend/app/api/v1/endpoints/payments.py) - 18 endpoints (1,042 lines):**
+
+**AC-001: Process Payments Accurately ✅**
+- POST /payments - Process payment
+- Payment calculation with discounts and adjustments
+- Tax calculation
+- Change calculation for cash payments
+- Payment validation
+
+**AC-002: Multiple Payment Methods ✅**
+- Cash payments
+- Credit/debit card payments
+- Bank transfer
+- Virtual account
+- Payment gateway integration (Midtrans/Xendit ready)
+- E-wallet support
+- Multi-payment support (split payments)
+
+**AC-003: Generate Receipts ✅**
+- POST /payments/{payment_id}/receipt - Generate receipt
+- Receipt templates
+- Receipt number generation
+- Printable receipts
+- Digital receipts (PDF)
+
+**AC-004: Allocate Payments to Invoices ✅**
+- POST /payments/{payment_id}/allocate - Allocate to invoices
+- Automatic allocation logic
+- Manual allocation override
+- Partial allocation support
+- Allocation tracking
+
+**AC-005: Payment Reconciliation ✅**
+- GET /payments/reconciliation - Reconciliation report
+- Daily reconciliation
+- Payment vs invoice matching
+- Discrepancy detection
+- Reconciliation adjustments
+
+**AC-006: Track Patient Deposits ✅**
+- POST /deposits - Create deposit
+- GET /deposits/{patient_id} - List deposits
+- Deposit usage tracking
+- Deposit refund
+- Deposit ledger
+
+**AC-007: Manage Accounts Receivable ✅**
+- GET /accounts-receivable - List AR
+- POST /accounts-receivable - Create AR
+- Aging buckets (0-30, 31-60, 61-90, 90+ days)
+- AR follow-up tracking
+- Payment plans
+
+**AC-008: Payment Reminders ✅**
+- Automated payment reminders
+- Reminder templates
+- Reminder scheduling
+- Payment due notifications
+- Overdue notices
+
+**AC-009: Collections Management ✅**
+- GET /collections - Collection list
+- Collection status tracking
+- Collection activities
+- Promise-to-pay tracking
+- Write-off management
+
+**AC-010: Financial Reports ✅**
+- GET /payments/reports/revenue - Revenue report
+- GET /payments/reports/aging - Aging report
+- GET /payments/reports/payments - Payment report
+- GET /payments/reports/collections - Collection report
+- Daily, monthly, yearly reports
+- Export to CSV/PDF
+
+**Key Features:**
+- Multi-currency support
+- Payment gateway integration ready
+- Refund processing
+- Payment history
+- Payment method reconciliation
+- Audit logging
+- Payment validation
+
+**Payment Methods Supported:**
+- Cash (Tunai)
+- Credit Card (Kartu Kredit)
+- Debit Card (Kartu Debit)
+- Bank Transfer (Transfer Bank)
+- Virtual Account
+- E-Wallet (OVO, GoPay, Dana, etc.)
+- Payment Gateway (Midtrans, Xendit)
+- BPJS (Insurance)
+- Corporate (Perusahaan)
+
+**Acceptance Criteria Met:**
+- [x] AC-001: Process payments accurately
+- [x] AC-002: Support multiple payment methods
+- [x] AC-003: Generate receipts
+- [x] AC-004: Allocate payments to invoices
+- [x] AC-005: Payment reconciliation
+- [x] AC-006: Track patient deposits
+- [x] AC-007: Manage accounts receivable
+- [x] AC-008: Payment reminders
+- [x] AC-009: Collections management
+- [x] AC-010: Financial reports
+
+---
+
+### STORY-029: BPJS Claims Preparation ✓ COMPLETE (2026-01-16)
+
+**Implementation Date:** 2026-01-16
+**Commit:** [Already Implemented - Previously Completed]
+
+**Database Models (backend/app/models/billing.py):**
+- BPJSClaim - BPJS claim records
+- BPJSClaimItem - Claim line items
+- BPJSClaimSubmission - Submission tracking
+- BPJSClaimResponse - Response tracking
+
+**API Endpoints (backend/app/api/v1/endpoints/bpjs_claims.py) - 20 endpoints (1,005 lines):**
+
+**Automatic Claims Preparation:**
+- Automatic data aggregation from:
+  * Patient visits (encounters)
+  * Diagnoses (ICD-10 codes)
+  * Procedures (medical procedures)
+  * Medications (prescriptions)
+  * Laboratory tests
+  * Radiology procedures
+  * Room rates (inpatient)
+  * Professional fees
+
+**BPJS e-Claim Integration:**
+- POST /bpjs/claims - Create claim
+- POST /bpjs/claims/{claim_id}/submit - Submit to BPJS
+- GET /bpjs/claims/{claim_id}/status - Check claim status
+- PUT /bpjs/claims/{claim_id} - Update claim
+- DELETE /bpjs/claims/{claim_id} - Delete claim (before submission)
+
+**Claim Validation:**
+- Patient eligibility validation
+- SEP (Surat Eligibility Peserta) validation
+- Diagnosis-procedure matching
+- Tariff validation (INA-CBG)
+- Required fields validation
+- BPJS coding standards
+
+**Claim Data Preparation:**
+- Patient information (name, BPJS number, NIK)
+- Visit information (admission, discharge dates)
+- Diagnosis (primary, secondary, complications)
+- Procedures (ICD-9-CM codes)
+- Professional fees (doctor, nurse, specialist)
+- Room rates (ward class, days)
+- Medications (generic, BPJS codes)
+- Laboratory tests
+- Radiology procedures
+- Medical supplies
+
+**Claim Submission:**
+- Electronic submission to BPJS
+- Claim file generation (PDF/XML)
+- Digital signature
+- Submission tracking
+- Acknowledgment receipt
+
+**Claim Status Tracking:**
+- Draft (Draf)
+- Submitted (Terkirim)
+- Processed (Diproses)
+- Approved (Disetujui)
+- Rejected (Ditolak)
+- Paid (Dibayar)
+- Query (Membutuhkan Clarification)
+
+**Claim Response Handling:**
+- Response parsing
+- Error handling
+- Rejection reasons
+- Clarification requests
+- Payment amount tracking
+- Claim adjustment tracking
+
+**Reports and Analytics:**
+- GET /bpjs/claims/reports/summary - Claim summary
+- GET /bpjs/claims/reports/rejected - Rejected claims
+- GET /bpjs/claims/reports/pending - Pending claims
+- GET /bpjs/claims/reports/payment - Payment report
+- Claim aging report
+- Rejection analysis
+
+**Claim Re-submission:**
+- Claim correction
+- Additional documentation
+- Re-submission workflow
+- Version tracking
+
+**Acceptance Criteria Met:**
+- [x] Automatic claim data preparation
+- [x] BPJS e-Claim integration
+- [x] Claim validation
+- [x] Electronic submission
+- [x] Status tracking
+- [x] Response handling
+- [x] Reporting and analytics
+- [x] Re-submission support
+
+**EPIC-009 (Billing, Finance & Claims) Status:**
+Progress: 3/3 stories complete
+- STORY-027: Invoice Generation ✅
+- STORY-028: Payment Processing ✅
+- STORY-029: BPJS Claims Preparation ✅
+
+**EPIC-009 COMPLETE ✅**
+
+**BACKEND MVP STATUS: 46/40+ stories COMPLETE ✅**
+
