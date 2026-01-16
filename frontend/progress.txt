@@ -2669,7 +2669,7 @@ and mobile queue status tracking. Completes core queue workflow infrastructure.
 - IGD: 5 minutes per triage
 
 **Next Steps:**
-1. Complete remaining EPIC-002 stories (008, 009)
+1. Complete remaining EPIC-002 stories (009)
 2. Implement SMS/WhatsApp sending service
 3. Create digital display frontend UI
 4. Create mobile web queue status view
@@ -2677,10 +2677,99 @@ and mobile queue status tracking. Completes core queue workflow infrastructure.
 6. Add BPJS Antrean API integration
 7. Create queue statistics dashboard UI
 
-**EPIC-002 Progress:** 3/5 stories complete
+
+**STORY-008: BPJS Eligibility Verification - Complete**
+
+Implemented enhanced BPJS eligibility verification service with caching,
+history tracking, and manual override workflow for BPJS VClaim API integration.
+
+**Service Layer (app/services/bpjs_eligibility_verification.py) - Created:**
+- BPJSEligibilityService: BPJS eligibility verification (525 lines)
+  - verify_eligibility_by_card() - Verify by 13-digit card number
+  - verify_eligibility_by_nik() - Verify by 16-digit NIK
+  - create_manual_override() - Manual override with approval
+  - get_eligibility_history() - Verification history for patient
+  - get_eligibility_status() - Current eligibility from recent checks
+  - get_eligibility_statistics() - Verification statistics
+  - _get_cached_eligibility() - Get cached result from Redis
+  - _cache_eligibility() - Cache result for 24 hours
+  - _save_eligibility_check() - Save verification to database
+  - _save_eligibility_error() - Save API error to database
+  - _build_eligibility_response() - Format response in Indonesian
+  - _create_override_audit_log() - Audit log for manual overrides
+- Integration with BPJSVClaimClient for VClaim API calls
+- Redis caching with 24-hour TTL for performance
+- Comprehensive error handling and retry logic
+- Indonesian error messages for better UX
+
+**API Endpoints (app/api/v1/endpoints/bpjs_eligibility_verification.py) - Created:**
+- POST /bpjs-eligibility/verify/by-card - Verify by card number
+- POST /bpjs-eligibility/verify/by-nik - Verify by NIK
+- GET /bpjs-eligibility/verify/by-card - Verify by card (GET)
+- GET /bpjs-eligibility/verify/by-nik - Verify by NIK (GET)
+- POST /bpjs-eligibility/verify/override - Manual override
+- GET /bpjs-eligibility/history/{patient_id} - Verification history
+- GET /bpjs-eligibility/status - Current eligibility status
+- GET /bpjs-eligibility/statistics - Verification statistics
+
+**Key Features:**
+- BPJS VClaim API integration (Peserta/nokartu and Peserta/nik endpoints)
+- Eligibility result caching (24 hours) for performance
+- Verification history tracking per patient
+- Manual override workflow for API downtime
+- Indonesian error messages and responses
+- Card number validation (13 digits)
+- NIK validation (16 digits)
+- Eligibility status display (Aktif, Tidak Aktif, etc.)
+- Participant information caching (nama, faskes, kelas, etc.)
+- Audit logging for all verifications
+- Statistics and reporting support
+
+**Acceptance Criteria Met:**
+- [x] BPJS eligibility check via VClaim API <5 seconds
+- [x] Display BPJS membership status (Aktif, Tidak Aktif, etc.)
+- [x] Validate BPJS card number format (13 digits)
+- [x] Display member information (nama, faskes, kelas)
+- [x] Handle BPJS API failures gracefully with fallback
+- [x] Cache eligibility results for 24 hours (with expiration)
+- [x] Show eligibility history (previous checks)
+- [x] Support manual override if API is down (with reason)
+- [x] Log all BPJS API calls for audit
+- [x] Display error messages in Indonesian
+
+**Technical Notes:**
+- Python 3.5+ compatible using .format()
+- BPJS VClaim API: https://apijkn.bpjs-kesehatan.go.id/vclaim-rest
+- Authentication: X-cons-id, X-signature, X-timestamp headers
+- Redis caching key format: bpjs:eligibility:{search_value}:{date}
+- Cache TTL: 24 hours (86400 seconds)
+- Integration with existing BPJSEligibilityCheck model
+- Manual override requires admin approval
+- Error codes and messages in Indonesian
+
+**Participant Information Returned:**
+- nama: Participant full name
+- no_kartu: BPJS card number
+- nik: Indonesian National ID
+- faskes_tingkat_1: Primary healthcare facility
+- faskes_rujukan: Referral facility
+- kelas_rawat: Treatment class (1, 2, 3)
+- status_kepesertaan: Membership status (Aktif, Tidak Aktif, etc.)
+- tgl_cetak_kartu: Card print date
+- tgl_tat: Inactive date
+- tgl_aktif: Active date
+
+**Next Steps:**
+1. Complete STORY-009: Online Appointment Booking
+2. Implement email service for password reset links
+3. Add BPJS Antrean API integration for queue booking
+4. Create BPJS eligibility verification frontend UI
+5. Add real-time eligibility status updates
+
+**EPIC-002 Progress:** 4/5 stories complete
 - STORY-006: Patient Registration Enhancement ✓
 - STORY-007: Returning Patient Check-in ✓
 - STORY-010: Queue Management System ✓
-- STORY-008: BPJS Eligibility Verification
+- STORY-008: BPJS Eligibility Verification ✓
 - STORY-009: Online Appointment Booking
 
