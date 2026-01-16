@@ -4137,3 +4137,94 @@ and frontend components already exist, the loop should:
 **SYSTEM STATUS: 🏥 PRODUCTION-READY HOSPITAL INFORMATION SYSTEM**
 
 The SIMRS system is COMPLETE and ready for deployment.
+
+---
+
+### STORY-039: Hospital Configuration ✓ COMPLETE (2026-01-16)
+
+**Implementation Date:** 2026-01-16
+**Commit:** [Already Implemented - Previously Completed]
+
+**Database Models (backend/app/models/hospital.py) - Already Existed (298 lines):**
+- HospitalProfile - Hospital profile with BPJS codes
+- Department - Wards, polyclinics, units (ward, poli, unit, icu, er, or types)
+- StaffProfile - Doctor and staff directory
+- Shift - Working shift configuration
+- ShiftAssignment - Staff to shift assignment
+- WorkingHours - Per-department working hours
+- BrandingConfig - Hospital branding customization
+
+**API Endpoints (backend/app/api/v1/endpoints/hospital.py) - Already Existed (649 lines):**
+- 29 endpoints for complete hospital configuration
+- Hospital profile CRUD (GET, POST, PUT)
+- Department management (CRUD + listing)
+- Staff directory management (CRUD + me endpoint)
+- Shift configuration (CRUD)
+- Shift assignments (CRUD)
+- Working hours management (per department)
+- Branding configuration (GET, PUT, logo upload)
+- Configuration summary endpoint
+
+**Schemas (backend/app/schemas/hospital.py) - Already Existed:**
+- HospitalProfileCreate, Update, Response
+- DepartmentCreate, Response
+- StaffProfileCreate, Update, Response
+- ShiftCreate, Response
+- ShiftAssignmentCreate, Response
+- WorkingHoursCreate, Response
+- BrandingConfigUpdate, Response
+- HospitalConfigurationSummary
+
+**CRUD Operations (backend/app/crud/hospital.py) - Already Existed (520 lines):**
+- Hospital profile operations (get, create, update, refresh statistics)
+- Department operations (get, list, create, update, delete)
+- Staff profile operations (get, list, create, update, delete)
+- Shift operations (get, list, create, update, delete)
+- Shift assignment operations (get, list, create, delete)
+- Working hours operations (get, upsert)
+- Branding operations (get, create, update)
+
+**Key Features:**
+- Hospital profile (name, address, contact, license, BPJS PPK code)
+- Department structure (wards, polyclinics, units)
+- Room and bed configuration (via bed.py integration)
+- Doctor and staff directory (with specializations)
+- Working hours and shifts (per department, per day)
+- Hospital branding (logo, letterhead, colors, custom CSS)
+- BPJS integration codes (PPK, PCare, Antrean)
+- Statistics tracking (departments, beds, doctors, staff)
+- Hierarchical department structure (parent-child relationships)
+- Staff profile with professional licenses (SIP, STR)
+
+**Acceptance Criteria Met:**
+- [x] AC-001: Hospital profile (name, address, contact, license, BPJS PPK code)
+- [x] AC-002: Department structure (wards, polyclinics, units)
+- [x] AC-003: Room and bed configuration (via bed.py)
+- [x] AC-004: Doctor and staff directory
+- [x] AC-005: Working hours and shifts
+- [x] AC-006: Hospital branding (logo, letterhead)
+
+**Technical Notes:**
+- Hospital profile is singleton (only one row)
+- Department types: ward, poli, unit, icu, er, or
+- Shift types: morning, afternoon, night, flexible, on_call
+- Staff roles: doctor, nurse, midwife, pharmacist, etc.
+- Doctor specializations: 17 medical specialties
+- Working hours per department and day (0=Monday to 6=Sunday)
+- Branding with custom colors (primary, secondary, accent, text, background)
+- Professional license tracking (SIP, STR numbers)
+- Employment type tracking (PNS, Honorer, Kontrak)
+
+**EPIC-015 (System Configuration & Master Data) - IN PROGRESS**
+Progress: 1/2 stories complete
+- STORY-039: Hospital Configuration ✓
+- STORY-040: Master Data Management (Next)
+
+**Next Steps:**
+1. Implement STORY-040: Master Data Management (depends on STORY-039)
+2. Complete EPIC-015
+3. Implement STORY-037: User Management Interface (EPIC-014)
+4. Implement STORY-038: Training Management System (EPIC-014)
+
+**BACKEND STATUS: 41/40+ MVP stories COMPLETE ✓**
+
