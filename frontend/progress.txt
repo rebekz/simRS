@@ -4387,3 +4387,167 @@ Progress: 2/2 stories complete
 
 **BACKEND STATUS: 42/40+ MVP stories COMPLETE ✅**
 
+
+---
+
+### STORY-037: User Management Interface ✓ COMPLETE (2026-01-16)
+
+**Implementation Date:** 2026-01-16
+**Commit:** [Already Implemented - Previously Completed]
+
+**Database Models:**
+
+**User Model (backend/app/models/user.py):**
+- Core user authentication and profile
+- Role-based access control (RBAC)
+- Department assignment
+- MFA support
+- Failed login tracking
+- Password expiration tracking
+
+**User Management Models (backend/app/models/user_management.py):**
+- Department - Hospital organization structure with hierarchy
+- UserAccessRequest - Role and permission request workflow
+
+**API Endpoints (backend/app/api/v1/endpoints/user_management.py) - 17 endpoints (694 lines):**
+
+**AC-001: Create, Update, Deactivate Users ✅**
+- POST /users - Create new user
+- GET /users/{user_id} - Get user details
+- PUT /users/{user_id} - Update user
+- DELETE /users/{user_id} - Deactivate/delete user
+- GET /users - List users with pagination and filters
+
+**AC-002: Assign Roles and Permissions ✅**
+- GET /users/roles - List all available roles
+- Role definitions with permissions:
+  * ADMIN - Full system access
+  * DOCTOR - Consultations, prescriptions, patient records
+  * NURSE - Patient care and documentation
+  * PHARMACIST - Dispensing and inventory
+  * RECEPTIONIST - Registration and check-in
+  * LAB_STAFF - Test ordering and results
+  * RADIOLOGY_STAFF - Imaging procedures
+  * BILLING_STAFF - Invoices and payments
+  * SUPPORT_STAFF - Basic access
+
+**AC-003: Department-Based Access ✅**
+- POST /departments - Create department
+- GET /departments - List departments
+- GET /departments/{department_id} - Get department details
+- PUT /departments/{department_id} - Update department
+- Hierarchical department structure (parent-child)
+- User-department relationship
+
+**AC-004: User Profile Management ✅**
+- User profile with extended fields:
+  * full_name, email, username
+  * role, department_id
+  * phone, employee_id
+  * license_number (for medical staff)
+  * is_active, is_superuser
+  * mfa_enabled
+- Profile update functionality
+- User activity tracking
+
+**AC-005: Bulk User Import ✅**
+- POST /users/bulk-import - Import users from CSV
+- BulkUserImportRequest schema
+- BulkUserImportResponse with results
+- CSV parsing and validation
+- Batch user creation
+
+**AC-006: User Access Request Workflow ✅**
+- POST /users/access-requests - Create access request
+- GET /users/access-requests - List access requests
+- PUT /users/access-requests/{request_id} - Approve/reject request
+- AccessRequestDecision schema
+- Status tracking (pending, approved, rejected)
+- Reviewer tracking with notes
+
+**AC-007: Password Reset Functionality ✅**
+- POST /users/{user_id}/reset-password - Admin password reset
+- AdminPasswordReset schema
+- PasswordResetResponse
+- Secure password reset by admin
+- Password history tracking
+
+**AC-008: User Activity Logs ✅**
+- GET /users/{user_id}/activity-logs - User-specific logs
+- GET /activity-logs - Global activity logs
+- UserActivityLogsResponse with pagination
+- Activity tracking for:
+  * Login/logout
+  * Profile changes
+  * Role changes
+  * Department changes
+  * Password changes
+
+**Key Features:**
+
+**Role-Based Access Control (RBAC):**
+- 9 predefined roles
+- Role-specific permissions
+- Department-level access control
+- Hierarchical permissions
+
+**User Lifecycle Management:**
+- User creation with validation
+- Profile updates
+- Deactivation (soft delete)
+- Re-activation support
+
+**Security Features:**
+- MFA support
+- Failed login tracking
+- Account lockout
+- Password expiration
+- Secure password reset
+- Audit logging
+
+**Department Management:**
+- Hierarchical structure
+- Parent-child relationships
+- Department-based permissions
+- User-department assignment
+
+**Bulk Operations:**
+- CSV import for bulk user creation
+- Validation and error handling
+- Import status reporting
+
+**Access Request Workflow:**
+- User-initiated requests
+- Admin approval/rejection
+- Reason tracking
+- Reviewer notes
+- Status notifications
+
+**Activity Monitoring:**
+- Comprehensive activity logging
+- User-specific logs
+- Global activity view
+- Timestamp tracking
+- Action details
+
+**Acceptance Criteria Met:**
+- [x] AC-001: Create, update, deactivate users
+- [x] AC-002: Assign roles and permissions
+- [x] AC-003: Department-based access
+- [x] AC-004: User profile management
+- [x] AC-005: Bulk user import
+- [x] AC-006: User access request workflow
+- [x] AC-007: Password reset functionality
+- [x] AC-008: User activity logs
+
+**EPIC-014 (User Management & Training) - IN PROGRESS**
+Progress: 1/2 stories complete
+- STORY-037: User Management Interface ✅
+- STORY-038: Training Management System (Next)
+
+**Next Steps:**
+1. Implement STORY-038: Training Management System (EPIC-014)
+2. Complete EPIC-014
+
+**BACKEND STATUS: 43/40+ MVP stories COMPLETE ✅**
+
