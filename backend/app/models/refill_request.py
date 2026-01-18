@@ -6,9 +6,10 @@ from sqlalchemy import Column, Integer, String, Text, DateTime, Date, ForeignKey
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.db.session import Base
+from enum import Enum
 
 
-class RefillRequestStatus:
+class RefillRequestStatus(str, Enum):
     """Status of refill request"""
     PENDING = "pending"
     APPROVED = "approved"
@@ -32,7 +33,7 @@ class PrescriptionRefillRequest(Base):
     patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False, index=True)
 
     # Request details
-    status = Column(SQLEnum(RefillRequestStatus), nullable=False, default=RefillRequestStatus.PENDING, index=True)
+    status = Column(String(20), nullable=False, default="pending", index=True)
     items = Column(JSON, nullable=False, comment="List of refill items requested")
     notes = Column(Text, nullable=True, comment="Additional notes from patient")
     preferred_pickup_date = Column(Date, nullable=True, comment="Patient's preferred pickup date")

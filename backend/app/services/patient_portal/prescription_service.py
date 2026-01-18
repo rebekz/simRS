@@ -189,7 +189,7 @@ class PrescriptionRefillService:
         refill_request = PrescriptionRefillRequest(
             request_number=request_number,
             patient_id=patient_id,
-            status=RefillRequestStatus.PENDING,
+            status="pending",
             notes=request.notes,
             preferred_pickup_date=request.preferred_pickup_date,
             items=[item.model_dump() for item in request.items],
