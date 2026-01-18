@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 from enum import Enum
-from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, ForeignKey, Enum as SQLEnum, Index, Time
+from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, ForeignKey, Enum as SQLEnum, Index, Time, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import relationship
 from app.db.session import Base
@@ -94,7 +94,7 @@ class Notification(Base):
     title = Column(String(500), nullable=True)  # Subject line for notifications
     message = Column(Text, nullable=False)  # Main message content
     message_id = Column(String(255), nullable=True)  # External provider message ID
-    metadata = Column(JSONB, nullable=True)
+    notification_metadata = Column(JSONB, nullable=True)
     scheduled_at = Column(DateTime(timezone=True), nullable=True, index=True)
     sent_at = Column(DateTime(timezone=True), nullable=True)
     delivered_at = Column(DateTime(timezone=True), nullable=True)
@@ -103,13 +103,13 @@ class Notification(Base):
     max_retries = Column(Integer, default=3, nullable=False)
     created_at = Column(
         DateTime(timezone=True),
-        server_default=datetime.utcnow,
+        server_default=func.now(),
         nullable=False
     )
     updated_at = Column(
         DateTime(timezone=True),
-        server_default=datetime.utcnow,
-        onupdate=datetime.utcnow,
+        server_default=func.now(),
+        onupdate=func.now(),
         nullable=False
     )
 
@@ -175,13 +175,13 @@ class NotificationTemplate(Base):
     approved_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(
         DateTime(timezone=True),
-        server_default=datetime.utcnow,
+        server_default=func.now(),
         nullable=False
     )
     updated_at = Column(
         DateTime(timezone=True),
-        server_default=datetime.utcnow,
-        onupdate=datetime.utcnow,
+        server_default=func.now(),
+        onupdate=func.now(),
         nullable=False
     )
 
@@ -225,7 +225,7 @@ class NotificationTemplateVersion(Base):
     )
     created_at = Column(
         DateTime(timezone=True),
-        server_default=datetime.utcnow,
+        server_default=func.now(),
         nullable=False
     )
 
@@ -257,7 +257,7 @@ class NotificationLog(Base):
     error_details = Column(JSONB, nullable=True)  # Additional error/response details
     created_at = Column(
         DateTime(timezone=True),
-        server_default=datetime.utcnow,
+        server_default=func.now(),
         nullable=False,
         index=True
     )
@@ -299,13 +299,13 @@ class NotificationPreference(Base):
     timezone = Column(String(50), default="Asia/Jakarta", nullable=True)
     created_at = Column(
         DateTime(timezone=True),
-        server_default=datetime.utcnow,
+        server_default=func.now(),
         nullable=False
     )
     updated_at = Column(
         DateTime(timezone=True),
-        server_default=datetime.utcnow,
-        onupdate=datetime.utcnow,
+        server_default=func.now(),
+        onupdate=func.now(),
         nullable=False
     )
 
@@ -366,14 +366,14 @@ class CriticalAlert(Base):
 
     created_at = Column(
         DateTime(timezone=True),
-        server_default=datetime.utcnow,
+        server_default=func.now(),
         nullable=False,
         index=True
     )
     updated_at = Column(
         DateTime(timezone=True),
-        server_default=datetime.utcnow,
-        onupdate=datetime.utcnow,
+        server_default=func.now(),
+        onupdate=func.now(),
         nullable=False
     )
 
@@ -414,7 +414,7 @@ class AlertAcknowledgment(Base):
     # Timestamp tracking
     acknowledged_at = Column(
         DateTime(timezone=True),
-        server_default=datetime.utcnow,
+        server_default=func.now(),
         nullable=False,
         index=True
     )
@@ -424,7 +424,7 @@ class AlertAcknowledgment(Base):
 
     created_at = Column(
         DateTime(timezone=True),
-        server_default=datetime.utcnow,
+        server_default=func.now(),
         nullable=False
     )
 

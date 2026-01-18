@@ -115,12 +115,16 @@ class Department(Base):
     created_at = Column(Date, server_default=func.current_date(), nullable=False)
     updated_at = Column(Date, server_default=func.current_date(), onupdate=func.current_date(), nullable=False)
 
+    # Table options - allow extending from user_management.Department
+    __table_args__ = {'extend_existing': True}
+
     # Relationships
     hospital = relationship("HospitalProfile", back_populates="departments")
     parent_department = relationship("Department", remote_side=[id], backref="sub_departments")
     head_of_department = relationship("StaffProfile", foreign_keys=[head_of_department_id], backref="headed_departments")
-    staff = relationship("StaffProfile", back_populates="primary_department")
+    staff = relationship("StaffProfile", foreign_keys="StaffProfile.primary_department_id", back_populates="primary_department")
     working_hours = relationship("WorkingHours", back_populates="department", cascade="all, delete-orphan")
+    users = relationship("User", back_populates="department")
 
 
 # =============================================================================

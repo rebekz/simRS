@@ -10,7 +10,7 @@ Python 3.5+ compatible
 """
 
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, DateTime, JSON, Float, Enum as SQLEnum
+from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, DateTime, JSON, Float, Enum as SQLEnum, func
 from sqlalchemy.orm import relationship
 from app.db.session import Base
 
@@ -88,15 +88,15 @@ class BackupJob(Base):
     tags = Column(JSON, nullable=True, comment="Tags for categorization")
 
     # Timestamps
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     # Relationships
     creator = relationship("User", foreign_keys=[created_by])
     triggerer = relationship("User", foreign_keys=[last_triggered_by])
 
     __table_args__ = (
-        {"comment": "Automated backup jobs"},
+        {"extend_existing": True, "comment": "Automated backup jobs"},
     )
 
 
@@ -137,14 +137,14 @@ class BackupRetention(Base):
 
     # Metadata
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     # Relationships
     creator = relationship("User")
 
     __table_args__ = (
-        {"comment": "Backup retention policies"},
+        {"extend_existing": True, "comment": "Backup retention policies"},
     )
 
 
@@ -199,7 +199,7 @@ class BackupRestore(Base):
     # Metadata
     requested_by = Column(Integer, ForeignKey("users.id"), nullable=False, comment="User who requested restore")
     notes = Column(Text, nullable=True, comment="Additional notes")
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     # Relationships
     backup_job = relationship("BackupJob")
@@ -207,7 +207,7 @@ class BackupRestore(Base):
     approver = relationship("User", foreign_keys=[approved_by])
 
     __table_args__ = (
-        {"comment": "Backup restoration operations"},
+        {"extend_existing": True, "comment": "Backup restoration operations"},
     )
 
 
@@ -255,14 +255,14 @@ class BackupVerification(Base):
     # Metadata
     verified_by = Column(Integer, ForeignKey("users.id"), nullable=True, comment="User who triggered verification")
     notes = Column(Text, nullable=True, comment="Additional notes")
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     # Relationships
     backup_job = relationship("BackupJob")
     verifier = relationship("User")
 
     __table_args__ = (
-        {"comment": "Backup integrity verification"},
+        {"extend_existing": True, "comment": "Backup integrity verification"},
     )
 
 
@@ -291,11 +291,11 @@ class BackupMetrics(Base):
     disk_io_mb = Column(Integer, nullable=True, comment="Disk I/O in MB")
 
     # Timestamp
-    recorded_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False, index=True, comment="When metric was recorded")
+    recorded_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False, index=True, comment="When metric was recorded")
 
     # Relationships
     backup_job = relationship("BackupJob")
 
     __table_args__ = (
-        {"comment": "Backup performance metrics"},
+        {"extend_existing": True, "comment": "Backup performance metrics"},
     )

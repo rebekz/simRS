@@ -13,7 +13,6 @@ from app.schemas.icd10 import (
     ICD10SearchRequest,
     ICD10SearchResponse,
     ICD10CodeResponse,
-    ICD10ChaptersResponse,
     ICD10FavoritesListResponse,
     ICD10FavoriteCreate,
     ICD10FavoriteResponse,
@@ -72,10 +71,10 @@ async def search_icd10_codes(
 async def get_icd10_chapters(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
-) -> List[ICD10ChaptersResponse]:
+) -> List[ICD10CodeResponse]:
     """Get all ICD-10 chapters for filtering."""
     chapters = await crud_icd10.get_icd10_chapters(db)
-    return [ICD10ChaptersResponse(**ch) for ch in chapters]
+    return [ICD10CodeResponse.model_validate(ch) for ch in chapters]
 
 
 @router.get("/icd10/code/{code_id}", response_model=ICD10CodeResponse)

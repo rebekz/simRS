@@ -231,6 +231,16 @@ class BulkAssignmentResponse(BaseModel):
     errors: List[Dict[str, Any]] = Field(default_factory=list)
 
 
+class UserAssignmentListResponse(BaseModel):
+    """Schema for user's training assignment list response"""
+    assignments: List[TrainingAssignmentResponse]
+    total: int
+    completed: int
+    in_progress: int
+    not_started: int
+    overdue: int
+
+
 # =============================================================================
 # Training Progress Schemas
 # =============================================================================
@@ -253,6 +263,14 @@ class TrainingProgressBase(BaseModel):
 class TrainingProgressCreate(TrainingProgressBase):
     """Schema for creating training progress"""
     pass
+
+
+class TrainingProgressUpdate(BaseModel):
+    """Schema for updating training progress"""
+    status: Optional[ProgressStatus] = None
+    percentage_completed: Optional[float] = Field(None, ge=0, le=100)
+    current_material_id: Optional[int] = None
+    time_spent_minutes: Optional[int] = Field(None, ge=0)
 
 
 class TrainingProgressResponse(TrainingProgressBase):
@@ -584,3 +602,15 @@ class TrainingReminderResponse(BaseModel):
     failed_ids: List[int] = Field(default_factory=list)
     errors: List[str] = Field(default_factory=list)
     sent_at: datetime = Field(default_factory=datetime.now)
+
+
+# =============================================================================
+# Stats and Report Response Aliases
+# =============================================================================
+
+# Response classes for stats endpoints (aliases for compatibility)
+OverallStatsResponse = OverallTrainingStats
+UserStatsResponse = UserTrainingStats
+ModuleStatsResponse = ModuleStats
+ComplianceReportResponse = CompletionReport
+CompletionReportResponse = CompletionReport

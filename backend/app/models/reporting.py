@@ -11,7 +11,7 @@ Python 3.5+ compatible
 """
 
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, DateTime, Enum as SQLEnum, JSON, Numeric, Float
+from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, DateTime, Enum as SQLEnum, JSON, Numeric, Float, func
 from sqlalchemy.orm import relationship
 from app.db.session import Base
 
@@ -27,7 +27,7 @@ class ReportType:
 
 class Report(Base):
     """Report model for defining and storing report configurations"""
-    __tablename__ = "reports"
+    __tablename__ = "report"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False, index=True, comment="Report name")
@@ -59,21 +59,21 @@ class Report(Base):
     # Metadata
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
     updated_by = Column(Integer, ForeignKey("users.id"), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     # Relationships
     executions = relationship("ReportExecution", back_populates="report", cascade="all, delete-orphan")
     schedules = relationship("ReportSchedule", back_populates="report", cascade="all, delete-orphan")
 
     __table_args__ = (
-        {"comment": "Report definitions and configurations"},
+        {"extend_existing": True, "comment": "Report definitions and configurations"},
     )
 
 
 class ReportSchedule(Base):
     """Report schedule model for automated report generation"""
-    __tablename__ = "report_schedules"
+    __tablename__ = "report_schedule"
 
     id = Column(Integer, primary_key=True, index=True)
     report_id = Column(Integer, ForeignKey("reports.id", ondelete="CASCADE"), nullable=False, index=True)
@@ -98,20 +98,20 @@ class ReportSchedule(Base):
 
     # Metadata
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     # Relationships
     report = relationship("Report", back_populates="schedules")
 
     __table_args__ = (
-        {"comment": "Report schedules for automated generation"},
+        {"extend_existing": True, "comment": "Report schedules for automated generation"},
     )
 
 
 class ReportExecution(Base):
     """Report execution model for tracking report runs"""
-    __tablename__ = "report_executions"
+    __tablename__ = "report_execution"
 
     id = Column(Integer, primary_key=True, index=True)
     report_id = Column(Integer, ForeignKey("reports.id", ondelete="CASCADE"), nullable=False, index=True)
@@ -138,19 +138,19 @@ class ReportExecution(Base):
 
     # Metadata
     triggered_by = Column(Integer, ForeignKey("users.id"), nullable=True, comment="User who triggered execution")
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     # Relationships
     report = relationship("Report", back_populates="executions")
 
     __table_args__ = (
-        {"comment": "Report execution history"},
+        {"extend_existing": True, "comment": "Report execution history"},
     )
 
 
 class OperationalMetric(Base):
     """Operational metrics model for daily operational statistics"""
-    __tablename__ = "operational_metrics"
+    __tablename__ = "operational_metric"
 
     id = Column(Integer, primary_key=True, index=True)
     metric_date = Column(DateTime(timezone=True), nullable=False, index=True, comment="Date of metric")
@@ -163,19 +163,19 @@ class OperationalMetric(Base):
     # Metrics
     metric_value = Column(Float, nullable=True, comment="Metric value")
     metric_count = Column(Integer, nullable=True, comment="Metric count")
-    metadata = Column(JSON, nullable=True, comment="Additional metric metadata")
+    report_metadata = Column(JSON, nullable=True, comment="Additional metric metadata")
 
     # Timestamps
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     __table_args__ = (
-        {"comment": "Daily operational metrics"},
+        {"extend_existing": True, "comment": "Daily operational metrics"},
     )
 
 
 class ClinicalQualityMetric(Base):
     """Clinical quality metrics model for quality reporting"""
-    __tablename__ = "clinical_quality_metrics"
+    __tablename__ = "clinical_quality_metric"
 
     id = Column(Integer, primary_key=True, index=True)
     metric_date = Column(DateTime(timezone=True), nullable=False, index=True, comment="Date of metric")
@@ -191,19 +191,19 @@ class ClinicalQualityMetric(Base):
 
     # Breakdown
     department_id = Column(Integer, ForeignKey("departments.id"), nullable=True)
-    metadata = Column(JSON, nullable=True, comment="Additional metadata")
+    report_metadata = Column(JSON, nullable=True, comment="Additional metadata")
 
     # Timestamps
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     __table_args__ = (
-        {"comment": "Clinical quality metrics"},
+        {"extend_existing": True, "comment": "Clinical quality metrics"},
     )
 
 
 class FinancialMetric(Base):
     """Financial metrics model for financial reporting"""
-    __tablename__ = "financial_metrics"
+    __tablename__ = "financial_metric"
 
     id = Column(Integer, primary_key=True, index=True)
     metric_date = Column(DateTime(timezone=True), nullable=False, index=True, comment="Date of metric")
@@ -217,19 +217,19 @@ class FinancialMetric(Base):
     # Breakdown
     payer_type = Column(String(50), nullable=True, index=True, comment="Payer type (BPJS, Asuransi, Umum)")
     department_id = Column(Integer, ForeignKey("departments.id"), nullable=True)
-    metadata = Column(JSON, nullable=True, comment="Additional metadata")
+    report_metadata = Column(JSON, nullable=True, comment="Additional metadata")
 
     # Timestamps
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     __table_args__ = (
-        {"comment": "Financial metrics"},
+        {"extend_existing": True, "comment": "Financial metrics"},
     )
 
 
 class RegulatoryReport(Base):
     """Regulatory report model for tracking regulatory submissions"""
-    __tablename__ = "regulatory_reports"
+    __tablename__ = "regulatory_report"
 
     id = Column(Integer, primary_key=True, index=True)
     report_code = Column(String(50), nullable=False, index=True, comment="Report code (SIRS, Kemenkes, etc.)")
@@ -252,9 +252,9 @@ class RegulatoryReport(Base):
 
     # Metadata
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     __table_args__ = (
-        {"comment": "Regulatory report submissions"},
+        {"extend_existing": True, "comment": "Regulatory report submissions"},
     )

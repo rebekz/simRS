@@ -7,7 +7,7 @@ Python 3.5+ compatible
 """
 
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, DateTime, Enum as SQLEnum, JSON
+from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, DateTime, Enum as SQLEnum, JSON, func
 from sqlalchemy.orm import relationship
 from app.db.session import Base
 
@@ -50,8 +50,8 @@ class FHIRResource(Base):
     resource_json = Column(JSON, nullable=False, comment="FHIR resource as JSON")
 
     # Metadata
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     # Access control
     is_public = Column(Boolean, default=False, nullable=False, comment="Whether resource is publicly accessible")
@@ -80,7 +80,7 @@ class FHIRSearchParameter(Base):
     modifiers = Column(JSON, nullable=True, comment="Supported modifiers (contains, exact, etc.)")
 
     # Metadata
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     __table_args__ = (
         {"comment": "FHIR search parameter definitions"},
@@ -109,7 +109,7 @@ class FHIRAuditEvent(Base):
     operation_outcome = Column(JSON, nullable=True, comment="FHIR OperationOutcome for errors")
 
     # Timing
-    request_timestamp = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    request_timestamp = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     response_duration_ms = Column(Integer, nullable=True, comment="Response duration in milliseconds")
 
     __table_args__ = (

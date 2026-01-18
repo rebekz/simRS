@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """Patient Portal Authentication Schemas
 
 Pydantic schemas for patient portal authentication, login, and password management.
@@ -5,6 +7,9 @@ Pydantic schemas for patient portal authentication, login, and password manageme
 from pydantic import BaseModel, EmailStr, Field, field_validator, ConfigDict
 from datetime import datetime
 from typing import Optional, Literal
+
+# Forward reference - imported here for Pydantic validation
+from app.schemas.patient_portal.profile import PatientPortalProfile  # noqa: E402
 
 
 class PatientPortalLogin(BaseModel):
@@ -28,7 +33,7 @@ class PatientPortalToken(BaseModel):
     refresh_token: Optional[str] = None
     token_type: str = "bearer"
     expires_in: int = Field(..., description="Token expiration in seconds")
-    portal_user: "PatientPortalProfile"
+    portal_user: PatientPortalProfile
     requires_verification: Optional[bool] = False
     pending_verification_step: Optional[str] = None
 
@@ -157,3 +162,5 @@ class RefreshTokenRequest(BaseModel):
 class LogoutRequest(BaseModel):
     """Schema for logout"""
     revoke_all_sessions: bool = Field(default=False, description="Revoke all active sessions")
+
+

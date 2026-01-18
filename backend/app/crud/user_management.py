@@ -16,8 +16,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.models.user import User, UserRole
-from app.models.user_management import Department, UserAccessRequest
-from app.models.audit import AuditLog
+from app.models.hospital import Department
+from app.models.user_management import UserAccessRequest
+from app.models.audit_log import AuditLog
 from app.core.security import get_password_hash, verify_password
 
 

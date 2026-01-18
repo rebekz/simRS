@@ -108,7 +108,7 @@ class ProcedureCode(Base):
     ndc_code = Column(String(20), nullable=True)  # National Drug Code (for reagents)
 
     # Metadata and notes
-    metadata = Column(JSONB, nullable=True)  # Additional metadata
+    procedure_metadata = Column(JSONB, nullable=True)  # Additional metadata
     notes = Column(Text, nullable=True)
     warnings = Column(Text, nullable=True)  # Safety warnings
 

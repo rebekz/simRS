@@ -84,7 +84,6 @@ class PatientPortalUser(Base):
     sessions = relationship("PatientPortalSession", back_populates="portal_user", cascade="all, delete-orphan")
     password_reset_tokens = relationship("PatientPortalPasswordReset", back_populates="portal_user", cascade="all, delete-orphan")
     caregiver_links = relationship("CaregiverLink", foreign_keys="CaregiverLink.patient_portal_user_id", back_populates="caregiver", cascade="all, delete-orphan")
-    linked_patients = relationship("CaregiverLink", foreign_keys="CaregiverLink.linked_patient_id", back_populates="linked_patient", cascade="all, delete-orphan")
 
 
 class PatientPortalVerification(Base):

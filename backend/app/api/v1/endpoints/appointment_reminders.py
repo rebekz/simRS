@@ -187,7 +187,7 @@ async def get_my_reminders(
 
 @router.get("/templates", response_model=TemplateListResponse)
 async def get_reminder_templates(
-    language: str = Query("id", regex="^(id|en)$", description="Language code"),
+    language: str = Query("id", pattern="^(id|en)$", description="Language code"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
 ):
@@ -384,7 +384,7 @@ async def send_bulk_reminders(
     request: BulkReminderRequest,
     background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_permission("appointments:manage")),
+    current_user: User = Depends(require_permission("appointments", "manage")),
 ):
     """
     Send bulk reminders to multiple appointments
@@ -456,7 +456,7 @@ async def get_reminder_statistics(
     start_date: Optional[str] = Query(None, description="Start date (YYYY-MM-DD)"),
     end_date: Optional[str] = Query(None, description="End date (YYYY-MM-DD)"),
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_permission("reports:view")),
+    current_user: User = Depends(require_permission("reports", "view")),
 ):
     """
     Get reminder delivery statistics
@@ -512,7 +512,7 @@ async def process_pending_reminders(
     background_tasks: BackgroundTasks,
     limit: int = Query(100, ge=1, le=500, description="Maximum reminders to process"),
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_permission("system:admin")),
+    current_user: User = Depends(require_permission("system", "admin")),
 ):
     """
     Process pending reminders (background job trigger)
@@ -551,7 +551,7 @@ async def get_all_upcoming_reminders(
     patient_id: Optional[int] = Query(None, description="Filter by patient ID"),
     days_ahead: int = Query(7, ge=1, le=30, description="Number of days ahead"),
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_permission("appointments:view")),
+    current_user: User = Depends(require_permission("appointments", "view")),
 ):
     """
     Get all upcoming scheduled reminders (admin view)

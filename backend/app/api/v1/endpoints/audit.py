@@ -240,7 +240,7 @@ async def export_audit_logs(
     resource_type: Optional[str] = Query(None),
     start_date: Optional[datetime] = Query(None),
     end_date: Optional[datetime] = Query(None),
-    format: str = Query("csv", regex="^(csv|excel)$"),
+    format: str = Query("csv", pattern="^(csv|excel)$"),
 ):
     """
     Export audit logs to CSV/Excel (admin only).

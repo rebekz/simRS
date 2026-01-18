@@ -118,12 +118,8 @@ def setup_metrics(app):
         should_group_status_codes=False,
         should_ignore_untemplated=True,
         should_group_untemplated=True,
-        should_instrument_requests_inprogress=True,
-        should_instrument_requests_duration=True,
         excluded_handlers=["/metrics"],
         env_var_name="ENABLE_METRICS",
-        inprogress_name="simrs_http_requests_in_progress_instrumentator",
-        inprogress_labels=True,
     )
 
     # Instrument the app

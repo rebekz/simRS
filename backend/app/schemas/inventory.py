@@ -148,7 +148,7 @@ class StockTransactionItemCreate(BaseModel):
 
 class StockTransactionCreate(BaseModel):
     """Schema for creating stock transaction"""
-    transaction_type: str = Field(..., regex="^(purchase|sale|adjustment|transfer|return|expiry)$")
+    transaction_type: str = Field(..., pattern="^(purchase|sale|adjustment|transfer|return|expiry)$")
     transaction_date: date
     reference_number: Optional[str] = Field(None, max_length=100)
     reference_type: Optional[str] = Field(None, max_length=50)

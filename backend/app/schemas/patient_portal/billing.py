@@ -2,6 +2,8 @@
 
 Pydantic schemas for viewing and paying bills through patient portal.
 """
+from __future__ import annotations
+
 from pydantic import BaseModel, Field, field_validator, ConfigDict
 from datetime import datetime, date
 from typing import Optional, List
@@ -76,6 +78,18 @@ class InvoiceListItem(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class PaymentRecord(BaseModel):
+    """Payment record"""
+    id: int
+    payment_date: datetime
+    payment_method: str
+    amount: Decimal
+    reference_number: Optional[str] = None
+    bank_name: Optional[str] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class InvoiceDetail(BaseModel):
     """Detailed invoice information"""
     id: int
@@ -101,7 +115,7 @@ class InvoiceDetail(BaseModel):
     items: List[InvoiceItem]
 
     # Payment summary
-    payment_history: List["PaymentRecord"]
+    payment_history: List[PaymentRecord]
     outstanding_balance: Decimal
 
     # Dates
@@ -118,18 +132,6 @@ class InvoiceListResponse(BaseModel):
     outstanding_balance: Decimal
     overdue_count: int
     overdue_amount: Decimal
-
-
-class PaymentRecord(BaseModel):
-    """Payment record"""
-    id: int
-    payment_date: datetime
-    payment_method: str
-    amount: Decimal
-    reference_number: Optional[str] = None
-    bank_name: Optional[str] = None
-
-    model_config = ConfigDict(from_attributes=True)
 
 
 class PaymentInitiationRequest(BaseModel):

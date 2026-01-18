@@ -88,7 +88,7 @@ class PrescriptionRefillItem(Base):
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     # Relationships
-    refill_request = relationship("PrescriptionRefillRequest", back_populates="items")
+    refill_request = relationship("PrescriptionRefillRequest")
     prescription = relationship("Prescription", foreign_keys=[prescription_id])
     prescription_item = relationship("PrescriptionItem", foreign_keys=[prescription_item_id])
     drug = relationship("Drug", foreign_keys=[drug_id])

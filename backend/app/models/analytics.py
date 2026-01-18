@@ -10,7 +10,7 @@ Python 3.5+ compatible
 """
 
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, DateTime, JSON, Float
+from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, DateTime, JSON, Float, func
 from sqlalchemy.orm import relationship
 from app.db.session import Base
 
@@ -70,8 +70,8 @@ class KPI(Base):
 
     # Metadata
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     # Relationships
     history = relationship("KPIHistory", back_populates="kpi", cascade="all, delete-orphan")
@@ -105,10 +105,10 @@ class KPIHistory(Base):
     # Context
     numerator = Column(Float, nullable=True, comment="Numerator value")
     denominator = Column(Float, nullable=True, comment="Denominator value")
-    metadata = Column(JSON, nullable=True, comment="Additional metadata")
+    analytics_metadata = Column(JSON, nullable=True, comment="Additional metadata")
 
     # Metadata
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     # Relationships
     kpi = relationship("KPI", back_populates="history")
@@ -145,8 +145,8 @@ class Dashboard(Base):
 
     # Metadata
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     # Relationships
     widgets = relationship("DashboardWidget", back_populates="dashboard", cascade="all, delete-orphan")
@@ -190,8 +190,8 @@ class DashboardWidget(Base):
     display_order = Column(Integer, nullable=False, default=0, comment="Display order")
 
     # Metadata
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     # Relationships
     dashboard = relationship("Dashboard", back_populates="widgets")
@@ -220,8 +220,8 @@ class DataCache(Base):
     valid_until = Column(DateTime(timezone=True), nullable=True, comment="Valid until")
 
     # Metadata
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     __table_args__ = (
         {"comment": "Analytics data cache"},
@@ -262,8 +262,8 @@ class ScheduledReport(Base):
 
     # Metadata
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     __table_args__ = (
         {"comment": "Scheduled analytics reports"},
@@ -297,7 +297,7 @@ class ReportSnapshot(Base):
     file_size = Column(Integer, nullable=True, comment="File size in bytes")
 
     # Metadata
-    generated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    generated_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     __table_args__ = (
         {"comment": "Report snapshots"},

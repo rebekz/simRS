@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, ForeignKey, Enum as SQLEnum, Index
+from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, ForeignKey, Enum as SQLEnum, Index, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from app.db.session import Base
@@ -50,13 +50,13 @@ class MessageThread(Base):
     )
     created_at = Column(
         DateTime(timezone=True),
-        server_default=datetime.utcnow,
+        server_default=func.now(),
         nullable=False
     )
     updated_at = Column(
         DateTime(timezone=True),
-        server_default=datetime.utcnow,
-        onupdate=datetime.utcnow,
+        server_default=func.now(),
+        onupdate=func.now(),
         nullable=False
     )
 
@@ -106,7 +106,7 @@ class Message(Base):
     delivered_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(
         DateTime(timezone=True),
-        server_default=datetime.utcnow,
+        server_default=func.now(),
         nullable=False,
         index=True
     )
@@ -151,7 +151,7 @@ class MessageReadReceipt(Base):
     )
     read_at = Column(
         DateTime(timezone=True),
-        server_default=datetime.utcnow,
+        server_default=func.now(),
         nullable=False
     )
 

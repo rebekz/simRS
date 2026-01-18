@@ -10,7 +10,7 @@ Python 3.5+ compatible
 """
 
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, DateTime, JSON, Float
+from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, DateTime, JSON, Float, func
 from sqlalchemy.orm import relationship
 from app.db.session import Base
 
@@ -80,8 +80,8 @@ class TransformationRule(Base):
     # Metadata
     description = Column(Text, nullable=True, comment="Rule description")
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
     published_at = Column(DateTime(timezone=True), nullable=True, comment="Published timestamp")
     published_by = Column(Integer, ForeignKey("users.id"), nullable=True, comment="Published by")
 
@@ -90,7 +90,7 @@ class TransformationRule(Base):
     transformation_logs = relationship("TransformationLog", back_populates="rule", cascade="all, delete-orphan")
 
     __table_args__ = (
-        {"comment": "Transformation rule definitions"},
+        {"extend_existing": True, "comment": "Transformation rule definitions"},
     )
 
 
@@ -138,13 +138,13 @@ class FieldMapping(Base):
     # Metadata
     description = Column(Text, nullable=True, comment="Mapping description")
     notes = Column(Text, nullable=True, comment="Mapping notes")
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     # Relationships
     transformation_rule = relationship("TransformationRule", back_populates="field_mappings")
 
     __table_args__ = (
-        {"comment": "Field mapping definitions"},
+        {"extend_existing": True, "comment": "Field mapping definitions"},
     )
 
 
@@ -183,11 +183,11 @@ class TerminologyMapping(Base):
 
     # Metadata
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     __table_args__ = (
-        {"comment": "Terminology mapping records"},
+        {"extend_existing": True, "comment": "Terminology mapping records"},
     )
 
 
@@ -215,11 +215,11 @@ class LookupTable(Base):
 
     # Metadata
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     __table_args__ = (
-        {"comment": "Lookup tables for value mapping"},
+        {"extend_existing": True, "comment": "Lookup tables for value mapping"},
     )
 
 
@@ -270,14 +270,14 @@ class TransformationLog(Base):
     validation_errors = Column(JSON, nullable=True, comment="Validation errors")
 
     # Metadata
-    transformed_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    transformed_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     transformed_by = Column(Integer, ForeignKey("users.id"), nullable=True, comment="Transformed by (manual)")
 
     # Relationships
     rule = relationship("TransformationRule", back_populates="transformation_logs")
 
     __table_args__ = (
-        {"comment": "Transformation execution logs"},
+        {"extend_existing": True, "comment": "Transformation execution logs"},
     )
 
 
@@ -311,8 +311,8 @@ class TransformationTest(Base):
     # Metadata
     is_active = Column(Boolean, nullable=False, default=True, comment="Whether test is active")
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     __table_args__ = (
-        {"comment": "Transformation test cases"},
+        {"extend_existing": True, "comment": "Transformation test cases"},
     )

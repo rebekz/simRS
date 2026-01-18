@@ -258,7 +258,6 @@ async def verify_email(
 @router.post("/register/send-phone-verification", response_model=PhoneVerificationResponse)
 async def send_phone_verification(
     request: PhoneVerificationRequest,
-    current_user: PatientPortalUser = None,
     db: AsyncSession = Depends(get_db),
 ):
     """Initiate phone verification by sending SMS code

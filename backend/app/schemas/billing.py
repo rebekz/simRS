@@ -643,7 +643,7 @@ class BillingDashboard(BaseModel):
 class InvoiceBatchAction(BaseModel):
     """Schema for batch invoice operations"""
     invoice_ids: List[int] = Field(..., min_items=1)
-    action: str = Field(..., regex="^(approve|reject|cancel|write_off|send_reminder)$")
+    action: str = Field(..., pattern="^(approve|reject|cancel|write_off|send_reminder)$")
     reason: Optional[str] = Field(None, max_length=500)
     batch_notes: Optional[str] = Field(None, max_length=1000)
 
@@ -658,14 +658,14 @@ class InvoiceBatchAction(BaseModel):
 class InvoiceReminder(BaseModel):
     """Schema for invoice reminder"""
     invoice_id: int
-    reminder_type: str = Field(..., regex="^(due_soon|overdue|payment_confirmation|thank_you)$")
+    reminder_type: str = Field(..., pattern="^(due_soon|overdue|payment_confirmation|thank_you)$")
     recipient_email: str = Field(..., max_length=255)
     recipient_phone: Optional[str] = Field(None, max_length=20)
     subject: str = Field(..., max_length=255)
     message: str = Field(..., max_length=2000)
     scheduled_for: Optional[datetime] = None
     sent_at: Optional[datetime] = None
-    status: str = Field(default="pending", regex="^(pending|sent|failed)$")
+    status: str = Field(default="pending", pattern="^(pending|sent|failed)$")
 
 
 # Update forward references

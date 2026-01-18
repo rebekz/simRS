@@ -25,7 +25,6 @@ from app.models.patient import Patient
 from app.models.user import User
 from app.models.queue import QueueTicket, QueueDepartment, QueueStatus, QueuePriority
 from app.models.audit_log import AuditLog
-from app.models.master_data import Poli
 
 
 logger = logging.getLogger(__name__)

@@ -10,7 +10,7 @@ Python 3.5+ compatible
 """
 
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, DateTime, Enum as SQLEnum, JSON
+from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, DateTime, Enum as SQLEnum, JSON, func
 from sqlalchemy.orm import relationship
 from app.db.session import Base
 
@@ -67,8 +67,8 @@ class HL7Message(Base):
     routing_rule_id = Column(Integer, ForeignKey("hl7_routing_rules.id"), nullable=True)
 
     # Metadata
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     # Relationships
     acknowledgment = relationship("HL7Acknowledgment", back_populates="message", uselist=False)
@@ -99,7 +99,7 @@ class HL7Acknowledgment(Base):
     error_message = Column(Text, nullable=True, comment="Error description")
 
     # Acknowledgment metadata
-    acknowledged_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    acknowledged_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     processing_time_ms = Column(Integer, nullable=True, comment="Processing time in milliseconds")
 
     # Relationships
@@ -135,7 +135,7 @@ class HL7Error(Base):
     resolution_notes = Column(Text, nullable=True, comment="Notes on error resolution")
 
     # Metadata
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     # Relationships
     message = relationship("HL7Message", back_populates="errors")
@@ -183,8 +183,8 @@ class HL7RoutingRule(Base):
 
     # Metadata
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     # Relationships
     messages = relationship("HL7Message", back_populates="routing_rule")
@@ -203,7 +203,7 @@ class HL7SequenceNumber(Base):
     last_sequence_number = Column(Integer, nullable=False, default=0, comment="Last used sequence number")
 
     # Metadata
-    updated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     __table_args__ = (
         {"comment": "HL7 message sequence number tracking"},

@@ -7,19 +7,6 @@ from datetime import datetime
 from typing import Optional, List, Literal
 
 
-# ============ Account Settings Response ============
-
-class AccountSettingsResponse(BaseModel):
-    """Schema for complete account settings response"""
-    profile: ProfileSettings
-    notifications: NotificationPreferences
-    appearance: AppearancePreferences
-    privacy: PrivacySettings
-    security: SecuritySettingsOverview
-
-    model_config = ConfigDict(from_attributes=True)
-
-
 # ============ Profile Settings ============
 
 class ProfileSettings(BaseModel):
@@ -208,25 +195,6 @@ class SecuritySettingsOverview(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class SecuritySettingsResponse(BaseModel):
-    """Schema for detailed security settings response"""
-    mfa_enabled: bool
-    has_security_questions: bool
-    security_question_1: Optional[str] = None
-    security_question_2: Optional[str] = None
-    last_password_change: Optional[datetime] = None
-    password_age_days: Optional[int] = None
-    failed_login_attempts: int
-    is_locked: bool
-    locked_until: Optional[datetime] = None
-    active_sessions: int
-    recent_sessions: List[SessionInfo]
-    last_login: Optional[datetime] = None
-    created_at: datetime
-
-    model_config = ConfigDict(from_attributes=True)
-
-
 class SessionInfo(BaseModel):
     """Schema for active session info"""
     id: int
@@ -312,3 +280,37 @@ class RevokeAllSessionsResponse(BaseModel):
     """Schema for revoking all sessions response"""
     revoked_count: int
     message: str
+
+
+# ============ Account Settings Response ============
+
+class AccountSettingsResponse(BaseModel):
+    """Schema for complete account settings response"""
+    profile: ProfileSettings
+    notifications: NotificationPreferences
+    appearance: AppearancePreferences
+    privacy: PrivacySettings
+    security: SecuritySettingsOverview
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+# ============ Security Settings Response ============
+
+class SecuritySettingsResponse(BaseModel):
+    """Schema for detailed security settings response"""
+    mfa_enabled: bool
+    has_security_questions: bool
+    security_question_1: Optional[str] = None
+    security_question_2: Optional[str] = None
+    last_password_change: Optional[datetime] = None
+    password_age_days: Optional[int] = None
+    failed_login_attempts: int
+    is_locked: bool
+    locked_until: Optional[datetime] = None
+    active_sessions: int
+    recent_sessions: List[SessionInfo]
+    last_login: Optional[datetime] = None
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)

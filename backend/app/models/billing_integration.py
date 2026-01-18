@@ -10,7 +10,7 @@ Python 3.5+ compatible
 """
 
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, DateTime, JSON, Float
+from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, DateTime, JSON, Float, func
 from sqlalchemy.orm import relationship
 from app.db.session import Base
 
@@ -88,14 +88,14 @@ class BillingSystem(Base):
 
     # Metadata
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     # Relationships
     claims = relationship("ClaimSubmission", back_populates="billing_system", cascade="all, delete-orphan")
 
     __table_args__ = (
-        {"comment": "External billing system connections"},
+        {"extend_existing": True, "comment": "External billing system connections"},
     )
 
 
@@ -187,15 +187,15 @@ class ClaimSubmission(Base):
 
     # Metadata
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     # Relationships
     billing_system = relationship("BillingSystem", back_populates="claims")
     payments = relationship("ClaimPayment", back_populates="claim", cascade="all, delete-orphan")
 
     __table_args__ = (
-        {"comment": "Claim submission tracking"},
+        {"extend_existing": True, "comment": "Claim submission tracking"},
     )
 
 
@@ -240,14 +240,14 @@ class ClaimPayment(Base):
     reconciliation_notes = Column(Text, nullable=True, comment="Reconciliation notes")
 
     # Metadata
-    received_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    received_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     # Relationships
     claim = relationship("ClaimSubmission", back_populates="payments")
 
     __table_args__ = (
-        {"comment": "Claim payment tracking"},
+        {"extend_existing": True, "comment": "Claim payment tracking"},
     )
 
 
@@ -277,10 +277,10 @@ class ClaimAdjustment(Base):
     original_line_amount = Column(Float, nullable=True, comment="Original line amount")
 
     # Metadata
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     __table_args__ = (
-        {"comment": "Claim adjustments"},
+        {"extend_existing": True, "comment": "Claim adjustments"},
     )
 
 
@@ -320,11 +320,11 @@ class RemittanceAdvice(Base):
     file_path = Column(String(500), nullable=True, comment="Stored file path")
 
     # Metadata
-    received_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    received_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     __table_args__ = (
-        {"comment": "Electronic remittance advice"},
+        {"extend_existing": True, "comment": "Electronic remittance advice"},
     )
 
 
@@ -358,8 +358,8 @@ class ClaimAttachment(Base):
 
     # Metadata
     uploaded_by = Column(Integer, ForeignKey("users.id"), nullable=True)
-    uploaded_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    uploaded_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     __table_args__ = (
-        {"comment": "Claim attachments"},
+        {"extend_existing": True, "comment": "Claim attachments"},
     )

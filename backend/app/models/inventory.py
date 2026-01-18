@@ -80,7 +80,6 @@ class Drug(Base):
 
     # Relationships
     inventory_batches = relationship("DrugBatch", back_populates="drug", cascade="all, delete-orphan")
-    stock_transactions = relationship("StockTransaction", back_populates="drug")
     purchase_order_items = relationship("PurchaseOrderItem", back_populates="drug")
 
 
@@ -182,7 +181,6 @@ class StockTransaction(Base):
     updated_at = Column(DateTime(timezone=True), server_default="NOW()", nullable=False)
 
     # Relationships
-    drug = relationship("Drug", back_populates="stock_transactions")
     items = relationship("StockTransactionItem", back_populates="transaction", cascade="all, delete-orphan")
 
 

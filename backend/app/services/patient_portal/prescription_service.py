@@ -15,10 +15,11 @@ from app.models.refill_request import (
     PrescriptionRefillItem,
     RefillRequestStatus,
 )
-from app.models.prescriptions import Prescription, PrescriptionItem
-from app.models.patients import Patient
-from app.models.drugs import Drug
-from app.models.dispensing import Dispense, DispenseStatus
+from app.models.prescription import Prescription, PrescriptionItem
+from app.models.patient import Patient
+from app.models.inventory import Drug
+from app.models.dispensing import Dispense
+from app.schemas.dispensing import DispenseStatus
 from app.schemas.patient_portal.prescriptions import (
     RefillRequestCreate,
     RefillEligibility,

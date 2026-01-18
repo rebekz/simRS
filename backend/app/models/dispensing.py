@@ -12,7 +12,43 @@ from sqlalchemy import Column, Integer, String, Text, DateTime, Date, ForeignKey
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.db.session import Base
-from app.schemas.dispensing import DispensingStatus, DispensePriority, VerificationStatus
+from app.schemas.dispensing import DispensingStatus, DispensePriority, VerificationStatus, DispenseStatus
+
+
+# =============================================================================
+# Dispense Models
+# =============================================================================
+
+class Dispense(Base):
+    """Individual prescription item dispense record
+
+    Tracks each time a prescription item is dispensed to a patient.
+    Used for refill eligibility checking and dispensing history.
+    """
+    __tablename__ = "dispenses"
+
+    id = Column(Integer, primary_key=True, index=True)
+    prescription_item_id = Column(Integer, ForeignKey("prescription_items.id"), nullable=False, index=True)
+
+    # Dispense details
+    quantity_dispensed = Column(Integer, nullable=False, default=0)
+    status = Column(SQLEnum(DispenseStatus), nullable=False, default=DispenseStatus.PENDING, index=True)
+
+    # Dispensing information
+    dispensed_at = Column(DateTime(timezone=True), nullable=True)  # When given to patient
+    dispensed_by_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+
+    # Notes
+    notes = Column(Text, nullable=True)
+    cancellation_reason = Column(Text, nullable=True)
+
+    # Timestamps
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    # Relationships
+    prescription_item = relationship("PrescriptionItem", backref="dispenses")
+    dispensed_by = relationship("User", foreign_keys=[dispensed_by_id], backref="dispenses_performed")
 
 
 # =============================================================================

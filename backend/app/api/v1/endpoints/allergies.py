@@ -1,6 +1,7 @@
 """Allergy Tracking API endpoints for STORY-013
 
 This module provides API endpoints for allergy tracking, alerting, and management.
+"""
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession

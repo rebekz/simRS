@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 """Patient Linking Schemas
 
 Pydantic schemas for linking portal accounts to existing patient records.
 """
-from pydantic import BaseModel, EmailStr, Field, ConfigDict
+from pydantic import BaseModel, EmailStr, Field, ConfigDict, field_validator
 from datetime import datetime, date
 from typing import Optional, Literal
 
@@ -47,21 +49,6 @@ class PatientLinkResponse(BaseModel):
     requires_additional_verification: bool = False
 
 
-class ExistingPatientSearchRequest(BaseModel):
-    """Schema for searching existing patients"""
-    search_type: Literal["nik", "bpjs"] = Field(..., description="Search by NIK or BPJS")
-    nik: Optional[str] = Field(None, pattern=r'^[0-9]{16}$')
-    bpjs_card_number: Optional[str] = Field(None, min_length=13, max_length=20)
-    include_inactive: bool = Field(default=False, description="Include inactive patients")
-
-
-class ExistingPatientSearchResponse(BaseModel):
-    """Schema for existing patient search response"""
-    found: bool
-    patients: list["PatientSummary"] = Field(default_factory=list)
-    message: str
-
-
 class PatientSummary(BaseModel):
     """Schema for patient summary in search results"""
     patient_id: int
@@ -75,6 +62,21 @@ class PatientSummary(BaseModel):
     bpjs_card_number: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class ExistingPatientSearchRequest(BaseModel):
+    """Schema for searching existing patients"""
+    search_type: Literal["nik", "bpjs"] = Field(..., description="Search by NIK or BPJS")
+    nik: Optional[str] = Field(None, pattern=r'^[0-9]{16}$')
+    bpjs_card_number: Optional[str] = Field(None, min_length=13, max_length=20)
+    include_inactive: bool = Field(default=False, description="Include inactive patients")
+
+
+class ExistingPatientSearchResponse(BaseModel):
+    """Schema for existing patient search response"""
+    found: bool
+    patients: list[PatientSummary] = Field(default_factory=list)
+    message: str
 
 
 class BPJSCardLinkRequest(BaseModel):
@@ -105,7 +107,7 @@ class MedicalRecordNumberSearchRequest(BaseModel):
 class MedicalRecordNumberSearchResponse(BaseModel):
     """Schema for MRN search response"""
     found: bool
-    patient: Optional["PatientSummary"] = None
+    patient: Optional[PatientSummary] = None
     verification_required: bool = False
     message: str
 

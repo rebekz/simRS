@@ -10,7 +10,7 @@ Python 3.5+ compatible
 """
 
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, DateTime, JSON, Float, Enum as SQLEnum
+from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, DateTime, JSON, Float, Enum as SQLEnum, func
 from sqlalchemy.orm import relationship
 from app.db.session import Base
 
@@ -99,14 +99,14 @@ class PharmacySystem(Base):
 
     # Metadata
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     # Relationships
     prescriptions = relationship("PrescriptionTransmission", back_populates="pharmacy_system", cascade="all, delete-orphan")
 
     __table_args__ = (
-        {"comment": "External pharmacy system connections"},
+        {"extend_existing": True, "comment": "External pharmacy system connections"},
     )
 
 
@@ -207,15 +207,15 @@ class PrescriptionTransmission(Base):
 
     # Metadata
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     # Relationships
     pharmacy_system = relationship("PharmacySystem", back_populates="prescriptions")
     dispense_records = relationship("MedicationDispense", back_populates="prescription", cascade="all, delete-orphan")
 
     __table_args__ = (
-        {"comment": "Prescription transmission tracking"},
+        {"extend_existing": True, "comment": "Prescription transmission tracking"},
     )
 
 
@@ -275,13 +275,13 @@ class MedicationDispense(Base):
     patient_counseling = Column(Text, nullable=True, comment="Patient counseling notes")
 
     # Metadata
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     # Relationships
     prescription = relationship("PrescriptionTransmission", back_populates="dispense_records")
 
     __table_args__ = (
-        {"comment": "Medication dispense tracking"},
+        {"extend_existing": True, "comment": "Medication dispense tracking"},
     )
 
 
@@ -317,10 +317,10 @@ class RefillRequest(Base):
     approval_expiration = Column(DateTime(timezone=True), nullable=True, comment="Approval expiration date")
 
     # Metadata
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     __table_args__ = (
-        {"comment": "Refill request tracking"},
+        {"extend_existing": True, "comment": "Refill request tracking"},
     )
 
 
@@ -355,10 +355,10 @@ class PharmacyInventorySync(Base):
     error_message = Column(Text, nullable=True, comment="Error message")
 
     # Metadata
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     __table_args__ = (
-        {"comment": "Pharmacy inventory synchronization"},
+        {"extend_existing": True, "comment": "Pharmacy inventory synchronization"},
     )
 
 
@@ -397,8 +397,8 @@ class DrugInteractionCheck(Base):
     reviewed_by = Column(Integer, ForeignKey("users.id"), nullable=True, comment="Clinician who reviewed")
 
     # Metadata
-    checked_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    checked_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     __table_args__ = (
-        {"comment": "Drug interaction check records"},
+        {"extend_existing": True, "comment": "Drug interaction check records"},
     )

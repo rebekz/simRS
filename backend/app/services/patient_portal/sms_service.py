@@ -1,6 +1,7 @@
 """Patient Portal SMS Service
 
 Service for sending SMS messages for patient portal verification.
+"""
 from typing import Optional
 from datetime import datetime
 

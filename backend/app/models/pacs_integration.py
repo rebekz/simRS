@@ -10,7 +10,7 @@ Python 3.5+ compatible
 """
 
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, DateTime, JSON, Float
+from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, DateTime, JSON, Float, func
 from sqlalchemy.orm import relationship
 from app.db.session import Base
 
@@ -91,14 +91,14 @@ class PACSStudy(Base):
 
     # Metadata
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     # Relationships
     series = relationship("DICOMSeries", back_populates="study", cascade="all, delete-orphan")
 
     __table_args__ = (
-        {"comment": "PACS study tracking for radiology integration"},
+        {"extend_existing": True, "comment": "PACS study tracking for radiology integration"},
     )
 
 
@@ -132,14 +132,14 @@ class DICOMSeries(Base):
     operator_name = Column(String(255), nullable=True, comment="Operator name")
 
     # Metadata
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     # Relationships
     study = relationship("PACSStudy", back_populates="series")
     instances = relationship("DICOMInstance", back_populates="series", cascade="all, delete-orphan")
 
     __table_args__ = (
-        {"comment": "DICOM series storage"},
+        {"extend_existing": True, "comment": "DICOM series storage"},
     )
 
 
@@ -181,13 +181,13 @@ class DICOMInstance(Base):
     content_time = Column(String(20), nullable=True, comment="Content time")
 
     # Metadata
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     # Relationships
     series = relationship("DICOMSeries", back_populates="instances")
 
     __table_args__ = (
-        {"comment": "DICOM instance storage"},
+        {"extend_existing": True, "comment": "DICOM instance storage"},
     )
 
 
@@ -238,11 +238,11 @@ class PACSWorklist(Base):
     performed = Column(Boolean, default=False, nullable=False, index=True, comment="Procedure performed")
 
     # Metadata
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     __table_args__ = (
-        {"comment": "PACS modality worklist entries"},
+        {"extend_existing": True, "comment": "PACS modality worklist entries"},
     )
 
 
@@ -267,11 +267,11 @@ class PACSMapping(Base):
 
     # Metadata
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     __table_args__ = (
-        {"comment": "PACS system code mappings"},
+        {"extend_existing": True, "comment": "PACS system code mappings"},
     )
 
 
@@ -316,9 +316,9 @@ class PACSConfiguration(Base):
 
     # Metadata
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     __table_args__ = (
-        {"comment": "PACS system configuration"},
+        {"extend_existing": True, "comment": "PACS system configuration"},
     )

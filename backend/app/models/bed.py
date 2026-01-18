@@ -9,7 +9,7 @@ This module provides SQLAlchemy models for:
 - Real-time bed dashboard
 """
 from datetime import datetime, date
-from sqlalchemy import Column, Integer, String, Enum as SQLEnum, ForeignKey, DateTime, Text, Boolean, Index
+from sqlalchemy import Column, Integer, String, Enum as SQLEnum, ForeignKey, DateTime, Date, Text, Boolean, Index
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 

@@ -7,7 +7,7 @@ Python 3.5+ compatible
 """
 
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, DateTime, Enum as SQLEnum, JSON
+from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, DateTime, Enum as SQLEnum, JSON, func
 from sqlalchemy.orm import relationship
 from app.db.session import Base
 
@@ -34,8 +34,8 @@ class NotificationTemplate(Base):
     description = Column(Text, nullable=True, comment="Template description")
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True, comment="User who created template")
     updated_by = Column(Integer, ForeignKey("users.id"), nullable=True, comment="User who last updated template")
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     # Relationships
     versions = relationship("NotificationTemplateVersion", back_populates="template", cascade="all, delete-orphan")
@@ -43,7 +43,7 @@ class NotificationTemplate(Base):
     updated_by_user = relationship("User", foreign_keys=[updated_by])
 
     __table_args__ = (
-        {"comment": "Notification templates for dynamic message management"},
+        {"comment": "Notification templates for dynamic message management", "extend_existing": True},
     )
 
 
@@ -63,14 +63,14 @@ class NotificationTemplateVersion(Base):
     variables = Column(JSON, nullable=True, comment="Variables at this version")
     change_reason = Column(Text, nullable=True, comment="Reason for change")
     changed_by = Column(Integer, ForeignKey("users.id"), nullable=True, comment="User who made change")
-    changed_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    changed_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     # Relationships
     template = relationship("NotificationTemplate", back_populates="versions")
     changed_by_user = relationship("User", foreign_keys=[changed_by])
 
     __table_args__ = (
-        {"comment": "Notification template version history"},
+        {"comment": "Notification template version history", "extend_existing": True},
     )
 
 
@@ -88,8 +88,8 @@ class NotificationTemplateVariable(Base):
     example_value = Column(String(255), nullable=True, comment="Example value for preview")
     category = Column(String(100), nullable=True, index=True, comment="Variable category (patient, appointment, etc.)")
     is_required = Column(Boolean, default=False, nullable=False, comment="Whether variable is required")
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     __table_args__ = (
-        {"comment": "Notification template variable definitions"},
+        {"comment": "Notification template variable definitions", "extend_existing": True},
     )

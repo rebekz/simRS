@@ -159,6 +159,12 @@ class LabOrderUpdate(BaseModel):
     specimen_collection_site: Optional[str] = None
 
 
+class LabOrderStatusUpdate(BaseModel):
+    """Schema for updating lab order status"""
+    status: LabOrderStatus = Field(..., description="New status for the lab order")
+    notes: Optional[str] = Field(None, description="Optional notes about the status change")
+
+
 class LabOrderResponse(LabOrderBase):
     """Schema for lab order response"""
     id: int

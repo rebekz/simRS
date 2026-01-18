@@ -206,9 +206,13 @@ class DischargeSummary(Base):
 # Medication Reconciliation
 # =============================================================================
 
-class MedicationReconciliation(Base):
-    """Medication reconciliation model"""
-    __tablename__ = "medication_reconciliations"
+class DischargeMedicationReconciliation(Base):
+    """Discharge-specific medication reconciliation model
+
+    This extends the general MedicationReconciliation with discharge-specific fields.
+    Note: Renamed to avoid conflict with medication.MedicationReconciliation.
+    """
+    __tablename__ = "discharge_medication_reconciliations"
 
     id = Column(Integer, primary_key=True, index=True)
 
@@ -236,6 +240,9 @@ class MedicationReconciliation(Base):
 
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    # Table options - allow extending from medication.MedicationReconciliation
+    __table_args__ = {'extend_existing': True}
 
     # Relationships
     admission = relationship("AdmissionOrder", backref="medication_reconciliations")

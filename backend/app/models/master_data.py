@@ -19,7 +19,7 @@ from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, Numeric
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import ENUM, JSONB
 
-from backend.app.db.base_class import Base
+from app.db.session import Base
 
 
 class ICD10Code(Base):
@@ -47,6 +47,9 @@ class ICD10Code(Base):
     is_active = Column(Boolean, default=True, nullable=False, comment="Active status")
     created_at = Column(DateTime(timezone=True), server_default="now()", nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default="now()", nullable=False)
+
+    # Table options - allow extending from icd10.ICD10Code
+    __table_args__ = {'extend_existing': True}
 
     # Relationships
     diagnoses = relationship("Diagnosis", back_populates="icd10_code")

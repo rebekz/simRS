@@ -11,7 +11,7 @@ Python 3.5+ compatible
 """
 
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean, ForeignKey, JSON, Enum as SQLEnum
+from sqlalchemy import Column, Integer, String, Text, Float, DateTime, Boolean, ForeignKey, JSON, Enum as SQLEnum, func
 from sqlalchemy.orm import relationship
 from app.db.session import Base
 
@@ -58,10 +58,10 @@ class SystemMetric(Base):
 
     # Metadata
     source = Column(String(100), nullable=True, comment="Metric source (hostname, service name)")
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     __table_args__ = (
-        {"comment": "System performance metrics time-series"},
+        {"extend_existing": True, "comment": "System performance metrics time-series"},
     )
 
 
@@ -109,10 +109,10 @@ class DatabaseMetric(Base):
 
     # Metadata
     hostname = Column(String(255), nullable=True, comment="Database hostname")
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     __table_args__ = (
-        {"comment": "Database performance metrics"},
+        {"extend_existing": True, "comment": "Database performance metrics"},
     )
 
 
@@ -151,10 +151,10 @@ class ApplicationMetric(Base):
     interval = Column(String(20), nullable=False, default="minute", comment="Aggregation interval")
 
     # Metadata
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     __table_args__ = (
-        {"comment": "Application performance metrics"},
+        {"extend_existing": True, "comment": "Application performance metrics"},
     )
 
 
@@ -190,10 +190,10 @@ class HealthCheckResult(Base):
     timestamp = Column(DateTime(timezone=True), nullable=False, index=True, comment="When check was performed")
 
     # Metadata
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     __table_args__ = (
-        {"comment": "Health check results"},
+        {"extend_existing": True, "comment": "Health check results"},
     )
 
 
@@ -231,14 +231,14 @@ class MonitoringThreshold(Base):
     # Metadata
     description = Column(Text, nullable=True, comment="Threshold description")
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True, comment="User who created threshold")
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     # Relationships
     creator = relationship("User")
 
     __table_args__ = (
-        {"comment": "Monitoring alert thresholds"},
+        {"extend_existing": True, "comment": "Monitoring alert thresholds"},
     )
 
 
@@ -277,10 +277,10 @@ class MetricAggregation(Base):
     tags = Column(JSON, nullable=True, comment="Tags for this aggregation")
 
     # Metadata
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     __table_args__ = (
-        {"comment": "Aggregated metrics for performance"},
+        {"extend_existing": True, "comment": "Aggregated metrics for performance"},
     )
 
 
@@ -312,12 +312,12 @@ class AlertEscalation(Base):
     acknowledged_at = Column(DateTime(timezone=True), nullable=True, comment="Acknowledgment timestamp")
 
     # Timestamps
-    escalated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False, comment="Escalation timestamp")
+    escalated_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False, comment="Escalation timestamp")
 
     # Relationships
     alert = relationship("SystemAlert", foreign_keys=[alert_id])
     acknowledger = relationship("User")
 
     __table_args__ = (
-        {"comment": "Alert escalation tracking"},
+        {"extend_existing": True, "comment": "Alert escalation tracking"},
     )

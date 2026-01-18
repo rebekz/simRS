@@ -505,6 +505,19 @@ COMMON_INTERACTIONS = [
 ]
 
 
+async def check_duplicate_therapy(
+    db: AsyncSession,
+    drug_ids: List[int],
+    patient_id: Optional[int] = None
+) -> List[dict]:
+    """Check for duplicate therapies in prescriptions
+
+    This is a stub implementation that returns an empty list.
+    TODO: Implement actual duplicate therapy checking logic.
+    """
+    return []
+
+
 async def seed_common_interactions(db: AsyncSession) -> dict:
     """Seed database with common drug interactions
     Note: This is a simplified version that would need drug ID mapping

@@ -78,6 +78,18 @@ class RoomCreate(RoomBase):
     description: Optional[str] = None
 
 
+class RoomUpdate(BaseModel):
+    """Schema for updating a room"""
+    room_number: Optional[str] = None
+    room_class: Optional[RoomClass] = None
+    floor: Optional[int] = None
+    wing: Optional[str] = None
+    description: Optional[str] = None
+    gender_type: Optional[GenderType] = None
+    capacity: Optional[int] = None
+    status: Optional[RoomStatus] = None
+
+
 class RoomResponse(RoomBase):
     """Schema for room response"""
     id: int
@@ -401,3 +413,10 @@ class BedAssignmentHistory(BaseModel):
     assigned_by: str
     discharged_at: Optional[datetime] = None
     length_of_stay_days: Optional[int] = None
+
+# Update forward references
+RoomResponse.model_rebuild()
+BedResponse.model_rebuild()
+BedRequestResponse.model_rebuild()
+BedAvailabilityResponse.model_rebuild()
+BedDashboardData.model_rebuild()

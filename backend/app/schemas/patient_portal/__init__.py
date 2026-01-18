@@ -3,18 +3,28 @@
 This module contains Pydantic schemas for patient portal registration,
 authentication, and account management.
 """
+from app.schemas.patient_portal.profile import (
+    PatientPortalProfile,
+    PatientPortalProfileUpdate,
+    SecuritySettings,
+)
 from app.schemas.patient_portal.registration import (
     PatientRegistrationCreate,
     PatientRegistrationResponse,
+    RegistrationStep,
     EmailVerificationRequest,
     EmailVerificationResponse,
     PhoneVerificationRequest,
+    PhoneVerificationVerifyRequest,
     PhoneVerificationResponse,
     IdentityVerificationRequest,
     IdentityVerificationResponse,
     RegistrationCheckRequest,
     RegistrationCheckResponse,
     AccountActivationRequest,
+    AccountActivationResponse,
+    ResendVerificationRequest,
+    ResendVerificationResponse,
 )
 from app.schemas.patient_portal.auth import (
     PatientPortalLogin,
@@ -42,11 +52,6 @@ from app.schemas.patient_portal.caregiver import (
     CaregiverLinkResponse,
     CaregiverLinkListResponse,
     CaregiverAccessLevelUpdate,
-)
-from app.schemas.patient_portal.profile import (
-    PatientPortalProfile,
-    PatientPortalProfileUpdate,
-    SecuritySettings,
 )
 from app.schemas.patient_portal.messaging import (
     MessageCategory,

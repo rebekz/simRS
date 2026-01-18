@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 import logging
+import os
 from datetime import datetime
 
 from app.core.config import settings
@@ -10,6 +11,9 @@ from app.core.metrics import initialize_metrics
 from app.api.v1.api import api_router
 from app.db.session import engine
 from app.db.base_class import Base
+
+# Create logs directory if it doesn't exist
+os.makedirs('logs', exist_ok=True)
 
 # Configure logging
 logging.basicConfig(

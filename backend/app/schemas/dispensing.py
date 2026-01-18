@@ -33,6 +33,14 @@ class DispensingStatus(str, Enum):
     ON_HOLD = "on_hold"  # Temporarily on hold
 
 
+class DispenseStatus(str, Enum):
+    """Individual dispense status for tracking prescription item dispensing"""
+    PENDING = "pending"  # Pending dispensing
+    COMPLETED = "completed"  # Successfully dispensed
+    CANCELLED = "cancelled"  # Cancelled
+    PARTIAL = "partial"  # Partially dispensed
+
+
 class DispensePriority(str, Enum):
     """Dispensing priority levels"""
     STAT = "stat"  # Immediate

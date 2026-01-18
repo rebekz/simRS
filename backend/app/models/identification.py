@@ -11,7 +11,7 @@ Python 3.5+ compatible
 """
 
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, DateTime, JSON, Float
+from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, DateTime, JSON, Float, func
 from sqlalchemy.orm import relationship
 from app.db.session import Base
 
@@ -82,13 +82,13 @@ class IDVerification(Base):
     verified_by = Column(Integer, ForeignKey("users.id"), nullable=True, comment="Verified by (manual)")
     verified_at = Column(DateTime(timezone=True), nullable=True, comment="Verification timestamp")
     expires_at = Column(DateTime(timezone=True), nullable=True, comment="Verification expiration")
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     # Relationships
     patient = relationship("Patient", foreign_keys=[patient_id])
 
     __table_args__ = (
-        {"comment": "ID verification tracking"},
+        {"extend_existing": True, "comment": "ID verification tracking"},
     )
 
 
@@ -141,11 +141,11 @@ class KTPData(Base):
     # Metadata
     data_source = Column(String(100), nullable=False, comment="Data source (dukcapil_api)")
     api_response = Column(JSON, nullable=True, comment="Full API response")
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     __table_args__ = (
-        {"comment": "KTP-el cached data"},
+        {"extend_existing": True, "comment": "KTP-el cached data"},
     )
 
 
@@ -204,14 +204,14 @@ class BPJSCardValidation(Base):
 
     # Metadata
     api_response = Column(JSON, nullable=True, comment="Full API response")
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     # Relationships
     patient = relationship("Patient", foreign_keys=[patient_id])
 
     __table_args__ = (
-        {"comment": "BPJS card validation records"},
+        {"extend_existing": True, "comment": "BPJS card validation records"},
     )
 
 
@@ -269,15 +269,15 @@ class FaceRecognition(Base):
     error_message = Column(Text, nullable=True, comment="Error message")
 
     # Metadata
-    verified_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    verified_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     # Relationships
     patient = relationship("Patient", foreign_keys=[patient_id])
     id_verification = relationship("IDVerification", foreign_keys=[id_verification_id])
 
     __table_args__ = (
-        {"comment": "Face recognition verification records"},
+        {"extend_existing": True, "comment": "Face recognition verification records"},
     )
 
 
@@ -332,14 +332,14 @@ class BiometricData(Base):
     error_message = Column(Text, nullable=True, comment="Error message from capture")
 
     # Metadata
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     # Relationships
     patient = relationship("Patient", foreign_keys=[patient_id])
 
     __table_args__ = (
-        {"comment": "Biometric data storage"},
+        {"extend_existing": True, "comment": "Biometric data storage"},
     )
 
 
@@ -378,14 +378,14 @@ class BiometricVerification(Base):
     error_message = Column(Text, nullable=True, comment="Error message")
 
     # Metadata
-    verified_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    verified_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     # Relationships
     patient = relationship("Patient", foreign_keys=[patient_id])
     biometric_data = relationship("BiometricData", foreign_keys=[biometric_data_id])
 
     __table_args__ = (
-        {"comment": "Biometric verification records"},
+        {"extend_existing": True, "comment": "Biometric verification records"},
     )
 
 
@@ -426,9 +426,9 @@ class IdentificationConfig(Base):
 
     # Metadata
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     __table_args__ = (
-        {"comment": "Identification system configuration"},
+        {"extend_existing": True, "comment": "Identification system configuration"},
     )

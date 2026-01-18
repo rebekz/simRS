@@ -10,7 +10,7 @@ Python 3.5+ compatible
 """
 
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, DateTime, JSON, Enum as SQLEnum, Float
+from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, DateTime, JSON, Enum as SQLEnum, Float, func
 from sqlalchemy.orm import relationship
 from app.db.session import Base
 
@@ -85,14 +85,14 @@ class ExternalSystem(Base):
 
     # Metadata
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     # Relationships
     exchanges = relationship("DataExchange", back_populates="external_system", cascade="all, delete-orphan")
 
     __table_args__ = (
-        {"comment": "External EMR/EHR system connections"},
+        {"extend_existing": True, "comment": "External EMR/EHR system connections"},
     )
 
 
@@ -144,13 +144,13 @@ class DataExchange(Base):
 
     # Metadata
     initiated_by = Column(Integer, ForeignKey("users.id"), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     # Relationships
     external_system = relationship("ExternalSystem", back_populates="exchanges")
 
     __table_args__ = (
-        {"comment": "Data exchange tracking"},
+        {"extend_existing": True, "comment": "Data exchange tracking"},
     )
 
 
@@ -190,10 +190,10 @@ class PatientDataQuery(Base):
 
     # Metadata
     submitted_by = Column(Integer, ForeignKey("users.id"), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     __table_args__ = (
-        {"comment": "Patient data queries"},
+        {"extend_existing": True, "comment": "Patient data queries"},
     )
 
 
@@ -239,10 +239,10 @@ class Referral(Base):
 
     # Timestamps
     referral_date = Column(DateTime(timezone=True), nullable=False, comment="Referral date")
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     __table_args__ = (
-        {"comment": "Patient referrals"},
+        {"extend_existing": True, "comment": "Patient referrals"},
     )
 
 
@@ -286,10 +286,10 @@ class ConsultationRequest(Base):
 
     # Metadata
     requested_by = Column(Integer, ForeignKey("users.id"), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     __table_args__ = (
-        {"comment": "Consultation requests"},
+        {"extend_existing": True, "comment": "Consultation requests"},
     )
 
 
@@ -336,8 +336,8 @@ class CCDDocument(Base):
     validation_errors = Column(JSON, nullable=True, comment="Validation errors")
 
     # Metadata
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     __table_args__ = (
-        {"comment": "CCD document storage"},
+        {"extend_existing": True, "comment": "CCD document storage"},
     )

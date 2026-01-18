@@ -28,7 +28,7 @@ from app.models.notifications import (
     NotificationLog,
 )
 from app.models.user import User
-from app.models.department import Department
+from app.models.hospital import Department
 
 
 class AppointmentReminderService:

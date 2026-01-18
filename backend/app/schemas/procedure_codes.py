@@ -371,3 +371,36 @@ class ProviderFavoriteProceduresResponse(BaseModel):
     provider_id: int
     favorites: List[ProviderFavoriteProcedure]
     total: int
+
+
+# =============================================================================
+# LOINC Code Schemas
+# =============================================================================
+
+class LOINCCodeBase(BaseModel):
+    """Base LOINC code schema"""
+    loinc_number: str = Field(..., description="LOINC code identifier")
+    component: str = Field(..., description="Analyte or component name")
+    property_: str = Field(..., alias="property", description="Property being measured")
+    time_aspect: str = Field(..., description="Time aspect of measurement")
+    system: str = Field(..., description="System being analyzed")
+    scale_type: str = Field(..., description="Scale of measurement")
+    method_type: Optional[str] = Field(None, description="Method used")
+    class_: Optional[str] = Field(None, alias="class", description="LOINC class")
+
+
+class LOINCCodeResponse(LOINCCodeBase):
+    """Schema for LOINC code response"""
+    id: int
+    short_name: Optional[str] = None
+    long_name: Optional[str] = None
+    example_units: Optional[str] = None
+    status: str = "ACTIVE"
+
+
+class LOINCCodeListResponse(BaseModel):
+    """Schema for LOINC code list response"""
+    loinc_codes: List[LOINCCodeResponse]
+    total: int
+    page: int
+    page_size: int

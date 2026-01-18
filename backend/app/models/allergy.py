@@ -4,7 +4,7 @@ This module defines the database model for patient allergy tracking with
 severity classification, reaction recording, and source documentation.
 """
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Text, Date, Boolean, ForeignKey, Enum as SQLEnum
+from sqlalchemy import Column, Integer, String, Text, Date, Boolean, ForeignKey, Enum as SQLEnum, DateTime
 from sqlalchemy.dialects.postgresql import ENUM, JSONB
 from sqlalchemy.orm import relationship
 

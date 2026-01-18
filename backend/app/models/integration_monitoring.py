@@ -10,7 +10,7 @@ Python 3.5+ compatible
 """
 
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, DateTime, JSON, Float
+from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, DateTime, JSON, Float, func
 from sqlalchemy.orm import relationship
 from app.db.session import Base
 
@@ -92,8 +92,8 @@ class IntegrationEndpoint(Base):
     # Metadata
     description = Column(Text, nullable=True, comment="Endpoint description")
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     # Relationships
     logs = relationship("IntegrationLog", back_populates="endpoint", cascade="all, delete-orphan")
@@ -101,7 +101,7 @@ class IntegrationEndpoint(Base):
     health_checks = relationship("HealthCheck", back_populates="endpoint", cascade="all, delete-orphan")
 
     __table_args__ = (
-        {"comment": "Integration endpoint configuration and monitoring"},
+        {"extend_existing": True, "comment": "Integration endpoint configuration and monitoring"},
     )
 
 
@@ -144,13 +144,13 @@ class IntegrationLog(Base):
     retry_count = Column(Integer, nullable=False, default=0, comment="Number of retry attempts")
 
     # Metadata
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False, index=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False, index=True)
 
     # Relationships
     endpoint = relationship("IntegrationEndpoint", back_populates="logs")
 
     __table_args__ = (
-        {"comment": "Integration message logs"},
+        {"extend_existing": True, "comment": "Integration message logs"},
     )
 
 
@@ -191,13 +191,13 @@ class IntegrationError(Base):
     escalation_level = Column(Integer, nullable=False, default=0, comment="Escalation level")
 
     # Metadata
-    occurred_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False, index=True)
+    occurred_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False, index=True)
 
     # Relationships
     endpoint = relationship("IntegrationEndpoint", back_populates="errors")
 
     __table_args__ = (
-        {"comment": "Integration error tracking"},
+        {"extend_existing": True, "comment": "Integration error tracking"},
     )
 
 
@@ -229,13 +229,13 @@ class HealthCheck(Base):
     error_message = Column(Text, nullable=True, comment="Error message if check failed")
 
     # Metadata
-    checked_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False, index=True)
+    checked_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False, index=True)
 
     # Relationships
     endpoint = relationship("IntegrationEndpoint", back_populates="health_checks")
 
     __table_args__ = (
-        {"comment": "Health check results"},
+        {"extend_existing": True, "comment": "Health check results"},
     )
 
 
@@ -266,10 +266,10 @@ class IntegrationMetric(Base):
     dimensions = Column(JSON, nullable=True, comment="Metric dimensions for filtering")
 
     # Metadata
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     __table_args__ = (
-        {"comment": "Integration performance metrics"},
+        {"extend_existing": True, "comment": "Integration performance metrics"},
     )
 
 
@@ -311,8 +311,8 @@ class IntegrationAlert(Base):
     notification_channels = Column(JSON, nullable=True, comment="Channels notified (email, sms, in_app)")
 
     # Metadata
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False, index=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False, index=True)
 
     __table_args__ = (
-        {"comment": "Integration monitoring alerts"},
+        {"extend_existing": True, "comment": "Integration monitoring alerts"},
     )

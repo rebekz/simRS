@@ -10,7 +10,7 @@ Python 3.5+ compatible
 """
 
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, DateTime, Enum as SQLEnum, JSON, Float
+from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, DateTime, Enum as SQLEnum, JSON, Float, func
 from sqlalchemy.orm import relationship
 from app.db.session import Base
 
@@ -71,14 +71,14 @@ class LISOrder(Base):
 
     # Metadata
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     # Relationships
     results = relationship("LISResult", back_populates="order", cascade="all, delete-orphan")
 
     __table_args__ = (
-        {"comment": "LIS order tracking for lab integration"},
+        {"extend_existing": True, "comment": "LIS order tracking for lab integration"},
     )
 
 
@@ -135,13 +135,13 @@ class LISResult(Base):
     import_error = Column(Text, nullable=True, comment="Import error message")
 
     # Metadata
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     # Relationships
     order = relationship("LISOrder", back_populates="results")
 
     __table_args__ = (
-        {"comment": "LIS lab results storage"},
+        {"extend_existing": True, "comment": "LIS lab results storage"},
     )
 
 
@@ -183,11 +183,11 @@ class LISSample(Base):
     rejected_by = Column(String(255), nullable=True, comment="Person who rejected sample")
 
     # Metadata
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     __table_args__ = (
-        {"comment": "LIS sample tracking"},
+        {"extend_existing": True, "comment": "LIS sample tracking"},
     )
 
 
@@ -212,11 +212,11 @@ class LISMapping(Base):
 
     # Metadata
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     __table_args__ = (
-        {"comment": "LIS system code mappings"},
+        {"extend_existing": True, "comment": "LIS system code mappings"},
     )
 
 
@@ -252,9 +252,9 @@ class LISConfiguration(Base):
 
     # Metadata
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     __table_args__ = (
-        {"comment": "LIS system configuration"},
+        {"extend_existing": True, "comment": "LIS system configuration"},
     )

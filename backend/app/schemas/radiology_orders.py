@@ -215,6 +215,12 @@ class RadiologyOrderUpdate(BaseModel):
     gfr: Optional[float] = None
 
 
+class RadiologyOrderStatusUpdate(BaseModel):
+    """Schema for updating radiology order status"""
+    status: RadiologyOrderStatus = Field(..., description="New status for the radiology order")
+    notes: Optional[str] = Field(None, description="Optional notes about the status change")
+
+
 class RadiologyOrderResponse(RadiologyOrderBase):
     """Schema for radiology order response"""
     id: int

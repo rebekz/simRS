@@ -10,7 +10,7 @@ Python 3.5+ compatible
 """
 
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, DateTime, Enum as SQLEnum, JSON, Float
+from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, DateTime, Enum as SQLEnum, JSON, Float, func
 from sqlalchemy.orm import relationship
 from app.db.session import Base
 
@@ -108,14 +108,14 @@ class Device(Base):
     # Metadata
     is_active = Column(Boolean, default=True, nullable=False, index=True, comment="Whether device is active")
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     # Relationships
     data_records = relationship("DeviceData", back_populates="device", cascade="all, delete-orphan")
 
     __table_args__ = (
-        {"comment": "Medical device registration"},
+        {"extend_existing": True, "comment": "Medical device registration"},
     )
 
 
@@ -176,16 +176,16 @@ class DeviceData(Base):
 
     # Timestamps
     measured_at = Column(DateTime(timezone=True), nullable=True, comment="When measurement was taken")
-    received_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False, comment="When data was received")
+    received_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False, comment="When data was received")
 
     # Metadata
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     # Relationships
     device = relationship("Device", back_populates="data_records")
 
     __table_args__ = (
-        {"comment": "Device data capture storage"},
+        {"extend_existing": True, "comment": "Device data capture storage"},
     )
 
 
@@ -222,10 +222,10 @@ class DeviceCommand(Base):
 
     # Metadata
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     __table_args__ = (
-        {"comment": "Device command queue"},
+        {"extend_existing": True, "comment": "Device command queue"},
     )
 
 
@@ -267,10 +267,10 @@ class DeviceAlert(Base):
     resolution_notes = Column(Text, nullable=True, comment="Resolution notes")
 
     # Metadata
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     __table_args__ = (
-        {"comment": "Device alert storage"},
+        {"extend_existing": True, "comment": "Device alert storage"},
     )
 
 
@@ -304,8 +304,8 @@ class DeviceCalibration(Base):
 
     # Metadata
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     __table_args__ = (
-        {"comment": "Device calibration records"},
+        {"extend_existing": True, "comment": "Device calibration records"},
     )

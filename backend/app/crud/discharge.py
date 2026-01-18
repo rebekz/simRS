@@ -18,7 +18,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.discharge import (
     DischargeReadiness, DischargeOrder, DischargeSummary,
-    MedicationReconciliation, FollowUpAppointment,
+    DischargeMedicationReconciliation, FollowUpAppointment,
     BPJSClaimFinalization, SEPClosure,
     PatientDischargeInstructions, DischargeChecklist
 )
@@ -206,9 +206,9 @@ async def update_discharge_summary_file(
 async def create_medication_reconciliation(
     db: AsyncSession,
     obj_in: MedicationReconciliationSchema
-) -> MedicationReconciliation:
+) -> DischargeMedicationReconciliation:
     """Create medication reconciliation"""
-    db_obj = MedicationReconciliation(**obj_in.model_dump())
+    db_obj = DischargeMedicationReconciliation(**obj_in.model_dump())
     db.add(db_obj)
     await db.commit()
     await db.refresh(db_obj)
@@ -218,12 +218,12 @@ async def create_medication_reconciliation(
 async def get_medication_reconciliation(
     db: AsyncSession,
     admission_id: int
-) -> Optional[MedicationReconciliation]:
+) -> Optional[DischargeMedicationReconciliation]:
     """Get medication reconciliation for admission"""
     result = await db.execute(
-        select(MedicationReconciliation)
-        .where(MedicationReconciliation.admission_id == admission_id)
-        .order_by(MedicationReconciliation.reconciliation_date.desc())
+        select(DischargeMedicationReconciliation)
+        .where(DischargeMedicationReconciliation.admission_id == admission_id)
+        .order_by(DischargeMedicationReconciliation.reconciliation_date.desc())
         .limit(1)
     )
     return result.scalar_one_or_none()
@@ -233,10 +233,10 @@ async def verify_medication_reconciliation(
     db: AsyncSession,
     reconciliation_id: int,
     physician_id: int
-) -> Optional[MedicationReconciliation]:
+) -> Optional[DischargeMedicationReconciliation]:
     """Verify medication reconciliation by physician"""
     db_obj = await db.execute(
-        select(MedicationReconciliation).where(MedicationReconciliation.id == reconciliation_id)
+        select(DischargeMedicationReconciliation).where(DischargeMedicationReconciliation.id == reconciliation_id)
     )
     db_obj = db_obj.scalar_one_or_none()
     if not db_obj:
