@@ -12,6 +12,24 @@ from app.api.v1.api import api_router
 from app.db.session import engine
 from app.db.base_class import Base
 
+# Import all models to ensure they are registered with SQLAlchemy
+# This must be done before metadata.create_all is called
+from app.models import user, session, permission, audit_log, password_reset
+from app.models import patient, encounter, appointments, admission
+from app.models import lab_orders, lis_integration, radiology_orders
+from app.models import prescription, dispensing, medication, inventory
+from app.models import billing, discharge, queue, bed
+from app.models import reporting, analytics
+from app.models import bpjs_antrean, bpjs_claims, bpjs_sep, bpjs_eligibility
+from app.models import daily_care, pharmacy_integration
+from app.models import clinical_note, allergy, problem_list
+from app.models import emr_integration, fhir, hl7
+from app.models import pacs_integration, device_integration, integration_monitoring
+from app.models import notifications, patient_portal, patient_portal_messaging
+from app.models import backup, master_data, procedure_codes, icd10
+from app.models import system_monitoring, system_alerts
+from app.models import transformation, user_management
+
 # Create logs directory if it doesn't exist
 os.makedirs('logs', exist_ok=True)
 

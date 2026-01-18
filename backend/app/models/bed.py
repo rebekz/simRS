@@ -13,7 +13,7 @@ from sqlalchemy import Column, Integer, String, Enum as SQLEnum, ForeignKey, Dat
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
-from app.db.base_class import Base
+from app.db.session import Base
 
 
 # =============================================================================
@@ -27,7 +27,8 @@ class Room(Base):
     id = Column(Integer, primary_key=True, index=True)
 
     # Room identification
-    ward_id = Column(Integer, ForeignKey("wards.id"), nullable=False, index=True)
+    # TODO: ward_id = Column(Integer, ForeignKey("wards.id"), nullable=False, index=True) - Ward model not yet defined
+    ward_id = Column(Integer, nullable=True, index=True, comment="Ward ID (reference to Ward model when implemented)")
     room_number = Column(String(50), nullable=False, index=True)
     room_class = Column(
         SQLEnum("vvip", "vip", "1", "2", "3", name="roomclass"),
@@ -206,7 +207,8 @@ class BedRequest(Base):
 
     # Request preferences
     requested_room_class = Column(String(10), nullable=True)  # vvip, vip, 1, 2, 3
-    requested_ward_id = Column(Integer, ForeignKey("wards.id"), nullable=True)
+    # TODO: requested_ward_id = Column(Integer, ForeignKey("wards.id"), nullable=True) - Ward model not yet defined
+    requested_ward_id = Column(Integer, nullable=True, comment="Requested Ward ID (reference to Ward model when implemented)")
     gender_preference = Column(String(10), nullable=True)  # male, female, mixed
     medical_requirements = Column(Text, nullable=True)
     expected_admission_date = Column(Date, nullable=True)

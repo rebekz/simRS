@@ -21,9 +21,9 @@ from app.models.appointments import (
     AppointmentStatus,
 )
 from app.models.patient import Patient
+from app.models.notification_templates import NotificationTemplate
 from app.models.notifications import (
     Notification,
-    NotificationTemplate,
     NotificationPreference,
     NotificationLog,
 )

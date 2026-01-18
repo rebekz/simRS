@@ -133,12 +133,12 @@ class Notification(Base):
     )
 
 
-class NotificationTemplate(Base):
+class OldNotificationTemplate(Base):
     """
-    NotificationTemplate model for managing notification templates.
-    Provides reusable templates for different types of notifications.
+    Deprecated: Use NotificationTemplate from notification_templates.py instead.
+    This model is kept for backwards compatibility.
     """
-    __tablename__ = "notification_templates"
+    __tablename__ = "old_notification_templates"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), unique=True, nullable=False, index=True)
@@ -199,12 +199,12 @@ class NotificationTemplate(Base):
     )
 
 
-class NotificationTemplateVersion(Base):
+class OldNotificationTemplateVersion(Base):
     """
-    NotificationTemplateVersion model for tracking template version history.
-    Stores historical versions of templates for audit trail and rollback.
+    Deprecated: Use NotificationTemplateVersion from notification_templates.py instead.
+    This model is kept for backwards compatibility.
     """
-    __tablename__ = "notification_template_versions"
+    __tablename__ = "old_notification_template_versions"
 
     id = Column(Integer, primary_key=True, index=True)
     template_id = Column(

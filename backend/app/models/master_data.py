@@ -22,14 +22,14 @@ from sqlalchemy.dialects.postgresql import ENUM, JSONB
 from app.db.session import Base
 
 
-class ICD10Code(Base):
+class MasterICD10Code(Base):
     """
-    ICD-10-CM Indonesia diagnosis codes.
+    ICD-10-CM Indonesia diagnosis codes (Master Data version).
 
     This table stores the complete ICD-10-CM (Indonesia) diagnosis coding system
     used for classifying diseases and health problems.
     """
-    __tablename__ = "icd10_codes"
+    __tablename__ = "master_icd10_codes"
 
     id = Column(Integer, primary_key=True, index=True)
     code = Column(String(10), unique=True, nullable=False, index=True, comment="ICD-10 code (e.g., A00, J01)")
@@ -130,14 +130,14 @@ class DrugFormulary(Base):
     )
 
 
-class ProcedureCode(Base):
+class MasterProcedureCode(Base):
     """
     Medical procedure codes (ICD-9-CM and local codes).
 
     This table stores procedure codes for medical procedures, surgeries,
     diagnostic tests, and therapeutic interventions.
     """
-    __tablename__ = "procedure_codes"
+    __tablename__ = "master_procedure_codes"
 
     id = Column(Integer, primary_key=True, index=True)
     code = Column(String(50), unique=True, nullable=False, index=True, comment="Procedure code")

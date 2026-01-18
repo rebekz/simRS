@@ -37,7 +37,8 @@ class QueueTicket(Base):
     status = Column(SQLEnum(QueueStatus), nullable=False, default=QueueStatus.WAITING, index=True)
 
     # Specific assignments (for POLI department)
-    poli_id = Column(Integer, ForeignKey("polis.id"), nullable=True, index=True)
+    # TODO: poli_id = Column(Integer, ForeignKey("polis.id"), nullable=True, index=True) - Poli model not yet defined
+    poli_id = Column(Integer, nullable=True, index=True, comment="Poli ID (reference to Poli model when implemented)")
     doctor_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
 
     # Appointment reference (if pre-booked)
@@ -64,7 +65,7 @@ class QueueTicket(Base):
 
     # Relationships
     patient = relationship("Patient", backref="queue_tickets")
-    poli = relationship("Poli", backref="queue_tickets")
+    # TODO: poli = relationship("Poli", backref="queue_tickets") - Poli model not yet defined
     doctor = relationship("User", foreign_keys=[doctor_id], backref="assigned_queue_tickets")
     recalls = relationship("QueueRecall", back_populates="ticket", cascade="all, delete-orphan")
     notifications = relationship("QueueNotification", back_populates="ticket", cascade="all, delete-orphan")

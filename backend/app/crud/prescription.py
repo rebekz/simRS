@@ -18,7 +18,7 @@ import json
 import uuid
 
 from app.models.prescription import (
-    Prescription, PrescriptionItem, PrescriptionTransmission,
+    Prescription, PrescriptionItem, BasicPrescriptionTransmission,
     PrescriptionVerificationLog, PrescriptionPrintLog
 )
 from app.models.medication import PatientMedication
@@ -478,12 +478,12 @@ async def create_prescription_transmission(
     target_pharmacy_id: Optional[int] = None,
     priority: str = "routine",
     notes: Optional[str] = None,
-) -> PrescriptionTransmission:
+) -> BasicPrescriptionTransmission:
     """Create a pharmacy transmission record"""
     # Generate transmission ID
     transmission_id = f"TX-{datetime.utcnow().strftime('%Y%m%d')}-{uuid.uuid4().hex[:8].upper()}"
 
-    transmission = PrescriptionTransmission(
+    transmission = BasicPrescriptionTransmission(
         prescription_id=prescription_id,
         transmission_id=transmission_id,
         target_pharmacy_id=target_pharmacy_id,
@@ -504,10 +504,10 @@ async def acknowledge_prescription_transmission(
     transmission_id: str,
     pharmacy_name: str,
     estimated_ready_minutes: Optional[int] = None,
-) -> PrescriptionTransmission:
+) -> BasicPrescriptionTransmission:
     """Acknowledge prescription transmission from pharmacy"""
-    stmt = select(PrescriptionTransmission).where(
-        PrescriptionTransmission.transmission_id == transmission_id
+    stmt = select(BasicPrescriptionTransmission).where(
+        BasicPrescriptionTransmission.transmission_id == transmission_id
     )
     result = await db.execute(stmt)
     transmission = result.scalar_one_or_none()

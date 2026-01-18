@@ -76,7 +76,7 @@ class ReportSchedule(Base):
     __tablename__ = "report_schedule"
 
     id = Column(Integer, primary_key=True, index=True)
-    report_id = Column(Integer, ForeignKey("reports.id", ondelete="CASCADE"), nullable=False, index=True)
+    report_id = Column(Integer, ForeignKey("report.id", ondelete="CASCADE"), nullable=False, index=True)
     name = Column(String(255), nullable=False, comment="Schedule name")
     is_active = Column(Boolean, default=True, nullable=False, comment="Whether schedule is active")
 
@@ -114,8 +114,8 @@ class ReportExecution(Base):
     __tablename__ = "report_execution"
 
     id = Column(Integer, primary_key=True, index=True)
-    report_id = Column(Integer, ForeignKey("reports.id", ondelete="CASCADE"), nullable=False, index=True)
-    schedule_id = Column(Integer, ForeignKey("report_schedules.id", ondelete="SET NULL"), nullable=True)
+    report_id = Column(Integer, ForeignKey("report.id", ondelete="CASCADE"), nullable=False, index=True)
+    schedule_id = Column(Integer, ForeignKey("report_schedule.id", ondelete="SET NULL"), nullable=True)
 
     # Execution details
     status = Column(String(50), nullable=False, index=True, comment="Execution status (pending, running, completed, failed)")

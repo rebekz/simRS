@@ -13,7 +13,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Date, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
-from app.db.base_class import Base
+from app.db.session import Base
 
 
 # =============================================================================
@@ -550,6 +550,6 @@ class DischargeSummaryExport(Base):
     generated_at = Column(DateTime(timezone=True), nullable=False)
 
     # Relationships
-    admission = relationship("AdmissionOrder", backref="discharge_summary")
-    patient = relationship("Patient", backref="discharge_summaries")
-    generated_by = relationship("User", backref="summaries_generated")
+    admission = relationship("AdmissionOrder", backref="discharge_summary_export")
+    patient = relationship("Patient", backref="discharge_summary_exports")
+    generated_by = relationship("User", backref="discharge_summary_exports_generated")

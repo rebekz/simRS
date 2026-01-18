@@ -21,7 +21,7 @@ from app.models.dispensing import (
     DispensingQueue, DispensingScan, PatientCounseling,
     DispensingLabel, PrescriptionVerificationRecord, StockCheckLog
 )
-from app.models.prescription import Prescription, PrescriptionItem, PrescriptionTransmission
+from app.models.prescription import Prescription, PrescriptionItem, BasicPrescriptionTransmission
 from app.models.inventory import Drug
 from app.models.user import User
 from app.schemas.dispensing import (

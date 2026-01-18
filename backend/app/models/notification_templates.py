@@ -39,6 +39,7 @@ class NotificationTemplate(Base):
 
     # Relationships
     versions = relationship("NotificationTemplateVersion", back_populates="template", cascade="all, delete-orphan")
+    notifications = relationship("Notification", back_populates="template")
     created_by_user = relationship("User", foreign_keys=[created_by])
     updated_by_user = relationship("User", foreign_keys=[updated_by])
 

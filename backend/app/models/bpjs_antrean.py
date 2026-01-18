@@ -105,8 +105,9 @@ class BPJSAntreanBooking(Base):
 
     # Referensi ke entitas lain
     patient_id = Column(Integer, ForeignKey("patients.id", ondelete="RESTRICT"), nullable=False, index=True, comment="Referensi ke pasien")
-    poli_id = Column(Integer, ForeignKey("polis.id", ondelete="RESTRICT"), nullable=False, index=True, comment="Referensi ke poli")
-    doctor_id = Column(Integer, ForeignKey("doctors.id", ondelete="SET NULL"), nullable=True, index=True, comment="Referensi ke dokter")
+    # TODO: poli_id = Column(Integer, ForeignKey("polis.id", ondelete="RESTRICT"), nullable=False, index=True) - Poli model not yet defined
+    poli_id = Column(Integer, nullable=False, index=True, comment="Poli ID (reference to Poli model when implemented)")
+    doctor_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True, comment="Referensi ke dokter")
 
     # Jadwal booking
     booking_date = Column(DateTime(timezone=True), nullable=False, index=True, comment="Tanggal dan waktu booking")
@@ -144,8 +145,8 @@ class BPJSAntreanBooking(Base):
     # Relationships
     appointment = relationship("Appointment", backref="bpjs_antrean_booking")
     patient = relationship("Patient", backref="bpjs_antrean_bookings")
-    poli = relationship("Poli", backref="bpjs_antrean_bookings")
-    doctor = relationship("Doctor", backref="bpjs_antrean_bookings")
+    # TODO: poli = relationship("Poli", backref="bpjs_antrean_bookings") - Poli model not yet defined
+    # TODO: doctor = relationship("Doctor", backref="bpjs_antrean_bookings") - Doctor model not yet defined (use User instead)
     canceller = relationship("User", foreign_keys=[cancelled_by])
     tasks = relationship("BPJSAntreanTask", back_populates="booking", cascade="all, delete-orphan")
     status_updates = relationship("BPJSAntreanStatusUpdate", back_populates="booking", cascade="all, delete-orphan")

@@ -144,7 +144,7 @@ class PrescriptionTransmission(Base):
     insurance_group_number = Column(String(100), nullable=True, comment="Insurance group number")
 
     # Medication details
-    medication_id = Column(Integer, ForeignKey("medications.id"), nullable=True, index=True, comment="Medication ID")
+    medication_id = Column(Integer, ForeignKey("drugs.id"), nullable=True, index=True, comment="Medication ID")
     medication_name = Column(String(255), nullable=False, comment="Medication name")
     medication_code = Column(String(100), nullable=True, comment="Medication code (NDC, etc.)")
     generic_name = Column(String(255), nullable=True, comment="Generic name")
@@ -233,7 +233,7 @@ class MedicationDispense(Base):
     prescription_transmission_id = Column(Integer, ForeignKey("prescription_transmissions.id"), nullable=False, index=True, comment="Prescription transmission ID")
     pharmacy_system_id = Column(Integer, ForeignKey("pharmacy_systems.id"), nullable=False, index=True, comment="Pharmacy system ID")
     patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False, index=True, comment="Patient ID")
-    medication_id = Column(Integer, ForeignKey("medications.id"), nullable=True, index=True, comment="Medication ID")
+    medication_id = Column(Integer, ForeignKey("drugs.id"), nullable=True, index=True, comment="Medication ID")
 
     # Dispense details
     dispense_number = Column(String(100), nullable=False, comment="Dispense number")
@@ -336,7 +336,7 @@ class PharmacyInventorySync(Base):
 
     # Entity mapping
     pharmacy_system_id = Column(Integer, ForeignKey("pharmacy_systems.id"), nullable=False, index=True, comment="Pharmacy system ID")
-    medication_id = Column(Integer, ForeignKey("medications.id"), nullable=False, index=True, comment="Medication ID")
+    medication_id = Column(Integer, ForeignKey("drugs.id"), nullable=False, index=True, comment="Medication ID")
 
     # Sync details
     sync_type = Column(String(50), nullable=False, index=True, comment="Sync type (full, incremental, update)")

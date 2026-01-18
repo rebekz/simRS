@@ -16,7 +16,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Date, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
-from app.db.base_class import Base
+from app.db.session import Base
 
 
 # =============================================================================
@@ -245,10 +245,10 @@ class DischargeMedicationReconciliation(Base):
     __table_args__ = {'extend_existing': True}
 
     # Relationships
-    admission = relationship("AdmissionOrder", backref="medication_reconciliations")
-    patient = relationship("Patient", backref="medication_reconciliations")
-    pharmacist = relationship("User", foreign_keys=[pharmacist_id], backref="reconciliations_performed")
-    physician = relationship("User", foreign_keys=[physician_id], backref="reconciliations_approved")
+    admission = relationship("AdmissionOrder", backref="discharge_medication_reconciliations")
+    patient = relationship("Patient", backref="discharge_medication_reconciliations")
+    pharmacist = relationship("User", foreign_keys=[pharmacist_id], backref="discharge_reconciliations_performed")
+    physician = relationship("User", foreign_keys=[physician_id], backref="discharge_reconciliations_approved")
 
 
 # =============================================================================
@@ -371,7 +371,7 @@ class BPJSClaimFinalization(Base):
 
     # Relationships
     admission = relationship("AdmissionOrder", backref="bpjs_claim")
-    patient = relationship("Patient", backref="bpjs_claims")
+    patient = relationship("Patient", backref="discharge_bpjs_claims")
     validated_by_user = relationship("User", backref="claims_validated")
 
 

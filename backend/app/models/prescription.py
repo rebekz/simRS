@@ -64,7 +64,7 @@ class Prescription(Base):
     prescriber = relationship("User", foreign_keys=[prescriber_id], backref="prescribed_prescriptions")
     verifier = relationship("User", foreign_keys=[verified_by_id], backref="verified_prescriptions")
     items = relationship("PrescriptionItem", back_populates="prescription", cascade="all, delete-orphan")
-    transmissions = relationship("PrescriptionTransmission", back_populates="prescription", cascade="all, delete-orphan")
+    transmissions = relationship("BasicPrescriptionTransmission", back_populates="prescription", cascade="all, delete-orphan")
 
 
 class PrescriptionItem(Base):
@@ -125,9 +125,9 @@ class PrescriptionItem(Base):
 # Prescription Pharmacy Transmission Models
 # =============================================================================
 
-class PrescriptionTransmission(Base):
-    """Tracking prescription transmission to pharmacy"""
-    __tablename__ = "prescription_transmissions"
+class BasicPrescriptionTransmission(Base):
+    """Basic tracking of prescription transmission to internal hospital pharmacy"""
+    __tablename__ = "basic_prescription_transmissions"
 
     id = Column(Integer, primary_key=True, index=True)
     prescription_id = Column(Integer, ForeignKey("prescriptions.id"), nullable=False, index=True)
