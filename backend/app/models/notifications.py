@@ -185,11 +185,8 @@ class OldNotificationTemplate(Base):
         nullable=False
     )
 
-    # Relationships
-    notifications = relationship(
-        "Notification",
-        back_populates="template"
-    )
+    # Relationships - removed notifications relationship since Notification now uses NotificationTemplate from notification_templates.py
+    # TODO: This model is deprecated and should be removed after migration
 
     # Indexes for common queries
     __table_args__ = (

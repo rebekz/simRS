@@ -51,8 +51,7 @@ class MasterICD10Code(Base):
     # Table options - allow extending from icd10.ICD10Code
     __table_args__ = {'extend_existing': True}
 
-    # Relationships
-    diagnoses = relationship("Diagnosis", back_populates="icd10_code")
+    # Relationships - removed diagnoses relationship since Diagnosis.icd_10_code is a string, not a foreign key
 
 
 class LOINCCode(Base):

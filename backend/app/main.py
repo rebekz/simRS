@@ -25,10 +25,11 @@ from app.models import daily_care, pharmacy_integration
 from app.models import clinical_note, allergy, problem_list
 from app.models import emr_integration, fhir, hl7
 from app.models import pacs_integration, device_integration, integration_monitoring
-from app.models import notifications, patient_portal, patient_portal_messaging
+from app.models import notification_templates, notifications, patient_portal, patient_portal_messaging
 from app.models import backup, master_data, procedure_codes, icd10
 from app.models import system_monitoring, system_alerts
 from app.models import transformation, user_management
+from app.models import hospital  # Required for Department model
 
 # Create logs directory if it doesn't exist
 os.makedirs('logs', exist_ok=True)
