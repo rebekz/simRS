@@ -1,9 +1,15 @@
 # Models module
+# This file exports commonly used models and enums.
+# For other models, import them directly from their respective modules.
+
+# Core models
 from app.models.user import User, UserRole
 from app.models.session import Session
 from app.models.permission import Permission, PREDEFINED_PERMISSIONS
 from app.models.audit_log import AuditLog
 from app.models.password_reset import PasswordResetToken
+
+# Patient Portal models
 from app.models.patient_portal import (
     PatientPortalUser,
     PatientPortalVerification,
@@ -14,6 +20,8 @@ from app.models.patient_portal import (
     VerificationType,
     VerificationStatus,
 )
+
+# Training models
 from app.models.training import (
     TrainingModule,
     TrainingAssignment,
@@ -24,6 +32,8 @@ from app.models.training import (
     TrainingStatus,
     DifficultyLevel,
 )
+
+# Appointment models
 from app.models.appointments import (
     Appointment,
     AppointmentSlot,
@@ -35,12 +45,13 @@ from app.models.appointments import (
     ReminderType,
     ReminderStatus,
 )
+
+# Billing models
 from app.models.billing import (
     Invoice,
     InvoiceItem,
     BillingRule,
     InvoiceApproval,
-    Payment,
     InvoiceType,
     PayerType,
     PackageType,
@@ -48,8 +59,9 @@ from app.models.billing import (
     InvoiceItemType,
     BillingRuleType,
     ApprovalStatus,
-    PaymentMethod,
 )
+
+# BPJS models
 from app.models.bpjs_claims import (
     BPJSClaim,
     BPJSClaimItem,
@@ -63,6 +75,8 @@ from app.models.bpjs_claims import (
     BPJSSubmissionStatus,
     BPJSQueryStatus,
 )
+
+# Refill Request models
 from app.models.refill_request import (
     PrescriptionRefillRequest,
     PrescriptionRefillItem,
@@ -106,7 +120,6 @@ __all__ = [
     "InvoiceItem",
     "BillingRule",
     "InvoiceApproval",
-    "Payment",
     "InvoiceType",
     "PayerType",
     "PackageType",
@@ -114,7 +127,6 @@ __all__ = [
     "InvoiceItemType",
     "BillingRuleType",
     "ApprovalStatus",
-    "PaymentMethod",
     "BPJSClaim",
     "BPJSClaimItem",
     "BPJSClaimDocument",

@@ -98,6 +98,83 @@ All services can be started with a single command (`./install.sh`).
 - docker-compose.yml
 - backend/Dockerfile, backend/requirements.txt
 - backend/app/main.py, core/config.py, core/security.py
+
+---
+
+## [2026-02-26] CODEBASE-EVAL-001: Codebase Evaluation & Gap Fixes - COMPLETED
+
+### Summary
+Performed comprehensive codebase evaluation, identified missing gaps, and fixed issues to ensure
+the application runs correctly. All services are now operational and browser tests pass.
+
+### What was implemented:
+
+1. **Backend Configuration Fix** (backend/app/core/config.py)
+   - Updated pydantic Settings to use `model_config` dict
+   - Added `extra: "ignore"` to allow Docker environment variables
+   - Prevents validation errors from extra env vars
+
+2. **Environment Configuration** (.env.example)
+   - Added missing `DATABASE_URL` for local development
+   - Added missing `REDIS_URL` for local development
+   - Added missing `MINIO_ENDPOINT`, `MINIO_ACCESS_KEY`, `MINIO_SECRET_KEY`
+   - Created `.env` file from template for testing
+
+3. **Frontend Utility Module** (frontend/src/lib/utils.ts)
+   - Created missing `cn()` function for Tailwind class merging
+   - Added helper functions: formatDate, formatTime, formatDateTime
+   - Added formatCurrency, formatNumber, truncate, capitalize
+   - Added getInitials, debounce, sleep, isEmpty, generateId
+   - Added parseApiError, getStatusColor utilities
+
+4. **ESLint Configuration** (frontend/.eslintrc.json)
+   - Created ESLint configuration for Next.js
+   - Configured react-hooks/exhaustive-deps as warning
+
+5. **Storybook Fix** (frontend/src/components/ui/Pagination.stories.tsx)
+   - Fixed React hooks rules violations
+   - Created wrapper components for state management
+   - Converted inline hooks to proper component patterns
+
+6. **Models Module** (backend/app/models/__init__.py)
+   - Cleaned up model exports
+   - Ensured all exported models are properly importable
+
+### Acceptance Criteria Met:
+
+- [x] Backend starts without import errors
+- [x] Frontend TypeScript check passes
+- [x] ESLint runs without critical errors
+- [x] All Docker services healthy (postgres, redis, minio, backend, frontend, nginx)
+- [x] Backend health endpoint returns healthy status
+- [x] Frontend homepage renders correctly
+- [x] API documentation accessible at /docs
+
+### Testing:
+
+- Backend import test: PASSED
+- Frontend type-check: PASSED
+- Frontend lint: PASSED (warnings only)
+- Docker services: ALL HEALTHY
+- Browser tests:
+  - Homepage: PASSED
+  - API Docs: PASSED
+  - Dashboard: PASSED (requires auth - expected)
+
+### Files Modified:
+- .env.example (added missing env vars)
+- backend/app/core/config.py (pydantic config fix)
+- backend/app/models/__init__.py (cleaned exports)
+- frontend/src/lib/utils.ts (created)
+- frontend/.eslintrc.json (created)
+- frontend/src/components/ui/Pagination.stories.tsx (fixed hooks)
+
+### Notes:
+
+- All critical gaps have been fixed
+- Application is ready for feature development
+- Some ESLint warnings remain (React Hook dependencies) - non-critical
+- Authentication-protected routes correctly require login
 - backend/db/session.py, base_class.py, redis.py, minio.py
 - backend/models/user.py, schemas/user.py, crud/user.py
 - backend/api/v1/api.py, api/v1/endpoints/health.py

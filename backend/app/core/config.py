@@ -90,9 +90,11 @@ class Settings(BaseSettings):
     WHATSAPP_PHONE_NUMBER_ID: Optional[str] = Field(default="", env="WHATSAPP_PHONE_NUMBER_ID")
     WHATSAPP_ACCESS_TOKEN: Optional[str] = Field(default="", env="WHATSAPP_ACCESS_TOKEN")
 
-    class Config:
-        env_file = ".env"
-        case_sensitive = True
+    model_config = {
+        "env_file": ".env",
+        "case_sensitive": True,
+        "extra": "ignore",  # Allow extra env vars from Docker
+    }
 
 
 settings = Settings()
