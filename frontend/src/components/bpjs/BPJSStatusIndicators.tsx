@@ -9,13 +9,32 @@ import { BPJSStatus } from "@/types";
 // TYPES
 // ============================================================================
 
+export type BPJSPesertaType = 'PBI' | 'Non-PBI' | 'PBPU' | 'Pegawai Negeri' | 'Pensiunan' | 'Unknown';
+
 export interface BPJSStatusData {
   cardNumber: string;
   status: BPJSStatus;
   statusDate: string;
   eligibilityDate: string;
   faskes: string;
+  faskesCode?: string;
+  currentFaskes?: string;
   lastUpdated: string;
+  pesertaType?: BPJSPesertaType;
+}
+
+export interface FaskesIndicatorProps {
+  eligible: boolean;
+  currentFaskes: string;
+  registeredFaskes: string;
+  showDetails?: boolean;
+  className?: string;
+}
+
+export interface BPJSPesertaBadgeProps {
+  pesertaType: BPJSPesertaType;
+  size?: 'sm' | 'md' | 'lg';
+  className?: string;
 }
 
 export interface BPJSStatusBadgeProps {
@@ -53,7 +72,10 @@ const mockBPJSStatus: Record<string, BPJSStatusData> = {
     statusDate: "2026-01-16",
     eligibilityDate: "2026-12-31",
     faskes: "RSUD SEHAT SELALU (KODE: 12345678)",
+    faskesCode: "12345678",
+    currentFaskes: "RSUD SEHAT SELALU",
     lastUpdated: new Date().toISOString(),
+    pesertaType: "PBI",
   },
   "0000000000000": {
     cardNumber: "0000000000000",
@@ -61,7 +83,10 @@ const mockBPJSStatus: Record<string, BPJSStatusData> = {
     statusDate: "2026-01-10",
     eligibilityDate: "2024-12-31",
     faskes: "PUSKESMAS JAYA (KODE: 87654321)",
+    faskesCode: "87654321",
+    currentFaskes: "RSUD SEHAT SELALU",
     lastUpdated: new Date().toISOString(),
+    pesertaType: "Non-PBI",
   },
   "1111111111111": {
     cardNumber: "1111111111111",
@@ -69,7 +94,10 @@ const mockBPJSStatus: Record<string, BPJSStatusData> = {
     statusDate: "2024-12-31",
     eligibilityDate: "2024-12-31",
     faskes: "RSUD SEHAT SELALU (KODE: 12345678)",
+    faskesCode: "12345678",
+    currentFaskes: "RSUD SEHAT SELALU",
     lastUpdated: new Date().toISOString(),
+    pesertaType: "PBPU",
   },
   "2222222222222": {
     cardNumber: "2222222222222",
@@ -77,7 +105,10 @@ const mockBPJSStatus: Record<string, BPJSStatusData> = {
     statusDate: "2026-01-15",
     eligibilityDate: "2026-06-30",
     faskes: "KLINIK PRATAMA (KODE: 11223344)",
+    faskesCode: "11223344",
+    currentFaskes: "RSUD SEHAT SELALU",
     lastUpdated: new Date().toISOString(),
+    pesertaType: "Pegawai Negeri",
   },
 };
 
@@ -174,6 +205,156 @@ export function BPJSStatusBadge({
 }
 
 BPJSStatusBadge.displayName = "BPJSStatusBadge";
+
+// ============================================================================
+// PESERTA TYPE BADGE COMPONENT
+// ============================================================================
+
+/**
+ * BPJSPesertaBadge Component
+ *
+ * Displays BPJS participant type (PBI, Non-PBI, etc.) with appropriate styling
+ */
+export function BPJSPesertaBadge({
+  pesertaType,
+  size = "md",
+  className = "",
+}: BPJSPesertaBadgeProps) {
+  const getPesertaConfig = () => {
+    switch (pesertaType) {
+      case "PBI":
+        return {
+          bgClass: "bg-blue-100",
+          textClass: "text-blue-700",
+          borderClass: "border-blue-300",
+          label: "Penerima Bantuan Iuran (PBI)",
+          shortLabel: "PBI",
+        };
+      case "Non-PBI":
+        return {
+          bgClass: "bg-purple-100",
+          textClass: "text-purple-700",
+          borderClass: "border-purple-300",
+          label: "Non-PBI (Mandiri)",
+          shortLabel: "Non-PBI",
+        };
+      case "PBPU":
+        return {
+          bgClass: "bg-indigo-100",
+          textClass: "text-indigo-700",
+          borderClass: "border-indigo-300",
+          label: "Penerima Bantuan Partial",
+          shortLabel: "PBPU",
+        };
+      case "Pegawai Negeri":
+        return {
+          bgClass: "bg-teal-100",
+          textClass: "text-teal-700",
+          borderClass: "border-teal-300",
+          label: "Pegawai Negeri",
+          shortLabel: "PNS",
+        };
+      case "Pensiunan":
+        return {
+          bgClass: "bg-amber-100",
+          textClass: "text-amber-700",
+          borderClass: "border-amber-300",
+          label: "Pensiunan",
+          shortLabel: "Pensiunan",
+        };
+      default:
+        return {
+          bgClass: "bg-gray-100",
+          textClass: "text-gray-700",
+          borderClass: "border-gray-300",
+          label: "Tidak Diketahui",
+          shortLabel: "Unknown",
+        };
+    }
+  };
+
+  const config = getPesertaConfig();
+  const sizeClasses = {
+    sm: "px-2 py-0.5 text-xs",
+    md: "px-3 py-1 text-sm",
+    lg: "px-4 py-1.5 text-base",
+  };
+
+  return (
+    <span
+      className={`
+        inline-flex items-center gap-1.5 rounded-full border
+        ${config.bgClass} ${config.textClass} ${config.borderClass}
+        ${sizeClasses[size]}
+        ${className}
+      `}
+      title={config.label}
+    >
+      <span className="font-medium">{config.shortLabel}</span>
+    </span>
+  );
+}
+
+BPJSPesertaBadge.displayName = "BPJSPesertaBadge";
+
+// ============================================================================
+// FASKES INDICATOR COMPONENT
+// ============================================================================
+
+/**
+ * FaskesIndicator Component
+ *
+ * Displays BPJS faskes (health facility) eligibility status:
+ * - Shows if patient's registered faskes matches current facility
+ * - Visual indicator for eligible/ineligible status
+ * - Optional detailed view with faskes names
+ */
+export function FaskesIndicator({
+  eligible,
+  currentFaskes,
+  registeredFaskes,
+  showDetails = false,
+  className = "",
+}: FaskesIndicatorProps) {
+  return (
+    <div className={`rounded-lg border p-3 ${eligible ? "bg-green-50 border-green-200" : "bg-yellow-50 border-yellow-200"} ${className}`}>
+      <div className="flex items-center gap-2">
+        {eligible ? (
+          <>
+            <CheckCircle className="w-5 h-5 text-green-600" />
+            <span className="text-sm font-medium text-green-700">Faskes Sesuai</span>
+          </>
+        ) : (
+          <>
+            <AlertCircle className="w-5 h-5 text-yellow-600" />
+            <span className="text-sm font-medium text-yellow-700">Faskes Tidak Sesuai</span>
+          </>
+        )}
+      </div>
+
+      {showDetails && (
+        <div className="mt-2 space-y-1 text-xs">
+          <div className="flex items-start gap-2">
+            <span className="text-gray-500 min-w-[80px]">Faskes Terdaftar:</span>
+            <span className="text-gray-900 font-medium">{registeredFaskes}</span>
+          </div>
+          <div className="flex items-start gap-2">
+            <span className="text-gray-500 min-w-[80px]">Faskes Saat Ini:</span>
+            <span className="text-gray-900 font-medium">{currentFaskes}</span>
+          </div>
+        </div>
+      )}
+
+      {!eligible && (
+        <p className="mt-2 text-xs text-yellow-600">
+          Pasien terdaftar di faskes lain. Untuk pelayanan di RS ini, diperlukan rujukan.
+        </p>
+      )}
+    </div>
+  );
+}
+
+FaskesIndicator.displayName = "FaskesIndicator";
 
 // ============================================================================
 // STATUS CARD COMPONENT

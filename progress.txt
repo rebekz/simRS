@@ -14989,3 +14989,80 @@ Implemented multi-step SEP creation wizard for BPJS. The wizard guides staff thr
 **Epic Progress:** WEB-EPIC-2: 2/5 stories complete
 **Duration:** ~1 hour
 **Completed:** 2026-02-27
+
+
+---
+
+## [2026-02-27] WEB-S-2.3: BPJS Status Indicators - COMPLETED
+
+### Summary
+Implemented comprehensive BPJS status indicators with real-time polling, peserta type badges, and faskes eligibility indicators. Enhanced existing BPJSStatusIndicators.tsx component and created demo page.
+
+### What was implemented:
+
+1. **Enhanced BPJSStatusIndicators.tsx**
+   - Added BPJSPesertaBadge component (PBI, Non-PBI, PBPU, Pegawai Negeri, Pensiunan)
+   - Added FaskesIndicator component for faskes eligibility display
+   - Added useBPJSStatus hook for real-time status polling
+   - Updated BPJSStatusData interface with peserta type and faskes fields
+
+2. **Demo Page** (/demo/bpjs-status-indicators)
+   - Status badge variants display
+   - Peserta type badges display
+   - Faskes eligibility indicator examples
+   - Auto-refresh status card with polling
+   - useBPJSStatus hook demonstration
+   - Patient card integration examples
+
+3. **Updated index.ts**
+   - Export BPJSStatusCard, BPJSStatusIndicator, BPJSPesertaBadge, FaskesIndicator
+   - Export useBPJSStatus hook
+   - Export all related types
+
+### Acceptance Criteria Met:
+
+- [x] AC-2.3.1: BPJS badge on patient cards
+- [x] AC-2.3.2: Color-coded status (active=green, inactive=red)
+- [x] AC-2.3.3: Status shows peserta type (PBI, Non-PBI)
+- [x] AC-2.3.4: Faskes eligibility indicator
+- [x] AC-2.3.5: Status updates in real-time (polling)
+
+### Files Created:
+
+- frontend/src/app/demo/bpjs-status-indicators/page.tsx (350 lines)
+
+### Files Modified:
+
+- frontend/src/components/bpjs/BPJSStatusIndicators.tsx (added FaskesIndicator, BPJSPesertaBadge, useBPJSStatus)
+- frontend/src/components/bpjs/index.ts (added exports)
+- frontend/src/components/bpjs/BPJSVerificationCard.tsx (fixed syntax errors)
+- frontend/src/components/ui/Card.tsx (added CardContent, CardTitle aliases)
+- frontend/src/app/demo/bpjs-eligibility/page.tsx (fixed syntax errors)
+
+### Technical Notes:
+
+- Real-time polling with configurable interval (default 60 seconds)
+- Color-coded badges: Green (Active), Red (Inactive), Gray (Expired), Yellow (Suspended)
+- Peserta types: PBI, Non-PBI, PBPU, Pegawai Negeri, Pensiunan
+- Faskes eligibility shows if patient's registered faskes matches current facility
+- useBPJSStatus hook provides easy integration for custom components
+- All components are fully TypeScript typed
+
+### Dependencies:
+
+- WEB-EPIC-1: Component Library Foundation (COMPLETED)
+- WEB-S-2.1: BPJS Eligibility Check (COMPLETED)
+- lucide-react: For icons
+- Existing UI components (Card, Badge, Button)
+
+### Next Steps:
+
+1. Implement WEB-S-2.4: BPJS Error Handling
+2. Implement WEB-S-2.5: BPJS History & Audit
+3. Complete WEB-EPIC-2: BPJS Integration Suite
+4. Begin WEB-EPIC-3: Patient Registration Redesign
+
+**Story Completed:** WEB-S-2.3
+**Epic Progress:** WEB-EPIC-2: 3/5 stories complete
+**Duration:** ~1 hour
+**Completed:** 2026-02-27

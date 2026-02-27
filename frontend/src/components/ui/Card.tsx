@@ -104,3 +104,23 @@ Card.displayName = 'Card';
 CardHeader.displayName = 'Card.Header';
 CardBody.displayName = 'Card.Body';
 CardFooter.displayName = 'Card.Footer';
+
+// Alias for backwards compatibility
+export const CardContent = CardBody;
+
+// CardTitle component for title text
+export interface CardTitleProps extends React.HTMLAttributes<HTMLHeadingElement> {}
+
+export const CardTitle: React.FC<CardTitleProps> = ({
+  className = '',
+  children,
+  ...props
+}) => {
+  return (
+    <h3 className={`card-title text-lg font-semibold ${className}`.trim()} {...props}>
+      {children}
+    </h3>
+  );
+};
+
+CardTitle.displayName = 'Card.Title';

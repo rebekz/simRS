@@ -8,10 +8,10 @@ import { BPJSStatusBadge } from '@/components/bpjs/BPJSStatusBadge';
 
 export default function BPJSEligibilityDemoPage() {
   const [lastVerification, setLastVerification] = useState<{
-    success: false,
-    data: null,
-    message: '',
-  } | null);
+    success: boolean;
+    data: any;
+    message: string;
+  } | null>(null);
 
   const handleVerificationSuccess = (data: any, result: any) => {
     setLastVerification(result);
@@ -139,8 +139,9 @@ export default function BPJSEligibilityDemoPage() {
             <h3 className="font-semibold text-gray-900 mb-4">Last Verification Result</h3>
             <div className="bg-gray-900 text-green-400 rounded-lg p-4 font-mono text-sm">
               <pre className="text-green-300 overflow-x-auto">
-                {JSON.stringify(lastVerification, null, 2, '  ')}
+                {JSON.stringify(lastVerification, null, 2)}
               </pre>
+            </div>
           </div>
         )}
 
