@@ -18,3 +18,9 @@ export type { EmergencyStatusIndicatorProps, ActiveEmergency } from './Emergency
 
 export { EmergencyActivationPanel } from './EmergencyActivationPanel';
 export type { EmergencyActivationPanelProps, EmergencyLog } from './EmergencyActivationPanel';
+
+export { TriageTimer } from './TriageTimer';
+export type { TriageTimerProps } from './TriageTimer';
+
+export { TriageTimerMini } from './TriageTimerMini';
+export type { TriageTimerMiniProps } from './TriageTimerMini';
