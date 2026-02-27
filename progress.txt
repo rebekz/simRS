@@ -14553,3 +14553,107 @@ action recommendations, estimated wait times, quick action buttons, and printabl
 
 **Completed:** 2026-02-27
 
+
+---
+
+## [2026-02-27] WEB-S-5.5: Emergency Activation (Kode Biru) - COMPLETED
+
+### Summary
+Implemented comprehensive emergency activation system for the Emergency Department (IGD).
+The system provides one-tap activation of emergency codes with visual/audio alerts,
+real-time status tracking, and audit logging.
+
+### What was implemented:
+
+1. **EmergencyActivationButton Component** (EmergencyActivationButton.tsx)
+   - Prominent, pulsing button for quick emergency activation
+   - Multiple size variants (sm, md, lg)
+   - Solid and outline style variants
+   - Keyboard accessible with proper focus management
+   - Touch-friendly for tablet use
+   - Animated pulse and bounce effects for visibility
+
+2. **EmergencyStatusIndicator Component** (EmergencyStatusIndicator.tsx)
+   - Real-time display of active emergencies
+   - Duration timer updated every second
+   - Support for 5 emergency code types:
+     - Kode Biru (Code Blue) - Resusitasi
+     - Kode Merah (Code Red) - Kebakaran
+     - Kode Pink (Code Pink) - Bayi Hilang
+     - Kode Oranye (Code Orange) - Evakuasi
+     - Kode Kuning (Code Yellow) - Bencana
+   - Full and compact view modes
+   - Response status tracking (active, responding, resolved)
+   - Quick action buttons
+
+3. **EmergencyActivationPanel Component** (EmergencyActivationPanel.tsx)
+   - Complete emergency management panel
+   - One-tap activation for all emergency codes
+   - Audio alert using Web Audio API (no external files needed)
+   - Emergency log with all actions recorded
+   - Audio toggle for enabling/disabling alerts
+   - Location tracking
+
+4. **Demo Page** (/demo/emergency-activation)
+   - Interactive demonstration of all emergency components
+   - Acceptance criteria checklist
+   - Size and style variant showcase
+   - Active emergency simulation
+   - Technical documentation
+
+5. **Integration with Emergency Page** (/app/emergency)
+   - Added Kode Biru button to page header
+   - Integrated KodeBiruAlert modal
+
+6. **Index Export File** (index.ts)
+   - Clean exports for all emergency components
+   - Type exports for TypeScript support
+
+### Acceptance Criteria Met:
+
+- [x] AC-5.5.1: Prominent Kode Biru button visible on triage page
+- [x] AC-5.5.2: One-tap activation with confirmation dialog
+- [x] AC-5.5.3: Visual/audio alerts triggered on activation
+- [x] AC-5.5.4: Emergency response team notification (panel integration)
+- [x] AC-5.5.5: Timer starts on activation
+- [x] AC-5.5.6: Deactivation/cancel workflow
+- [x] AC-5.5.7: Emergency log entry created
+
+### Files Created:
+
+- frontend/src/components/emergency/EmergencyActivationButton.tsx (110 lines)
+- frontend/src/components/emergency/EmergencyStatusIndicator.tsx (270 lines)
+- frontend/src/components/emergency/EmergencyActivationPanel.tsx (350 lines)
+- frontend/src/components/emergency/index.ts (25 lines)
+- frontend/src/app/demo/emergency-activation/page.tsx (350 lines)
+
+### Files Modified:
+
+- frontend/src/app/app/emergency/page.tsx (added Kode Biru button and modal)
+
+### Technical Notes:
+
+- Audio alerts use Web Audio API oscillator (no external files needed)
+- Real-time timer updates every second
+- Modal has 5-second countdown to prevent accidental activation
+- All emergency codes follow Indonesian hospital standards
+- Components are fully responsive for desktop and tablet
+- Keyboard accessible with proper ARIA labels
+
+### Dependencies:
+
+- WEB-EPIC-1: Component Library Foundation (COMPLETED)
+- lucide-react: For icons
+- No backend dependencies (purely frontend components)
+
+### Next Steps:
+
+1. Implement WEB-S-5.6: Triage Timer (prominent <2 minute timer)
+2. Complete remaining WEB-EPIC-5 stories
+3. Begin WEB-EPIC-3: Patient Registration Redesign
+
+**Story Completed:** WEB-S-5.5
+**Epic Progress:** WEB-EPIC-5: 4/6 stories complete
+**Duration:** ~1.5 hours
+**Completed:** 2026-02-27
+

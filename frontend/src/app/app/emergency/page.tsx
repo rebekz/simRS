@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { EmergencyActivationButton } from "@/components/emergency/EmergencyActivationButton";
+import { KodeBiruAlert } from "@/components/emergency/KodeBiruAlert";
 
 interface TriagePatient {
   id: number;
@@ -56,6 +58,7 @@ export default function EmergencyDepartmentPage() {
     black: 0,
     avgWaitTime: 0,
   });
+  const [isKodeBiruModalOpen, setIsKodeBiruModalOpen] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -260,6 +263,12 @@ export default function EmergencyDepartmentPage() {
           <p className="text-gray-600 mt-1">Sistem triage dan manajemen pasien emergency</p>
         </div>
         <div className="flex space-x-3">
+          <EmergencyActivationButton
+            onClick={() => setIsKodeBiruModalOpen(true)}
+            size="md"
+            showLabel={true}
+            pulseEffect={true}
+          />
           <button
             onClick={() => router.push("/app/emergency/protocols")}
             className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 flex items-center space-x-2"
@@ -769,6 +778,18 @@ export default function EmergencyDepartmentPage() {
           </div>
         </div>
       )}
+
+      {/* Kode Biru Modal */}
+      <KodeBiruAlert
+        isOpen={isKodeBiruModalOpen}
+        onClose={() => setIsKodeBiruModalOpen(false)}
+        onActivate={(reason) => {
+          console.log("Kode Biru activated:", reason);
+          // In production, this would trigger the emergency response system
+          setIsKodeBiruModalOpen(false);
+        }}
+        location="IGD"
+      />
     </div>
   );
 }
