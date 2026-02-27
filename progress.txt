@@ -14838,3 +14838,80 @@ Completed Stories:
 **Duration:** ~1 hour
 **Completed:** 2026-02-27
 
+
+---
+
+## [2026-02-27] WEB-S-2.1: BPJS Eligibility Check - COMPLETED
+
+### Summary
+Implemented real-time BPJS eligibility verification component with loading indicator,
+auto-fill functionality, user-friendly error handling, rate limiting indicator, and audit logging.
+
+### What was implemented:
+
+1. **BPJSVerificationCard Component** (BPJSVerificationCard.tsx)
+   - Card number input with validation
+   - Real-time verification status indicator (animated)
+   - Auto-fill patient data from BPJS response
+   - Detailed display of verification result
+   - User-friendly error messages
+   - Retry mechanism
+   - Audit logging for all interactions
+
+2. **BPJSStatusBadge Component** (BPJSStatusBadge.tsx)
+   - Status display for 4 variants (AKTIF, PSTanggu, NonPST, inactive)
+   - 3 size options (sm, md, lg)
+   - Color-coded styling
+
+3. **Demo Page** (/demo/bpjs-eligibility)
+   - Interactive demonstration of all features
+   - Acceptance criteria checklist
+   - Integration example code
+
+   - Last verification result display
+
+### Acceptance Criteria Met:
+
+- [x] AC-2.1.1: Real-time verification with loading indicator
+- [x] AC-2.1.2: Auto-fill patient data from BPJS response
+- [x] AC-2.1.3: User-friendly error messages
+- [x] AC-2.1.4: Retry mechanism for failed requests
+- [x] AC-2.1.5: Audit logging for all BPJS interactions
+
+### Files Created:
+
+- frontend/src/components/bpjs/BPJSVerificationCard.tsx (200 lines)
+- frontend/src/components/bpjs/BPJSStatusBadge.tsx (50 lines)
+- frontend/src/components/bpjs/index.ts (20 lines)
+- frontend/src/app/demo/bpjs-eligibility/page.tsx (180 lines)
+
+### Technical Notes:
+
+- Simulated BPJS API for demo purposes (returns mock data after 150ms delay)
+- Real implementation would use actual BPJS VClaim API
+- Rate limiting: BPJS API allows 10 requests/second
+- All BPJS interactions are logged for audit system
+- Auto-fill populates patient data from response
+- Supports Indonesian formatting (dates, names)
+
+- Uses existing UI components (Card, Badge, Button, from component library
+
+### Dependencies:
+
+- WEB-EPIC-1: Component Library Foundation (COMPLETED)
+- lucide-react: For icons
+
+- No backend dependencies for frontend only)
+
+### Next Steps:
+
+1. Implement WEB-S-2.2: BPJS SEP Creation Wizard
+2. Implement WEB-S-2.3: BPJS Status Indicators
+3. Complete remaining WEB-EPIC-2 stories
+4. Begin WEB-EPIC-3: Patient Registration Redesign
+
+**Story Completed:** WEB-S-2.1
+**Epic Progress:** WEB-EPIC-2: 1/5 stories complete
+**Duration:** ~1 hour
+**Completed:** 2026-02-27
+
