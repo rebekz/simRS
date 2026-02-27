@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
+import Link from "next/link";
 
 interface InvoiceItem {
   id: number;
@@ -245,9 +246,9 @@ export default function InvoiceDetailPage() {
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <a href="/portal/billing" className="text-indigo-600 hover:underline text-sm">
+          <Link href="/portal/billing" className="text-indigo-600 hover:underline text-sm">
             ← Back to Billing
-          </a>
+          </Link>
           <h1 className="text-2xl font-bold text-gray-900 mt-2">{invoice.invoice_number}</h1>
           <p className="text-sm text-gray-500">Invoice Details</p>
         </div>

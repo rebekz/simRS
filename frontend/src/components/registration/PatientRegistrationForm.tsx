@@ -237,7 +237,7 @@ function BPJSVerificationCard({
 
       {/* Manual Entry Button */}
       <Button
-        variant="outline"
+        variant="secondary"
         onClick={onManualEntry}
         className="w-full border-2"
       >
@@ -357,14 +357,14 @@ function PhotoUpload({ photoUrl, onPhotoCapture, onPhotoRemove }: PhotoUploadPro
               <Camera className="w-4 h-4 mr-2" />
               Ambil Foto
             </Button>
-            <Button variant="outline" onClick={stopCamera}>
+            <Button variant="secondary" onClick={stopCamera}>
               Batal
             </Button>
           </div>
         </div>
       ) : (
         <div className="flex gap-2">
-          <Button variant="outline" onClick={startCamera} className="flex-1">
+          <Button variant="secondary" onClick={startCamera} className="flex-1">
             <Camera className="w-4 h-4 mr-2" />
             Kamera
           </Button>
@@ -375,10 +375,10 @@ function PhotoUpload({ photoUrl, onPhotoCapture, onPhotoRemove }: PhotoUploadPro
               onChange={handleFileUpload}
               className="hidden"
             />
-            <Button variant="outline" className="w-full" as="span">
+            <span className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer w-full">
               <Upload className="w-4 h-4 mr-2" />
               Upload
-            </Button>
+            </span>
           </label>
         </div>
       )}
@@ -521,7 +521,7 @@ function EmergencyContactForm({ value, onChange }: EmergencyContactFormProps) {
           <Users className="w-5 h-5 text-orange-600" />
           <span className="font-medium text-gray-900">Kontak Darurat</span>
           {value.name && (
-            <Badge variant="outline" className="bg-green-100 text-green-700">
+            <Badge variant="neutral" className="bg-green-100 text-green-700">
               Terisi
             </Badge>
           )}
@@ -889,7 +889,7 @@ export function PatientRegistrationForm({
           {/* Actions */}
           <div className="flex justify-end gap-3 pt-4 border-t">
             {onCancel && (
-              <Button type="button" variant="outline" onClick={onCancel}>
+              <Button type="button" variant="secondary" onClick={onCancel}>
                 Batal
               </Button>
             )}

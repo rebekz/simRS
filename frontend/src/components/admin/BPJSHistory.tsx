@@ -610,7 +610,7 @@ export function BPJSHistoryLog({
           <div className="flex justify-end gap-2 mt-4">
             {onRefresh && (
               <Button
-                variant="outline"
+                variant="secondary"
                 onClick={onRefresh}
                 disabled={isLoading}
               >
@@ -621,14 +621,14 @@ export function BPJSHistoryLog({
             {onExport && (
               <>
                 <Button
-                  variant="outline"
+                  variant="secondary"
                   onClick={() => onExport('csv')}
                 >
                   <Download className="w-4 h-4 mr-2" />
                   Export CSV
                 </Button>
                 <Button
-                  variant="outline"
+                  variant="secondary"
                   onClick={() => onExport('json')}
                 >
                   <FileText className="w-4 h-4 mr-2" />
@@ -646,7 +646,7 @@ export function BPJSHistoryLog({
           <h3 className="font-semibold text-gray-900 flex items-center gap-2">
             <History className="w-5 h-5 text-teal-600" />
             BPJS Interaction Log
-            <Badge variant="outline" className="ml-2">
+            <Badge variant="neutral" className="ml-2">
               {filteredEntries.length} entries
             </Badge>
           </h3>
@@ -717,7 +717,7 @@ export function SEPHistory({
                       {item.sepNumber}
                     </span>
                     {getStatusBadge(item.status)}
-                    <Badge variant="outline">
+                    <Badge variant="neutral">
                       {item.serviceType === 'RJ' ? 'Rawat Jalan' : 'Rawat Inap'}
                     </Badge>
                   </div>
@@ -742,7 +742,7 @@ export function SEPHistory({
 
                 {onViewDetails && (
                   <Button
-                    variant="outline"
+                    variant="secondary"
                     size="sm"
                     onClick={() => onViewDetails(item)}
                   >

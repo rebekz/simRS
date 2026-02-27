@@ -146,7 +146,7 @@
   - Success message with auto-generated RM number and queue number
   - File: src/app/app/patients/bpjs-first/page.tsx
 
-- [x] WEB-S-3.2: Returning Patient Quick Check-In (commit: TBD)
+- [x] WEB-S-3.2: Returning Patient Quick Check-In (commit: c96b157)
   - Patient search by RM, BPJS, NIK, name, phone with debouncing (300ms)
   - Keyboard shortcut (Ctrl+K/Cmd+K) for search focus
   - Mock patient database (5 patients with various BPJS statuses)
@@ -158,7 +158,7 @@
   - Total flow <30 seconds target achieved
   - File: src/app/app/patients/check-in/page.tsx
 
-- [x] WEB-S-3.3: Queue Management Dashboard (commit: TBD)
+- [x] WEB-S-3.3: Queue Management Dashboard (commit: 15affd5)
   - Department tabs with patient counts (IGD, Poli Anak, Penyakit Dalam, Bedah, Kandungan, Mata)
   - Queue list with patient details (name, RM, queue number, wait time)
   - Status badges (waiting/in-service/completed/skipped)

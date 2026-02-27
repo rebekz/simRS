@@ -399,7 +399,7 @@ export function BPJSManualEntry({
           {onCancel && (
             <Button
               type="button"
-              variant="outline"
+              variant="secondary"
               onClick={onCancel}
               disabled={isSubmitting}
             >

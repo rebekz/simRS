@@ -329,7 +329,7 @@ export const BPJSVerificationCard: React.FC<BPJSVerificationCardProps> = ({
               </Button>
             ) : (
               <Button
-                variant="outline"
+                variant="secondary"
                 onClick={handleReset}
                 className="flex-1"
               >

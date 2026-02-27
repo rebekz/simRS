@@ -15379,3 +15379,85 @@ Implemented quick check-in flow for returning patients with global search, keybo
 **Epic Progress:** WEB-EPIC-3: 2/7 stories complete
 **Duration:** ~45 minutes
 **Completed:** 2026-02-28
+
+
+---
+
+## [2026-02-28] WEB-S-3.3: Queue Management Dashboard - COMPLETED
+
+### Summary
+Extracted and enhanced queue management dashboard components for real-time queue monitoring and patient flow management.
+
+### What was implemented:
+
+1. **QueueDashboard Component** (components/queue/QueueDashboard.tsx)
+   - DepartmentTabs - Filter by department with patient counts
+   - QueueStatisticsCards - Real-time statistics display
+   - QueueList/QueueItem - Patient queue display
+   - StatusBadge, PriorityBadge, TriageBadge - Visual indicators
+
+2. **Demo Page** (/demo/queue-management)
+   - Full queue management demonstration
+   - Mock data for 6 departments, 16 patients
+   - Integration example code
+
+3. **Features**
+   - Real-time queue monitoring by department
+   - Patient details with queue numbers and wait times
+   - Status management (waiting, in-service, completed, skipped)
+   - Priority indicators (elderly, pregnant, disabled, emergency)
+   - Emergency queue (IGD) with triage levels (Merah/Kuning/Hijau)
+   - Queue statistics with live counts
+   - Call next patient functionality
+   - Export to PDF (placeholder)
+   - Auto-refresh every 30 seconds (simulated)
+
+### Acceptance Criteria Met:
+
+- [x] AC-3.3.1: Queue list by department
+- [x] AC-3.3.2: Patient details (name, RM, queue, wait)
+- [x] AC-3.3.3: Status badges (waiting/in-service/completed)
+- [x] AC-3.3.4: Priority indicators (elderly/pregnant/disabled)
+- [x] AC-3.3.5: Emergency queue (IGD) with triage levels
+- [x] AC-3.3.6: Queue statistics
+- [x] AC-3.3.7: Call next patient button
+- [x] AC-3.3.8: Move to completed status
+
+### Files Created:
+
+- frontend/src/components/queue/QueueDashboard.tsx (580 lines)
+- frontend/src/components/queue/index.ts (20 lines)
+- frontend/src/app/demo/queue-management/page.tsx (290 lines)
+
+### Files Modified:
+
+- frontend/src/app/app/casemix/bpjs/page.tsx (fix BPJSClaim interface)
+
+### Technical Notes:
+
+- Real-time queue monitoring by department
+- Patient details with queue numbers and wait times
+- Status management (waiting, in-service, completed, skipped)
+- Priority indicators (elderly, pregnant, disabled, emergency)
+- Emergency queue (IGD) with triage levels (Merah/Kuning/Hijau)
+- Queue statistics with live counts
+- Call next patient functionality
+- Export to PDF (placeholder)
+- Auto-refresh every 30 seconds (simulated)
+
+### Dependencies:
+
+- WEB-EPIC-1: Component Library Foundation (COMPLETED)
+- WEB-EPIC-2: BPJS Integration Suite (COMPLETED)
+- WEB-S-3.2: Returning Patient Quick Check-In (COMPLETED)
+
+### Next Steps:
+
+1. Continue WEB-EPIC-3: Patient Registration Redesign (WEB-S-3.4 onwards)
+2. Or continue WEB-EPIC-4: Doctor Consultation Workspace
+
+**Story Completed:** WEB-S-3.3
+**Epic Progress:** WEB-EPIC-3: 3/7 stories complete
+**Duration:** ~30 minutes
+**Completed:** 2026-02-28
+**Commit:** 15affd5

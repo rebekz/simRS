@@ -222,7 +222,7 @@ export default function TriageTimerDemoPage() {
             </div>
             <div className="bg-gray-900 text-green-400 rounded-lg p-4 font-mono text-sm max-h-48 overflow-y-auto">
               {timerEvents.length === 0 ? (
-                <p className="text-gray-500">// No events yet. Start a timer to see events.</p>
+                <p className="text-gray-500">{'// No events yet. Start a timer to see events.'}</p>
               ) : (
                 timerEvents.map((event, idx) => (
                   <div key={idx} className="py-1">{event}</div>

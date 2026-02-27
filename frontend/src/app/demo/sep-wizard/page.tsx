@@ -13,19 +13,12 @@ export default function SEPWizardDemoPage() {
   // Mock BPJS data for demo
   const mockBpjsData: BPJSData = {
     cardNumber: '0001234567890',
-    nik: '3171234567890123',
     nama: 'Ahmad Susanto',
-    tanggalLahir: '1985-05-15',
-    jenisKelamin: 'L',
-    alamat: 'Jl. Sudirman No. 123, Jakarta Selatan',
-    status: 'AKTIF',
-    kelasRawat: 'KELAS III',
+    nik: '3171234567890123',
     jenisPeserta: 'PENERIMA BANTUAN IURAN',
-    tglMulaiAktif: '2020-01-01',
-    tglAkhirAktif: '2027-12-31',
-    namaFaskes: 'Klinik Utama Sehat',
-    kodeFaskes: '0001',
-    noTelepon: '081234567890',
+    faskes: 'Klinik Utama Sehat',
+    status: 'active',
+    eligibilityDate: new Date(),
   };
 
   const handleSubmit = (data: SEPFormData) => {

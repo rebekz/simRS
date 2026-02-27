@@ -517,7 +517,7 @@ function QuickCheckInModal({
           <div className="flex gap-3 pt-4">
             <Button
               type="button"
-              variant="outline"
+              variant="secondary"
               onClick={onClose}
               className="flex-1"
               disabled={isSubmitting}

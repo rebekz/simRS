@@ -10,9 +10,9 @@ import { AlertTriangle, Clock, Activity } from "lucide-react";
  * Supports MERAH (red), KUNING (yellow), HIJAU (green) triage levels.
  */
 
-type TriageLevel = "merah" | "kuning" | "hijau";
+export type TriageLevel = "merah" | "kuning" | "hijau";
 
-interface TriageCardProps {
+export interface TriageCardProps {
   level: TriageLevel;
   size?: "small" | "medium" | "large";
   description?: string;
@@ -174,7 +174,7 @@ export function TriageCard({
   );
 }
 
-interface TriageTicketProps {
+export interface TriageTicketProps {
   hospitalName: string;
   triageLevel: TriageLevel;
   patientName: string;
@@ -242,7 +242,7 @@ export function TriageTicket({
   );
 }
 
-interface TriageDisplayProps {
+export interface TriageDisplayProps {
   triageLevel: TriageLevel;
   patientName: string;
   queueNumber: string;
