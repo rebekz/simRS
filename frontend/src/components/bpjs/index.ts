@@ -28,3 +28,24 @@ export type {
   FaskesIndicatorProps,
   BPJSPesertaType,
 } from './BPJSStatusIndicators';
+
+// Error Handling - WEB-S-2.4
+export {
+  BPJSErrorAlert,
+  BPJSErrorDisplay,
+  BPJSErrorRetryButton,
+  BPJSErrorToast,
+  BPJSErrorBoundary,
+  useBPJSErrorRetry,
+} from './BPJSErrorDisplay';
+export type {
+  BPJSErrorDisplayProps,
+  BPJSErrorAlertProps,
+  BPJSErrorRetryButtonProps,
+  BPJSErrorToastProps,
+  BPJSErrorBoundaryProps,
+} from './BPJSErrorDisplay';
+
+// Manual Entry - WEB-S-2.4
+export { BPJSManualEntry } from './BPJSManualEntry';
+export type { BPJSManualEntryProps, ManualBPJSData } from './BPJSManualEntry';
