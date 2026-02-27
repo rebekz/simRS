@@ -239,7 +239,7 @@ class BillingRule(Base):
 
     # Rule properties
     priority = Column(Integer, nullable=False, default=0, comment="Rule priority (higher = applied first)")
-    is_active = Column(Boolean, default=True, nullable=False, index=True, comment="Whether rule is active")
+    is_active = Column(Boolean, default=True, nullable=False, comment="Whether rule is active")
 
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False, comment="Record creation timestamp")
@@ -250,7 +250,6 @@ class BillingRule(Base):
         Index("ix_billing_rules_rule_type", "rule_type"),
         Index("ix_billing_rules_payer_type", "payer_type"),
         Index("ix_billing_rules_package_code", "package_code"),
-        Index("ix_billing_rules_is_active", "is_active"),
         Index("ix_billing_rules_priority", "priority"),
     )
 

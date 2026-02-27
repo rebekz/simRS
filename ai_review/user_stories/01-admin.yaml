@@ -1,0 +1,348 @@
+# SIMRS Administrator QA Scenarios
+# Tests for system administration, user management, and configuration
+
+metadata:
+  role: administrator
+  test_account:
+    username: superadmin
+    password: SuperAdmin123!
+  priority: critical
+
+stories:
+  # ==================== AUTHENTICATION ====================
+  - id: ADMIN-AUTH-001
+    title: "Administrator Login"
+    category: Authentication
+    priority: critical
+    tags: [auth, login, admin]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/login"
+        description: "Navigate to admin login page"
+      - action: verify
+        target: "h1, h2, [data-testid='login-title']"
+        expect_contains: ["Masuk", "Login", "SIMRS"]
+      - action: fill
+        target: "input[name='username'], #username"
+        value: "{{username}}"
+      - action: fill
+        target: "input[name='password'], #password"
+        value: "{{password}}"
+      - action: click
+        target: "button[type='submit']"
+      - action: wait
+        duration: 3000
+      - action: verify
+        target: "body"
+        expect_url_contains: ["/dashboard", "/app"]
+        expect_not_contains: ["error", "gagal"]
+    screenshot_steps: true
+
+  - id: ADMIN-AUTH-002
+    title: "Administrator Logout"
+    category: Authentication
+    priority: high
+    tags: [auth, logout]
+    preconditions: [ADMIN-AUTH-001]
+    steps:
+      - action: click
+        target: "[data-testid='user-menu'], button:contains('superadmin')"
+      - action: click
+        target: "[data-testid='logout'], a:contains('Keluar'), button:contains('Logout')"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "body"
+        expect_url_contains: ["/login"]
+
+  - id: ADMIN-AUTH-003
+    title: "Session Timeout Handling"
+    category: Authentication
+    priority: medium
+    tags: [auth, session, security]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/login"
+      - action: fill
+        target: "input[name='username']"
+        value: "{{username}}"
+      - action: fill
+        target: "input[name='password']"
+        value: "{{password}}"
+      - action: click
+        target: "button[type='submit']"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "body"
+        expect_url_contains: ["/app"]
+
+  # ==================== USER MANAGEMENT ====================
+  - id: ADMIN-USER-001
+    title: "View User List"
+    category: User Management
+    priority: high
+    tags: [users, list, management]
+    preconditions: [ADMIN-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/admin/users"
+      - action: verify
+        target: "h1, h2, [data-testid='page-title']"
+        expect_contains: ["User", "Pengguna", "Manajemen"]
+      - action: verify
+        target: "table, [data-testid='user-list']"
+        description: "Verify user table is displayed"
+
+  - id: ADMIN-USER-002
+    title: "Create New User"
+    category: User Management
+    priority: critical
+    tags: [users, create, management]
+    preconditions: [ADMIN-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/admin/users"
+      - action: click
+        target: "button:contains('Add User'), button:contains('Tambah'), a:contains('New')"
+      - action: fill
+        target: "input[name='username']"
+        value: "testuser_{{timestamp}}"
+      - action: fill
+        target: "input[name='email']"
+        value: "testuser_{{timestamp}}@simrs.example.com"
+      - action: fill
+        target: "input[name='full_name']"
+        value: "Test User"
+      - action: select
+        target: "select[name='role']"
+        value: "NURSE"
+      - action: fill
+        target: "input[name='password']"
+        value: "TestUser123!"
+      - action: click
+        target: "button[type='submit'], button:contains('Simpan')"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "body, [role='alert']"
+        expect_contains: ["berhasil", "success", "created"]
+
+  - id: ADMIN-USER-003
+    title: "Edit User Details"
+    category: User Management
+    priority: high
+    tags: [users, edit, management]
+    preconditions: [ADMIN-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/admin/users"
+      - action: click
+        target: "table tbody tr:first-child button:contains('Edit'), table tbody tr:first-child a:contains('Edit')"
+      - action: wait
+        duration: 1000
+      - action: fill
+        target: "input[name='full_name']"
+        value: "Updated User Name"
+      - action: click
+        target: "button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success"]
+
+  - id: ADMIN-USER-004
+    title: "Deactivate User Account"
+    category: User Management
+    priority: high
+    tags: [users, deactivate, management]
+    preconditions: [ADMIN-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/admin/users"
+      - action: click
+        target: "table tbody tr:last-child button:contains('Deactivate'), table tbody tr:last-child button:contains('Nonaktifkan')"
+      - action: wait
+        duration: 1000
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success", "deactivated"]
+
+  - id: ADMIN-USER-005
+    title: "Reset User Password"
+    category: User Management
+    priority: high
+    tags: [users, password, reset]
+    preconditions: [ADMIN-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/admin/users"
+      - action: click
+        target: "table tbody tr:first-child button:contains('Reset'), table tbody tr:first-child a:contains('Reset Password')"
+      - action: wait
+        duration: 1000
+      - action: verify
+        target: "body, [role='alert']"
+        expect_contains: ["berhasil", "success", "password"]
+
+  # ==================== ROLE MANAGEMENT ====================
+  - id: ADMIN-ROLE-001
+    title: "View Available Roles"
+    category: Role Management
+    priority: medium
+    tags: [roles, list]
+    preconditions: [ADMIN-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/admin/roles"
+      - action: verify
+        target: "body"
+        expect_contains: ["Role", "Peran", "ADMIN", "DOCTOR", "NURSE"]
+
+  - id: ADMIN-ROLE-002
+    title: "View Role Permissions"
+    category: Role Management
+    priority: medium
+    tags: [roles, permissions]
+    preconditions: [ADMIN-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/admin/roles"
+      - action: click
+        target: "table tbody tr:first-child a, table tbody tr:first-child button:contains('View')"
+      - action: verify
+        target: "body"
+        expect_contains: ["Permission", "Izin", "permission"]
+
+  # ==================== AUDIT LOGS ====================
+  - id: ADMIN-AUDIT-001
+    title: "View Audit Logs"
+    category: Audit
+    priority: high
+    tags: [audit, logs, compliance]
+    preconditions: [ADMIN-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/admin/audit-logs"
+      - action: verify
+        target: "h1, h2, [data-testid='page-title']"
+        expect_contains: ["Audit", "Log", "Aktivitas"]
+
+  - id: ADMIN-AUDIT-002
+    title: "Filter Audit Logs by User"
+    category: Audit
+    priority: medium
+    tags: [audit, logs, filter]
+    preconditions: [ADMIN-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/admin/audit-logs"
+      - action: fill
+        target: "input[name='user'], input[placeholder*='user'], input[placeholder*='pengguna']"
+        value: "admin"
+      - action: click
+        target: "button:contains('Filter'), button:contains('Search')"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "table"
+        description: "Verify filtered results"
+
+  - id: ADMIN-AUDIT-003
+    title: "Filter Audit Logs by Date Range"
+    category: Audit
+    priority: medium
+    tags: [audit, logs, filter]
+    preconditions: [ADMIN-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/admin/audit-logs"
+      - action: fill
+        target: "input[name='start_date'], input[type='date']:first-of-type"
+        value: "{{date_yesterday}}"
+      - action: fill
+        target: "input[name='end_date'], input[type='date']:last-of-type"
+        value: "{{date_today}}"
+      - action: click
+        target: "button:contains('Filter')"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "table"
+
+  # ==================== SYSTEM SETTINGS ====================
+  - id: ADMIN-SETTINGS-001
+    title: "View System Settings"
+    category: Settings
+    priority: medium
+    tags: [settings, configuration]
+    preconditions: [ADMIN-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/settings"
+      - action: verify
+        target: "h1, h2, [data-testid='page-title']"
+        expect_contains: ["Pengaturan", "Settings", "Konfigurasi"]
+
+  - id: ADMIN-SETTINGS-002
+    title: "Update Hospital Information"
+    category: Settings
+    priority: medium
+    tags: [settings, hospital]
+    preconditions: [ADMIN-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/settings"
+      - action: click
+        target: "a:contains('Hospital'), tab:contains('Rumah Sakit'), button:contains('Informasi')"
+      - action: wait
+        duration: 1000
+      - action: verify
+        target: "body"
+        expect_contains: ["Nama", "Address", "Hospital"]
+
+  # ==================== TRAINING MANAGEMENT ====================
+  - id: ADMIN-TRAINING-001
+    title: "View Training Modules"
+    category: Training
+    priority: low
+    tags: [training, modules]
+    preconditions: [ADMIN-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/training"
+      - action: verify
+        target: "h1, h2, [data-testid='page-title']"
+        expect_contains: ["Training", "Pelatihan", "Modul"]
+
+  - id: ADMIN-TRAINING-002
+    title: "Assign Training to User"
+    category: Training
+    priority: low
+    tags: [training, assignment]
+    preconditions: [ADMIN-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/training"
+      - action: click
+        target: "button:contains('Assign'), a:contains('Assign')"
+      - action: wait
+        duration: 1000
+      - action: verify
+        target: "body"
+        expect_contains: ["User", "Module", "Assign"]
+
+  # ==================== DASHBOARD ====================
+  - id: ADMIN-DASH-001
+    title: "View Admin Dashboard Statistics"
+    category: Dashboard
+    priority: high
+    tags: [dashboard, statistics]
+    preconditions: [ADMIN-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/dashboard"
+      - action: verify
+        target: "body"
+        expect_contains: ["Pasien", "Patient", "Dashboard"]
+      - action: screenshot
+        filename: "admin-dashboard.png"

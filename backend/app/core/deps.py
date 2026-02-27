@@ -42,7 +42,7 @@ async def get_current_user(
             detail="Could not validate credentials",
         )
 
-    result = await db.execute(select(User).filter(User.id == int(user_id)))
+    result = await db.execute(select(UserModel).filter(UserModel.id == int(user_id)))
     user = result.scalar_one_or_none()
 
     if not user:
@@ -203,7 +203,7 @@ async def get_current_portal_patient(
             detail="Could not validate credentials",
         )
 
-    result = await db.execute(select(User).filter(User.id == int(user_id)))
+    result = await db.execute(select(UserModel).filter(UserModel.id == int(user_id)))
     user = result.scalar_one_or_none()
 
     if not user:

@@ -1,0 +1,267 @@
+# SIMRS Radiology QA Scenarios
+# Tests for radiology orders, results, and imaging
+
+metadata:
+  role: radiology_tech
+  test_account:
+    username: radiology1
+    password: Radiology123!
+  priority: high
+
+stories:
+  # ==================== AUTHENTICATION ====================
+  - id: RAD-AUTH-001
+    title: "Radiology Staff Login"
+    category: Authentication
+    priority: critical
+    tags: [auth, login, radiology]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/login"
+      - action: fill
+        target: "input[name='username']"
+        value: "{{username}}"
+      - action: fill
+        target: "input[name='password']"
+        value: "{{password}}"
+      - action: click
+        target: "button[type='submit']"
+      - action: wait
+        duration: 3000
+      - action: verify
+        target: "body"
+        expect_url_contains: ["/app"]
+
+  # ==================== RADIOLOGY ORDERS ====================
+  - id: RAD-ORDER-001
+    title: "View Radiology Order Queue"
+    category: Radiology Orders
+    priority: critical
+    tags: [radiology, order, queue]
+    preconditions: [RAD-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/radiology"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Radiologi", "Radiology"]
+      - action: verify
+        target: "table"
+        description: "Verify radiology order list"
+      - action: screenshot
+        filename: "radiology-queue.png"
+
+  - id: RAD-ORDER-002
+    title: "View Order Details"
+    category: Radiology Orders
+    priority: critical
+    tags: [radiology, order, details]
+    preconditions: [RAD-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/radiology"
+      - action: click
+        target: "table tbody tr:first-child a, table tbody tr:first-child button:contains('View')"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "body"
+        expect_contains: ["Order", "Patient", "Exam", "X-Ray", "CT", "MRI", "USG"]
+
+  - id: RAD-ORDER-003
+    title: "Process Radiology Order"
+    category: Radiology Orders
+    priority: critical
+    tags: [radiology, order, process]
+    preconditions: [RAD-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/radiology"
+      - action: click
+        target: "table tbody tr:first-child button:contains('Process'), table tbody tr:first-child button:contains('Proses')"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "body"
+        expect_contains: ["Processing", "Diproses", "Scheduled"]
+
+  - id: RAD-ORDER-004
+    title: "Mark Order as In Progress"
+    category: Radiology Orders
+    priority: high
+    tags: [radiology, order, status]
+    preconditions: [RAD-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/radiology"
+      - action: click
+        target: "table tbody tr:first-child button:contains('Start'), table tbody tr:first-child select"
+      - action: select
+        target: "select[name='status']"
+        value: "in_progress"
+      - action: click
+        target: "button:contains('Update'), button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success"]
+
+  # ==================== RADIOLOGY RESULTS ====================
+  - id: RAD-RESULT-001
+    title: "Enter Radiology Report"
+    category: Radiology Results
+    priority: critical
+    tags: [radiology, result, report]
+    preconditions: [RAD-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/radiology"
+      - action: click
+        target: "table tbody tr:first-child button:contains('Enter Result'), table tbody tr:first-child button:contains('Hasil')"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Result", "Hasil", "Report"]
+      - action: fill
+        target: "textarea[name='findings'], textarea[name='hasil_pemeriksaan']"
+        value: "Chest X-Ray shows clear lung fields. No active infiltrates or masses detected. Heart size normal. No pleural effusion."
+      - action: fill
+        target: "textarea[name='impression'], textarea[name='kesan']"
+        value: "No acute cardiopulmonary abnormality."
+      - action: click
+        target: "button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success"]
+
+  - id: RAD-RESULT-002
+    title: "Upload Radiology Image"
+    category: Radiology Results
+    priority: critical
+    tags: [radiology, result, image, upload]
+    preconditions: [RAD-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/radiology"
+      - action: click
+        target: "table tbody tr:first-child button:contains('Upload'), table tbody tr:first-child a:contains('Image')"
+      - action: wait
+        duration: 2000
+      - action: upload
+        target: "input[type='file']"
+        file: "test-xray.jpg"
+      - action: click
+        target: "button:contains('Upload'), button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success", "uploaded"]
+
+  - id: RAD-RESULT-003
+    title: "Add Radiologist Interpretation"
+    category: Radiology Results
+    priority: high
+    tags: [radiology, result, interpretation]
+    preconditions: [RAD-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/radiology"
+      - action: click
+        target: "table tbody tr:first-child button:contains('Interpret'), table tbody tr:first-child button:contains('Baca')"
+      - action: wait
+        duration: 2000
+      - action: fill
+        target: "textarea[name='interpretation']"
+        value: "Findings consistent with bacterial pneumonia. Recommend clinical correlation and follow-up imaging in 2 weeks if symptoms persist."
+      - action: click
+        target: "button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success"]
+
+  - id: RAD-RESULT-004
+    title: "Verify Report"
+    category: Radiology Results
+    priority: high
+    tags: [radiology, result, verify]
+    preconditions: [RAD-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/radiology"
+      - action: click
+        target: "table tbody tr:first-child button:contains('Verify'), table tbody tr:first-child button:contains('Verifikasi')"
+      - action: wait
+        duration: 2000
+      - action: click
+        target: "button:contains('Confirm'), button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success", "verified"]
+
+  # ==================== MODALITIES ====================
+  - id: RAD-MODALITY-001
+    title: "View X-Ray Orders"
+    category: Modalities
+    priority: high
+    tags: [radiology, xray, modality]
+    preconditions: [RAD-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/radiology"
+      - action: click
+        target: "button:contains('X-Ray'), tab:contains('X-Ray')"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "body"
+        expect_contains: ["X-Ray", "Thorax", "Chest", "Abdomen"]
+
+  - id: RAD-MODALITY-002
+    title: "View CT Scan Orders"
+    category: Modalities
+    priority: high
+    tags: [radiology, ct, modality]
+    preconditions: [RAD-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/radiology"
+      - action: click
+        target: "button:contains('CT'), tab:contains('CT Scan')"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "body"
+        expect_contains: ["CT", "Head", "Chest", "Abdomen"]
+
+  - id: RAD-MODALITY-003
+    title: "View MRI Orders"
+    category: Modalities
+    priority: high
+    tags: [radiology, mri, modality]
+    preconditions: [RAD-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/radiology"
+      - action: click
+        target: "button:contains('MRI'), tab:contains('MRI')"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "body"
+        expect_contains: ["MRI", "Brain", "Spine", "Joint"]
+
+  - id: RAD-MODALITY-004
+    title: "View USG Orders"
+    category: Modalities
+    priority: high
+    tags: [radiology, usg, ultrasound]
+    preconditions: [RAD-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/radiology"
+      - action: click
+        target: "button:contains('USG'), tab:contains('USG'), tab:contains('Ultrasound')"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "body"
+        expect_contains: ["USG", "Ultrasound", "Abdomen", "Obstetric"]

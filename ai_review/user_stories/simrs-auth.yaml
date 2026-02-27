@@ -1,0 +1,90 @@
+# SIMRS Authentication User Stories
+# Tests login, logout, and session management
+
+stories:
+  - id: AUTH-001
+    title: "Admin Login Flow"
+    priority: critical
+    steps:
+      - action: navigate
+        target: "http://localhost:3000/app/login"
+        description: "Navigate to login page"
+      - action: verify
+        target: "h1, h2, [data-testid='login-title']"
+        description: "Verify login page is displayed"
+        expect_contains: ["Masuk", "Login", "SIMRS"]
+      - action: fill
+        target: "input[name='username'], input[type='text'], #username"
+        value: "superadmin"
+        description: "Enter username"
+      - action: fill
+        target: "input[name='password'], input[type='password'], #password"
+        value: "SuperAdmin123!"
+        description: "Enter password"
+      - action: click
+        target: "button[type='submit'], button:contains('Masuk'), button:contains('Login')"
+        description: "Click login button"
+      - action: wait
+        duration: 3000
+      - action: verify
+        target: "body"
+        description: "Verify successful login - redirected to dashboard"
+        expect_url_contains: ["/dashboard", "/app"]
+        expect_not_contains: ["error", "gagal", "invalid"]
+    screenshot_steps: true
+
+  - id: AUTH-002
+    title: "Invalid Login Shows Error"
+    priority: high
+    steps:
+      - action: navigate
+        target: "http://localhost:3000/app/login"
+        description: "Navigate to login page"
+      - action: fill
+        target: "input[name='username'], input[type='text'], #username"
+        value: "wronguser"
+        description: "Enter invalid username"
+      - action: fill
+        target: "input[name='password'], input[type='password'], #password"
+        value: "wrongpassword"
+        description: "Enter invalid password"
+      - action: click
+        target: "button[type='submit'], button:contains('Masuk'), button:contains('Login')"
+        description: "Click login button"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "body, [role='alert'], .error, .toast"
+        description: "Verify error message is displayed"
+        expect_contains: ["gagal", "salah", "invalid", "error"]
+    screenshot_steps: true
+
+  - id: AUTH-003
+    title: "Logout Flow"
+    priority: high
+    preconditions:
+      - "User must be logged in"
+    steps:
+      - action: navigate
+        target: "http://localhost:3000/app/login"
+        description: "Navigate to login page"
+      - action: fill
+        target: "input[name='username'], input[type='text'], #username"
+        value: "superadmin"
+      - action: fill
+        target: "input[name='password'], input[type='password'], #password"
+        value: "SuperAdmin123!"
+      - action: click
+        target: "button[type='submit']"
+      - action: wait
+        duration: 3000
+      - action: click
+        target: "[data-testid='logout'], button:contains('Keluar'), a:contains('Logout'), [href*='logout']"
+        description: "Click logout button"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "body"
+        description: "Verify redirected to login page"
+        expect_url_contains: ["/login"]
+    screenshot_steps: true

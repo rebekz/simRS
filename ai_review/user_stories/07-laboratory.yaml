@@ -1,0 +1,227 @@
+# SIMRS Laboratory QA Scenarios
+# Tests for lab orders, results, and management
+
+metadata:
+  role: lab_tech
+  test_account:
+    username: labtech1
+    password: LabTech123!
+  priority: critical
+
+stories:
+  # ==================== AUTHENTICATION ====================
+  - id: LAB-AUTH-001
+    title: "Lab Technician Login"
+    category: Authentication
+    priority: critical
+    tags: [auth, login, lab]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/login"
+      - action: fill
+        target: "input[name='username']"
+        value: "{{username}}"
+      - action: fill
+        target: "input[name='password']"
+        value: "{{password}}"
+      - action: click
+        target: "button[type='submit']"
+      - action: wait
+        duration: 3000
+      - action: verify
+        target: "body"
+        expect_url_contains: ["/app"]
+
+  # ==================== LAB ORDERS ====================
+  - id: LAB-ORDER-001
+    title: "View Lab Order Queue"
+    category: Lab Orders
+    priority: critical
+    tags: [lab, order, queue]
+    preconditions: [LAB-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/lab"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Lab", "Laboratorium"]
+      - action: verify
+        target: "table"
+        description: "Verify lab order list"
+      - action: screenshot
+        filename: "lab-order-queue.png"
+
+  - id: LAB-ORDER-002
+    title: "View Order Details"
+    category: Lab Orders
+    priority: critical
+    tags: [lab, order, details]
+    preconditions: [LAB-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/lab"
+      - action: click
+        target: "table tbody tr:first-child a, table tbody tr:first-child button:contains('View')"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "body"
+        expect_contains: ["Order", "Patient", "Test"]
+
+  - id: LAB-ORDER-003
+    title: "Receive Lab Order"
+    category: Lab Orders
+    priority: high
+    tags: [lab, order, receive]
+    preconditions: [LAB-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/lab"
+      - action: click
+        target: "table tbody tr:first-child button:contains('Receive'), table tbody tr:first-child button:contains('Terima')"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success", "received"]
+
+  # ==================== LAB RESULTS ====================
+  - id: LAB-RESULT-001
+    title: "Enter Lab Results"
+    category: Lab Results
+    priority: critical
+    tags: [lab, result, enter]
+    preconditions: [LAB-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/lab"
+      - action: click
+        target: "table tbody tr:first-child button:contains('Enter Result'), table tbody tr:first-child button:contains('Hasil')"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Result", "Hasil", "Laboratory"]
+      - action: fill
+        target: "input[name='hemoglobin']"
+        value: "14.5"
+      - action: fill
+        target: "input[name='hematocrit']"
+        value: "45"
+      - action: fill
+        target: "input[name='leukocyte']"
+        value: "7500"
+      - action: fill
+        target: "input[name='platelet']"
+        value: "250000"
+      - action: click
+        target: "button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success"]
+
+  - id: LAB-RESULT-002
+    title: "Verify Lab Results"
+    category: Lab Results
+    priority: high
+    tags: [lab, result, verify]
+    preconditions: [LAB-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/lab"
+      - action: click
+        target: "table tbody tr:first-child a:contains('View'), table tbody tr:first-child button:contains('Detail')"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "body"
+        expect_contains: ["Result", "Hasil", "Normal", "Abnormal"]
+
+  - id: LAB-RESULT-003
+    title: "Mark Abnormal Results"
+    category: Lab Results
+    priority: high
+    tags: [lab, result, abnormal]
+    preconditions: [LAB-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/lab"
+      - action: click
+        target: "table tbody tr:first-child button:contains('Result')"
+      - action: wait
+        duration: 2000
+      - action: fill
+        target: "input[name='hemoglobin']"
+        value: "8.5"
+      - action: click
+        target: "checkbox[name='flag_abnormal'], input[type='checkbox'][value='abnormal']"
+      - action: click
+        target: "button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success"]
+        expect_contains_any: ["Abnormal", "Rendah", "Flag"]
+
+  - id: LAB-RESULT-004
+    title: "Add Result Notes"
+    category: Lab Results
+    priority: medium
+    tags: [lab, result, notes]
+    preconditions: [LAB-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/lab"
+      - action: click
+        target: "table tbody tr:first-child button:contains('Result')"
+      - action: wait
+        duration: 2000
+      - action: fill
+        target: "textarea[name='notes'], textarea[name='interpretation']"
+        value: "Values within normal range. No significant abnormalities detected."
+      - action: click
+        target: "button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success"]
+
+  # ==================== REPORTS ====================
+  - id: LAB-REPORT-001
+    title: "View Lab Statistics"
+    category: Reports
+    priority: medium
+    tags: [lab, report, statistics]
+    preconditions: [LAB-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/lab/statistics"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Statistics", "Statistik", "Lab"]
+      - action: screenshot
+        filename: "lab-statistics.png"
+
+  - id: LAB-REPORT-002
+    title: "Export Lab Results Report"
+    category: Reports
+    priority: medium
+    tags: [lab, report, export]
+    preconditions: [LAB-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/reports/lab"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Report", "Lab", "Laboratorium"]
+      - action: fill
+        target: "input[name='start_date']"
+        value: "{{date_month_start}}"
+      - action: fill
+        target: "input[name='end_date']"
+        value: "{{date_today}}"
+      - action: click
+        target: "button:contains('Export'), button:contains('Generate')"
+      - action: wait
+        duration: 3000
+      - action: verify
+        target: "body"
+        description: "Verify report generated"

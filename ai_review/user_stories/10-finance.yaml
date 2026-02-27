@@ -1,0 +1,423 @@
+# SIMRS Finance QA Scenarios
+# Tests for financial reporting, reconciliation, and analysis
+
+metadata:
+  role: finance
+  test_account:
+    username: finance1
+    password: Finance123!
+  priority: high
+
+stories:
+  # ==================== AUTHENTICATION ====================
+  - id: FINANCE-AUTH-001
+    title: "Finance Staff Login"
+    category: Authentication
+    priority: critical
+    tags: [auth, login, finance]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/login"
+      - action: fill
+        target: "input[name='username']"
+        value: "{{username}}"
+      - action: fill
+        target: "input[name='password']"
+        value: "{{password}}"
+      - action: click
+        target: "button[type='submit']"
+      - action: wait
+        duration: 3000
+      - action: verify
+        target: "body"
+        expect_url_contains: ["/app"]
+
+  # ==================== FINANCIAL DASHBOARD ====================
+  - id: FINANCE-DASH-001
+    title: "View Financial Dashboard"
+    category: Dashboard
+    priority: critical
+    tags: [finance, dashboard, overview]
+    preconditions: [FINANCE-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/reports"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Report", "Laporan", "Finance"]
+      - action: screenshot
+        filename: "finance-dashboard.png"
+
+  # ==================== REVENUE REPORTS ====================
+  - id: FINANCE-REV-001
+    title: "View Daily Revenue Report"
+    category: Revenue Reports
+    priority: critical
+    tags: [finance, revenue, report, daily]
+    preconditions: [FINANCE-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/reports/revenue"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Revenue", "Pendapatan", "Harian", "Daily"]
+      - action: fill
+        target: "input[name='date'], input[name='start_date']"
+        value: "{{date_today}}"
+      - action: click
+        target: "button:contains('Generate'), button:contains('Tampilkan')"
+      - action: wait
+        duration: 3000
+      - action: verify
+        target: "body"
+        expect_contains: ["Total", "Cash", "Transfer", "BPJS"]
+      - action: screenshot
+        filename: "finance-revenue-daily.png"
+
+  - id: FINANCE-REV-002
+    title: "View Monthly Revenue Report"
+    category: Revenue Reports
+    priority: critical
+    tags: [finance, revenue, report, monthly]
+    preconditions: [FINANCE-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/reports/revenue"
+      - action: select
+        target: "select[name='period']"
+        value: "monthly"
+      - action: select
+        target: "select[name='month']"
+        value: "{{current_month}}"
+      - action: select
+        target: "select[name='year']"
+        value: "{{current_year}}"
+      - action: click
+        target: "button:contains('Generate')"
+      - action: wait
+        duration: 5000
+      - action: verify
+        target: "body"
+        expect_contains: ["Revenue", "Month", "Bulan"]
+
+  - id: FINANCE-REV-003
+    title: "View Revenue by Department"
+    category: Revenue Reports
+    priority: high
+    tags: [finance, revenue, department]
+    preconditions: [FINANCE-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/reports/revenue"
+      - action: click
+        target: "tab:contains('Department'), tab:contains('Poli'), button:contains('By Department')"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "body"
+        expect_contains: ["Department", "Poli", "Revenue", "Amount"]
+      - action: screenshot
+        filename: "finance-revenue-department.png"
+
+  - id: FINANCE-REV-004
+    title: "View Revenue by Payer Type"
+    category: Revenue Reports
+    priority: high
+    tags: [finance, revenue, payer]
+    preconditions: [FINANCE-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/reports/revenue"
+      - action: click
+        target: "tab:contains('Payer'), tab:contains('Jenis Bayar')"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "body"
+        expect_contains: ["BPJS", "Asuransi", "Umum", "Total"]
+
+  # ==================== PAYMENT RECONCILIATION ====================
+  - id: FINANCE-RECON-001
+    title: "View Payment Reconciliation"
+    category: Reconciliation
+    priority: critical
+    tags: [finance, reconciliation, payment]
+    preconditions: [FINANCE-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/reports/reconciliation"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Reconciliation", "Rekonsiliasi"]
+      - action: fill
+        target: "input[name='start_date']"
+        value: "{{date_month_start}}"
+      - action: fill
+        target: "input[name='end_date']"
+        value: "{{date_today}}"
+      - action: click
+        target: "button:contains('Generate')"
+      - action: wait
+        duration: 5000
+      - action: verify
+        target: "body"
+        expect_contains: ["Invoice", "Payment", "Balance", "Difference"]
+      - action: screenshot
+        filename: "finance-reconciliation.png"
+
+  - id: FINANCE-RECON-002
+    title: "View Outstanding Balances"
+    category: Reconciliation
+    priority: critical
+    tags: [finance, reconciliation, outstanding]
+    preconditions: [FINANCE-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/billing"
+      - action: select
+        target: "select[name='status']"
+        value: "partial_paid"
+      - action: click
+        target: "button:contains('Filter')"
+      - action: wait
+        duration: 3000
+      - action: verify
+        target: "table"
+        description: "Verify outstanding balance list"
+
+  - id: FINANCE-RECON-003
+    title: "Export Reconciliation Report"
+    category: Reconciliation
+    priority: high
+    tags: [finance, reconciliation, export]
+    preconditions: [FINANCE-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/reports/reconciliation"
+      - action: fill
+        target: "input[name='start_date']"
+        value: "{{date_month_start}}"
+      - action: fill
+        target: "input[name='end_date']"
+        value: "{{date_today}}"
+      - action: click
+        target: "button:contains('Export'), button:contains('Unduh')"
+      - action: wait
+        duration: 5000
+      - action: verify
+        target: "body"
+        description: "Verify export initiated"
+
+  # ==================== BPJS CLAIMS FINANCE ====================
+  - id: FINANCE-BPJS-001
+    title: "View BPJS Claims Summary"
+    category: BPJS Claims
+    priority: critical
+    tags: [finance, bpjs, claims, summary]
+    preconditions: [FINANCE-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/reports/bpjs"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["BPJS", "Claim", "Klaim"]
+      - action: screenshot
+        filename: "finance-bpjs-claims.png"
+
+  - id: FINANCE-BPJS-002
+    title: "View BPJS Claims by Status"
+    category: BPJS Claims
+    priority: high
+    tags: [finance, bpjs, claims, status]
+    preconditions: [FINANCE-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/reports/bpjs"
+      - action: select
+        target: "select[name='claim_status']"
+        value: "submitted"
+      - action: click
+        target: "button:contains('Filter')"
+      - action: wait
+        duration: 3000
+      - action: verify
+        target: "table"
+        description: "Verify filtered BPJS claims"
+
+  - id: FINANCE-BPJS-003
+    title: "View BPJS Payment Reconciliation"
+    category: BPJS Claims
+    priority: critical
+    tags: [finance, bpjs, payment, reconciliation]
+    preconditions: [FINANCE-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/reports/bpjs/reconciliation"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["BPJS", "Reconciliation", "Verifikasi"]
+      - action: screenshot
+        filename: "finance-bpjs-reconciliation.png"
+
+  # ==================== INSURANCE CLAIMS ====================
+  - id: FINANCE-INS-001
+    title: "View Insurance Claims"
+    category: Insurance Claims
+    priority: high
+    tags: [finance, insurance, claims]
+    preconditions: [FINANCE-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/reports/insurance"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Insurance", "Asuransi", "Claim"]
+      - action: screenshot
+        filename: "finance-insurance-claims.png"
+
+  - id: FINANCE-INS-002
+    title: "View Insurance Claims by Company"
+    category: Insurance Claims
+    priority: high
+    tags: [finance, insurance, company]
+    preconditions: [FINANCE-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/reports/insurance"
+      - action: select
+        target: "select[name='insurance_company']"
+        value: "Prudential"
+      - action: click
+        target: "button:contains('Filter')"
+      - action: wait
+        duration: 3000
+      - action: verify
+        target: "table"
+        description: "Verify filtered insurance claims"
+
+  # ==================== EXPENSE REPORTS ====================
+  - id: FINANCE-EXP-001
+    title: "View Expense Categories"
+    category: Expenses
+    priority: medium
+    tags: [finance, expense, category]
+    preconditions: [FINANCE-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/reports/expenses"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Expense", "Pengeluaran"]
+      - action: screenshot
+        filename: "finance-expenses.png"
+
+  - id: FINANCE-EXP-002
+    title: "View Expense Summary by Category"
+    category: Expenses
+    priority: medium
+    tags: [finance, expense, summary]
+    preconditions: [FINANCE-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/reports/expenses"
+      - action: fill
+        target: "input[name='start_date']"
+        value: "{{date_month_start}}"
+      - action: fill
+        target: "input[name='end_date']"
+        value: "{{date_today}}"
+      - action: click
+        target: "button:contains('Generate')"
+      - action: wait
+        duration: 5000
+      - action: verify
+        target: "body"
+        expect_contains: ["Category", "Kategori", "Amount", "Total"]
+
+  # ==================== CASH FLOW ====================
+  - id: FINANCE-CASH-001
+    title: "View Cash Flow Report"
+    category: Cash Flow
+    priority: critical
+    tags: [finance, cash, flow, report]
+    preconditions: [FINANCE-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/reports/cashflow"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Cash Flow", "Arus Kas"]
+      - action: select
+        target: "select[name='period']"
+        value: "monthly"
+      - action: click
+        target: "button:contains('Generate')"
+      - action: wait
+        duration: 5000
+      - action: verify
+        target: "body"
+        expect_contains: ["Inflow", "Outflow", "Balance", "Masuk", "Keluar"]
+      - action: screenshot
+        filename: "finance-cashflow.png"
+
+  # ==================== ACCOUNTS RECEIVABLE ====================
+  - id: FINANCE-AR-001
+    title: "View Accounts Receivable Aging"
+    category: Accounts Receivable
+    priority: high
+    tags: [finance, ar, aging, receivable]
+    preconditions: [FINANCE-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/reports/aging"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Aging", "Piutang", "Receivable"]
+      - action: screenshot
+        filename: "finance-aging.png"
+
+  - id: FINANCE-AR-002
+    title: "View Overdue Accounts"
+    category: Accounts Receivable
+    priority: high
+    tags: [finance, ar, overdue]
+    preconditions: [FINANCE-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/reports/aging"
+      - action: click
+        target: "tab:contains('Overdue'), tab:contains('Terlambat')"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "body"
+        expect_contains: ["Overdue", "Terlambat", "30 days", "60 days", "90 days"]
+
+  # ==================== TAX REPORTS ====================
+  - id: FINANCE-TAX-001
+    title: "View Tax Summary"
+    category: Tax Reports
+    priority: medium
+    tags: [finance, tax, report]
+    preconditions: [FINANCE-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/reports/tax"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Tax", "Pajak"]
+      - action: select
+        target: "select[name='year']"
+        value: "{{current_year}}"
+      - action: select
+        target: "select[name='month']"
+        value: "{{current_month}}"
+      - action: click
+        target: "button:contains('Generate')"
+      - action: wait
+        duration: 3000
+      - action: verify
+        target: "body"
+        expect_contains: ["Tax", "Amount", "Total"]
+      - action: screenshot
+        filename: "finance-tax.png"

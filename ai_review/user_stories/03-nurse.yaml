@@ -1,0 +1,421 @@
+# SIMRS Nurse QA Scenarios
+# Tests for nursing workflows, patient care, and ward management
+
+metadata:
+  role: nurse
+  test_account:
+    username: nurse1
+    password: Nurse123!
+  priority: high
+
+stories:
+  # ==================== AUTHENTICATION ====================
+  - id: NURSE-AUTH-001
+    title: "Nurse Login"
+    category: Authentication
+    priority: critical
+    tags: [auth, login, nurse]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/login"
+      - action: fill
+        target: "input[name='username']"
+        value: "{{username}}"
+      - action: fill
+        target: "input[name='password']"
+        value: "{{password}}"
+      - action: click
+        target: "button[type='submit']"
+      - action: wait
+        duration: 3000
+      - action: verify
+        target: "body"
+        expect_url_contains: ["/app"]
+
+  # ==================== PATIENT CARE ====================
+  - id: NURSE-CARE-001
+    title: "Record Patient Vitals"
+    category: Patient Care
+    priority: critical
+    tags: [vitals, record, patient]
+    preconditions: [NURSE-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/clinical/vitals"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Vital", "Tanda Vital"]
+      - action: fill
+        target: "input[name='patient_search']"
+        value: "Test Patient"
+      - action: click
+        target: "button:contains('Search')"
+      - action: wait
+        duration: 2000
+      - action: fill
+        target: "input[name='blood_pressure_systolic']"
+        value: "120"
+      - action: fill
+        target: "input[name='blood_pressure_diastolic']"
+        value: "80"
+      - action: fill
+        target: "input[name='heart_rate']"
+        value: "72"
+      - action: fill
+        target: "input[name='temperature']"
+        value: "36.5"
+      - action: fill
+        target: "input[name='respiratory_rate']"
+        value: "16"
+      - action: fill
+        target: "input[name='oxygen_saturation']"
+        value: "98"
+      - action: fill
+        target: "input[name='weight']"
+        value: "70"
+      - action: fill
+        target: "input[name='height']"
+        value: "170"
+      - action: click
+        target: "button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success"]
+
+  - id: NURSE-CARE-002
+    title: "View Patient Vital History"
+    category: Patient Care
+    priority: high
+    tags: [vitals, history, view]
+    preconditions: [NURSE-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/clinical/vitals"
+      - action: fill
+        target: "input[name='patient_search']"
+        value: "Test Patient"
+      - action: click
+        target: "button:contains('Search')"
+      - action: wait
+        duration: 2000
+      - action: click
+        target: "table tbody tr:first-child a:contains('History')"
+      - action: verify
+        target: "body"
+        expect_contains: ["History", "Riwayat", "Vital"]
+
+  - id: NURSE-CARE-003
+    title: "Record Nursing Notes"
+    category: Patient Care
+    priority: high
+    tags: [notes, nursing, record]
+    preconditions: [NURSE-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/clinical/nursing-notes"
+      - action: click
+        target: "button:contains('New'), button:contains('Add')"
+      - action: fill
+        target: "input[name='patient_search']"
+        value: "Test Patient"
+      - action: click
+        target: "button:contains('Search')"
+      - action: wait
+        duration: 2000
+      - action: fill
+        target: "textarea[name='notes']"
+        value: "Patient resting comfortably. No complaints of pain. IV site intact."
+      - action: click
+        target: "button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success"]
+
+  # ==================== ADMISSION ====================
+  - id: NURSE-ADMIT-001
+    title: "Patient Admission Process"
+    category: Admission
+    priority: critical
+    tags: [admission, patient, registration]
+    preconditions: [NURSE-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/admission"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Admission", "Pendaftaran", "Rawat Inap"]
+      - action: click
+        target: "button:contains('New'), button:contains('Admit')"
+      - action: fill
+        target: "input[name='patient_search']"
+        value: "Test Patient"
+      - action: click
+        target: "button:contains('Search')"
+      - action: wait
+        duration: 2000
+      - action: select
+        target: "select[name='ward']"
+        value: "Ward A"
+      - action: select
+        target: "select[name='bed']"
+        value: "Bed 1"
+      - action: fill
+        target: "input[name='admission_date']"
+        value: "{{date_today}}"
+      - action: fill
+        target: "textarea[name='reason']"
+        value: "Observation required"
+      - action: click
+        target: "button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success"]
+
+  - id: NURSE-ADMIT-002
+    title: "View Current Inpatients"
+    category: Admission
+    priority: high
+    tags: [admission, inpatient, list]
+    preconditions: [NURSE-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/admission"
+      - action: verify
+        target: "table"
+        description: "Verify inpatient list"
+      - action: screenshot
+        filename: "nurse-inpatient-list.png"
+
+  # ==================== DISCHARGE ====================
+  - id: NURSE-DISCHARGE-001
+    title: "Process Patient Discharge"
+    category: Discharge
+    priority: critical
+    tags: [discharge, patient, process]
+    preconditions: [NURSE-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/discharge"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Discharge", "Pulang"]
+      - action: click
+        target: "table tbody tr:first-child button:contains('Discharge'), table tbody tr:first-child a:contains('Pulang')"
+      - action: wait
+        duration: 2000
+      - action: select
+        target: "select[name='discharge_type']"
+        value: "Recovered"
+      - action: fill
+        target: "input[name='discharge_date']"
+        value: "{{date_today}}"
+      - action: fill
+        target: "textarea[name='discharge_notes']"
+        value: "Patient recovered fully. Home medications prescribed."
+      - action: click
+        target: "button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success"]
+
+  # ==================== MEDICATION ADMINISTRATION ====================
+  - id: NURSE-MED-001
+    title: "Administer Medication"
+    category: Medication
+    priority: critical
+    tags: [medication, administration, patient]
+    preconditions: [NURSE-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/medication/administration"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Medication", "Obat"]
+      - action: click
+        target: "table tbody tr:first-child button:contains('Administer'), table tbody tr:first-child button:contains('Berikan')"
+      - action: wait
+        duration: 1000
+      - action: fill
+        target: "input[name='administered_time']"
+        value: "{{time_now}}"
+      - action: fill
+        target: "textarea[name='notes']"
+        value: "Medication given as prescribed"
+      - action: click
+        target: "button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success"]
+
+  - id: NURSE-MED-002
+    title: "View Medication Schedule"
+    category: Medication
+    priority: high
+    tags: [medication, schedule, list]
+    preconditions: [NURSE-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/medication/schedule"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Schedule", "Jadwal", "Medication"]
+      - action: screenshot
+        filename: "nurse-med-schedule.png"
+
+  # ==================== EMERGENCY ====================
+  - id: NURSE-EMERG-001
+    title: "Access Emergency Triage"
+    category: Emergency
+    priority: critical
+    tags: [emergency, triage, urgent]
+    preconditions: [NURSE-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/emergency"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Emergency", "IGD", "Darurat"]
+      - action: screenshot
+        filename: "nurse-emergency.png"
+
+  - id: NURSE-EMERG-002
+    title: "Create New Triage Record"
+    category: Emergency
+    priority: critical
+    tags: [emergency, triage, create]
+    preconditions: [NURSE-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/emergency/triage/new"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Triage", "Darurat"]
+      - action: fill
+        target: "input[name='patient_name']"
+        value: "Emergency Patient"
+      - action: select
+        target: "select[name='priority']"
+        value: "Urgent"
+      - action: fill
+        target: "textarea[name='chief_complaint']"
+        value: "Chest pain"
+      - action: fill
+        target: "input[name='blood_pressure']"
+        value: "140/90"
+      - action: fill
+        target: "input[name='heart_rate']"
+        value: "100"
+      - action: click
+        target: "button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success"]
+
+  # ==================== QUEUE MANAGEMENT ====================
+  - id: NURSE-QUEUE-001
+    title: "View Patient Queue"
+    category: Queue
+    priority: high
+    tags: [queue, patient, list]
+    preconditions: [NURSE-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/queue"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Antrian", "Queue"]
+      - action: screenshot
+        filename: "nurse-queue.png"
+
+  - id: NURSE-QUEUE-002
+    title: "Call Next Patient"
+    category: Queue
+    priority: high
+    tags: [queue, call, patient]
+    preconditions: [NURSE-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/queue"
+      - action: click
+        target: "table tbody tr:first-child button:contains('Call'), table tbody tr:first-child button:contains('Panggil')"
+      - action: wait
+        duration: 1000
+      - action: verify
+        target: "body"
+        description: "Verify patient status updated"
+
+  - id: NURSE-QUEUE-003
+    title: "Update Queue Status"
+    category: Queue
+    priority: high
+    tags: [queue, status, update]
+    preconditions: [NURSE-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/queue"
+      - action: click
+        target: "table tbody tr:first-child button:contains('Complete'), table tbody tr:first-child button:contains('Selesai')"
+      - action: wait
+        duration: 1000
+      - action: verify
+        target: "body"
+        description: "Verify queue status updated"
+
+  # ==================== PATIENT CHECK-IN ====================
+  - id: NURSE-CHECKIN-001
+    title: "Patient Check-In Process"
+    category: Check-In
+    priority: high
+    tags: [checkin, patient, registration]
+    preconditions: [NURSE-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/patients/check-in"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Check", "Daftar"]
+      - action: fill
+        target: "input[name='mrn'], input[name='patient_id']"
+        value: "MRN-001"
+      - action: click
+        target: "button:contains('Search'), button:contains('Cari')"
+      - action: wait
+        duration: 2000
+      - action: click
+        target: "button:contains('Check In'), button:contains('Daftar')"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success"]
+
+  # ==================== LEAVE MANAGEMENT ====================
+  - id: NURSE-LEAVE-001
+    title: "Request Leave"
+    category: Leave
+    priority: medium
+    tags: [leave, request, schedule]
+    preconditions: [NURSE-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/leave"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Leave", "Cuti"]
+      - action: click
+        target: "button:contains('Request'), button:contains('Ajukan')"
+      - action: select
+        target: "select[name='leave_type']"
+        value: "Annual"
+      - action: fill
+        target: "input[name='start_date']"
+        value: "{{date_tomorrow}}"
+      - action: fill
+        target: "input[name='end_date']"
+        value: "{{date_next_week}}"
+      - action: fill
+        target: "textarea[name='reason']"
+        value: "Personal leave"
+      - action: click
+        target: "button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success", "submitted"]

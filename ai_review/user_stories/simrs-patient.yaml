@@ -1,0 +1,137 @@
+# SIMRS Patient Management User Stories
+# Tests patient registration, search, and management
+
+stories:
+  - id: PATIENT-001
+    title: "Patient Registration Flow"
+    priority: critical
+    preconditions:
+      - "User must be logged in as admin"
+    steps:
+      - action: navigate
+        target: "http://localhost:3000/app/login"
+      - action: fill
+        target: "input[name='username'], #username"
+        value: "superadmin"
+      - action: fill
+        target: "input[name='password'], #password"
+        value: "SuperAdmin123!"
+      - action: click
+        target: "button[type='submit']"
+      - action: wait
+        duration: 3000
+      - action: navigate
+        target: "http://localhost:3000/app/patients/new"
+        description: "Navigate to new patient form"
+      - action: verify
+        target: "h1, h2, [data-testid='page-title']"
+        description: "Verify patient registration page"
+        expect_contains: ["Pasien", "Patient", "Baru", "New", "Registrasi"]
+      - action: fill
+        target: "input[name='name'], input[name='fullName'], #name"
+        value: "Test Patient Browser"
+        description: "Enter patient name"
+      - action: fill
+        target: "input[name='nik'], #nik"
+        value: "3201234567890001"
+        description: "Enter NIK"
+      - action: select
+        target: "select[name='gender'], #gender"
+        value: "Laki-laki"
+        description: "Select gender"
+      - action: fill
+        target: "input[name='birthDate'], input[type='date'], #birthDate"
+        value: "1990-01-15"
+        description: "Enter birth date"
+      - action: fill
+        target: "input[name='phone'], #phone"
+        value: "08123456789"
+        description: "Enter phone number"
+      - action: fill
+        target: "textarea[name='address'], #address"
+        value: "Jl. Test No. 123, Jakarta"
+        description: "Enter address"
+      - action: screenshot
+        filename: "patient-form-filled.png"
+      - action: click
+        target: "button[type='submit'], button:contains('Simpan'), button:contains('Save')"
+        description: "Submit patient form"
+      - action: wait
+        duration: 3000
+      - action: verify
+        target: "body, [role='alert'], .toast, .notification"
+        description: "Verify patient created successfully"
+        expect_contains: ["berhasil", "success", "saved", "disimpan"]
+    screenshot_steps: true
+
+  - id: PATIENT-002
+    title: "Patient Search Flow"
+    priority: high
+    preconditions:
+      - "User must be logged in"
+    steps:
+      - action: navigate
+        target: "http://localhost:3000/app/login"
+      - action: fill
+        target: "input[name='username'], #username"
+        value: "superadmin"
+      - action: fill
+        target: "input[name='password'], #password"
+        value: "SuperAdmin123!"
+      - action: click
+        target: "button[type='submit']"
+      - action: wait
+        duration: 3000
+      - action: navigate
+        target: "http://localhost:3000/app/patients"
+        description: "Navigate to patients list"
+      - action: verify
+        target: "h1, h2, [data-testid='page-title']"
+        description: "Verify patients page"
+        expect_contains: ["Pasien", "Patient"]
+      - action: fill
+        target: "input[name='search'], input[placeholder*='cari'], input[placeholder*='search'], #search"
+        value: "Test Patient"
+        description: "Search for patient"
+      - action: click
+        target: "button:contains('Cari'), button:contains('Search'), button[type='submit']"
+        description: "Click search button"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "table, [data-testid='patient-list'], .patient-card"
+        description: "Verify search results displayed"
+    screenshot_steps: true
+
+  - id: PATIENT-003
+    title: "View Patient Details"
+    priority: high
+    preconditions:
+      - "User must be logged in"
+    steps:
+      - action: navigate
+        target: "http://localhost:3000/app/login"
+      - action: fill
+        target: "input[name='username'], #username"
+        value: "superadmin"
+      - action: fill
+        target: "input[name='password'], #password"
+        value: "SuperAdmin123!"
+      - action: click
+        target: "button[type='submit']"
+      - action: wait
+        duration: 3000
+      - action: navigate
+        target: "http://localhost:3000/app/patients"
+      - action: wait
+        duration: 2000
+      - action: click
+        target: "table tr:first-child a, table tr:first-child button, .patient-card:first-child"
+        description: "Click on first patient"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "body"
+        description: "Verify patient details page"
+        expect_url_contains: ["/patients/"]
+    screenshot_steps: true

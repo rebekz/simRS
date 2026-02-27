@@ -1,0 +1,69 @@
+# SIMRS Patient Portal User Stories
+# Tests patient portal registration, login, and features
+
+stories:
+  - id: PORTAL-001
+    title: "Patient Portal Login Page Loads"
+    priority: critical
+    steps:
+      - action: navigate
+        target: "http://localhost:3000/portal/login"
+        description: "Navigate to patient portal login"
+      - action: verify
+        target: "h1, h2, [data-testid='login-title']"
+        description: "Verify portal login page"
+        expect_contains: ["Portal", "Pasien", "Patient", "Masuk", "Login"]
+      - action: screenshot
+        filename: "portal-login-page.png"
+    screenshot_steps: true
+
+  - id: PORTAL-002
+    title: "Patient Portal Registration Page"
+    priority: high
+    steps:
+      - action: navigate
+        target: "http://localhost:3000/portal/register"
+        description: "Navigate to patient portal registration"
+      - action: verify
+        target: "h1, h2, [data-testid='page-title']"
+        description: "Verify registration page"
+        expect_contains: ["Daftar", "Register", "Registrasi"]
+      - action: screenshot
+        filename: "portal-register-page.png"
+    screenshot_steps: true
+
+  - id: PORTAL-003
+    title: "Patient Portal Dashboard"
+    priority: high
+    steps:
+      - action: navigate
+        target: "http://localhost:3000/portal/dashboard"
+        description: "Navigate to patient portal dashboard"
+      - action: verify
+        target: "body"
+        description: "Verify portal dashboard or redirect to login"
+    screenshot_steps: true
+
+  - id: PORTAL-004
+    title: "Patient Portal Appointments Page"
+    priority: medium
+    steps:
+      - action: navigate
+        target: "http://localhost:3000/portal/appointments"
+        description: "Navigate to patient appointments"
+      - action: verify
+        target: "body"
+        description: "Verify appointments page or redirect to login"
+    screenshot_steps: true
+
+  - id: PORTAL-005
+    title: "Patient Portal Billing Page"
+    priority: medium
+    steps:
+      - action: navigate
+        target: "http://localhost:3000/portal/billing"
+        description: "Navigate to patient billing"
+      - action: verify
+        target: "body"
+        description: "Verify billing page or redirect to login"
+    screenshot_steps: true

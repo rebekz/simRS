@@ -1,0 +1,270 @@
+# SIMRS Pharmacy QA Scenarios
+# Tests for prescription management, dispensing, and inventory
+
+metadata:
+  role: pharmacist
+  test_account:
+    username: pharmacist1
+    password: Pharmacist123!
+  priority: high
+
+stories:
+  # ==================== AUTHENTICATION ====================
+  - id: PHARM-AUTH-001
+    title: "Pharmacist Login"
+    category: Authentication
+    priority: critical
+    tags: [auth, login, pharmacy]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/login"
+      - action: fill
+        target: "input[name='username']"
+        value: "{{username}}"
+      - action: fill
+        target: "input[name='password']"
+        value: "{{password}}"
+      - action: click
+        target: "button[type='submit']"
+      - action: wait
+        duration: 3000
+      - action: verify
+        target: "body"
+        expect_url_contains: ["/app"]
+
+  # ==================== PRESCRIPTION MANAGEMENT ====================
+  - id: PHARM-PRES-001
+    title: "View Prescription Queue"
+    category: Prescriptions
+    priority: critical
+    tags: [prescription, queue, list]
+    preconditions: [PHARM-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/prescriptions"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Resep", "Prescription"]
+      - action: verify
+        target: "table"
+        description: "Verify prescription queue"
+      - action: screenshot
+        filename: "pharmacy-queue.png"
+
+  - id: PHARM-PRES-002
+    title: "View Prescription Details"
+    category: Prescriptions
+    priority: critical
+    tags: [prescription, details, view]
+    preconditions: [PHARM-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/prescriptions"
+      - action: click
+        target: "table tbody tr:first-child a, table tbody tr:first-child button:contains('View')"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "body"
+        expect_contains: ["Prescription", "Resep", "Medication", "Obat"]
+
+  - id: PHARM-PRES-003
+    title: "Dispense Medication"
+    category: Dispensing
+    priority: critical
+    tags: [dispense, medication, process]
+    preconditions: [PHARM-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/prescriptions"
+      - action: click
+        target: "table tbody tr:first-child button:contains('Dispense'), table tbody tr:first-child button:contains('Serahkan')"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "body"
+        expect_contains: ["Dispense", "Obat"]
+      - action: click
+        target: "input[type='checkbox'][name='confirm_all']"
+      - action: fill
+        target: "textarea[name='notes']"
+        value: "Medication dispensed as prescribed"
+      - action: click
+        target: "button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success"]
+
+  - id: PHARM-PRES-004
+    title: "Verify Drug Interactions"
+    category: Safety
+    priority: critical
+    tags: [interaction, safety, check]
+    preconditions: [PHARM-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/prescriptions"
+      - action: click
+        target: "table tbody tr:first-child a:contains('View')"
+      - action: wait
+        duration: 2000
+      - action: click
+        target: "button:contains('Check Interactions'), button:contains('Cek Interaksi')"
+      - action: wait
+        duration: 3000
+      - action: verify
+        target: "body"
+        description: "Verify interaction check result"
+
+  - id: PHARM-PRES-005
+    title: "Process Prescription Refill Request"
+    category: Refills
+    priority: high
+    tags: [refill, prescription, process]
+    preconditions: [PHARM-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/prescriptions/refills"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Refill", "Ulang", "Resep"]
+      - action: click
+        target: "table tbody tr:first-child button:contains('Process'), table tbody tr:first-child button:contains('Proses')"
+      - action: wait
+        duration: 2000
+      - action: click
+        target: "button:contains('Approve'), button:contains('Setujui')"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success"]
+
+  # ==================== INVENTORY ====================
+  - id: PHARM-INV-001
+    title: "View Drug Inventory"
+    category: Inventory
+    priority: high
+    tags: [inventory, drugs, list]
+    preconditions: [PHARM-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/inventory"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Inventory", "Obat", "Stok"]
+      - action: verify
+        target: "table"
+        description: "Verify inventory list"
+      - action: screenshot
+        filename: "pharmacy-inventory.png"
+
+  - id: PHARM-INV-002
+    title: "Search Drug by Name"
+    category: Inventory
+    priority: high
+    tags: [inventory, search, drug]
+    preconditions: [PHARM-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/inventory"
+      - action: fill
+        target: "input[name='search'], input[placeholder*='search']"
+        value: "Paracetamol"
+      - action: click
+        target: "button:contains('Search')"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "table"
+        description: "Verify search results"
+
+  - id: PHARM-INV-003
+    title: "Check Stock Levels"
+    category: Inventory
+    priority: high
+    tags: [inventory, stock, levels]
+    preconditions: [PHARM-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/inventory"
+      - action: click
+        target: "button:contains('Low Stock'), button:contains('Stok Rendah'), a:contains('Alert')"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "body"
+        description: "Verify low stock alerts"
+
+  - id: PHARM-INV-004
+    title: "Record Drug Expiry"
+    category: Inventory
+    priority: high
+    tags: [inventory, expiry, tracking]
+    preconditions: [PHARM-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/inventory/expiry"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Expiry", "Kadaluarsa", "Expired"]
+      - action: screenshot
+        filename: "pharmacy-expiry.png"
+
+  - id: PHARM-INV-005
+    title: "Process Stock Adjustment"
+    category: Inventory
+    priority: medium
+    tags: [inventory, adjustment, stock]
+    preconditions: [PHARM-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/inventory"
+      - action: click
+        target: "table tbody tr:first-child button:contains('Adjust'), table tbody tr:first-child button:contains('Adjust')"
+      - action: wait
+        duration: 1000
+      - action: fill
+        target: "input[name='quantity']"
+        value: "-10"
+      - action: select
+        target: "select[name='reason']"
+        value: "damaged"
+      - action: fill
+        target: "textarea[name='notes']"
+        value: "Damaged packaging"
+      - action: click
+        target: "button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success"]
+
+  # ==================== COMPOUNDING ====================
+  - id: PHARM-COMP-001
+    title: "View Compounding Requests"
+    category: Compounding
+    priority: medium
+    tags: [compounding, requests, custom]
+    preconditions: [PHARM-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/pharmacy/compounding"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Compounding", "Racikan"]
+      - action: screenshot
+        filename: "pharmacy-compounding.png"
+
+  # ==================== REPORTS ====================
+  - id: PHARM-REPORT-001
+    title: "View Dispensing Report"
+    category: Reports
+    priority: high
+    tags: [report, dispensing, statistics]
+    preconditions: [PHARM-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/reports/pharmacy"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Report", "Farmasi", "Pharmacy"]
+      - action: screenshot
+        filename: "pharmacy-report.png"

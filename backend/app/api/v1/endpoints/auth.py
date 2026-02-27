@@ -18,6 +18,7 @@ from app.schemas.auth import (
     LoginHistoryResponse,
 )
 from app.schemas.user import User
+from app.schemas.user_management import UserResponse
 from app.crud.user import (
     authenticate_user,
     update_last_login,

@@ -1,0 +1,509 @@
+# SIMRS Doctor QA Scenarios
+# Tests for clinical workflows, consultations, and medical records
+
+metadata:
+  role: doctor
+  test_account:
+    username: doctor1
+    password: Doctor123!
+  priority: critical
+
+stories:
+  # ==================== AUTHENTICATION ====================
+  - id: DOCTOR-AUTH-001
+    title: "Doctor Login"
+    category: Authentication
+    priority: critical
+    tags: [auth, login, doctor]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/login"
+      - action: fill
+        target: "input[name='username']"
+        value: "{{username}}"
+      - action: fill
+        target: "input[name='password']"
+        value: "{{password}}"
+      - action: click
+        target: "button[type='submit']"
+      - action: wait
+        duration: 3000
+      - action: verify
+        target: "body"
+        expect_url_contains: ["/app"]
+        expect_not_contains: ["error", "gagal"]
+
+  # ==================== CONSULTATION ====================
+  - id: DOCTOR-CONSULT-001
+    title: "View Consultation Queue"
+    category: Consultation
+    priority: critical
+    tags: [consultation, queue, patients]
+    preconditions: [DOCTOR-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/queue"
+      - action: verify
+        target: "h1, h2, [data-testid='page-title']"
+        expect_contains: ["Antrian", "Queue"]
+      - action: verify
+        target: "table, [data-testid='queue-list']"
+        description: "Verify queue list is displayed"
+      - action: screenshot
+        filename: "doctor-queue.png"
+
+  - id: DOCTOR-CONSULT-002
+    title: "Access Consultation Page"
+    category: Consultation
+    priority: critical
+    tags: [consultation, page, navigation]
+    preconditions: [DOCTOR-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/consultation"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Konsultasi", "Consultation", "Rawat Jalan"]
+      - action: verify
+        target: "table, [data-testid='patient-list']"
+        description: "Verify waiting patients list is displayed"
+      - action: verify
+        target: "body"
+        expect_contains: ["Menunggu", "Waiting", "Antrian"]
+      - action: screenshot
+        filename: "doctor-consultation-page.png"
+
+  - id: DOCTOR-CONSULT-003
+    title: "Start Patient Consultation from Queue"
+    category: Consultation
+    priority: critical
+    tags: [consultation, patient, start]
+    preconditions: [DOCTOR-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/consultation"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Konsultasi", "Consultation"]
+      - action: click
+        target: "button:contains('Mulai'), button:contains('Start')"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "body"
+        expect_url_contains: ["/consultation/room", "/encounter"]
+        expect_contains: ["Pasien", "Patient"]
+
+  - id: DOCTOR-CONSULT-004
+    title: "Filter Consultation Queue by Priority"
+    category: Consultation
+    priority: high
+    tags: [consultation, filter, priority]
+    preconditions: [DOCTOR-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/consultation"
+      - action: select
+        target: "select[name='priority'], select:has(option:contains('Prioritas'))"
+        value: "emergency"
+      - action: wait
+        duration: 1000
+      - action: verify
+        target: "table tbody tr"
+        description: "Verify filtered results show emergency patients"
+      - action: screenshot
+        filename: "doctor-consultation-filtered.png"
+
+  - id: DOCTOR-CONSULT-005
+    title: "Search Patient in Consultation Queue"
+    category: Consultation
+    priority: high
+    tags: [consultation, search, patient]
+    preconditions: [DOCTOR-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/consultation"
+      - action: fill
+        target: "input[placeholder*='Cari'], input[placeholder*='search']"
+        value: "Ahmad"
+      - action: wait
+        duration: 1000
+      - action: verify
+        target: "table tbody"
+        expect_contains: ["Ahmad"]
+      - action: screenshot
+        filename: "doctor-consultation-search.png"
+
+  - id: DOCTOR-CONSULT-006
+    title: "View SOAP Notes Page"
+    category: Consultation
+    priority: high
+    tags: [consultation, soap, notes]
+    preconditions: [DOCTOR-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/consultation/notes"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["SOAP", "Catatan"]
+      - action: screenshot
+        filename: "doctor-soap-notes.png"
+
+  - id: DOCTOR-CONSULT-003
+    title: "Record Patient Vitals"
+    category: Consultation
+    priority: high
+    tags: [consultation, vitals, clinical]
+    preconditions: [DOCTOR-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/clinical/vitals"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Vital", "Tanda Vital"]
+      - action: fill
+        target: "input[name='blood_pressure_systolic']"
+        value: "120"
+      - action: fill
+        target: "input[name='blood_pressure_diastolic']"
+        value: "80"
+      - action: fill
+        target: "input[name='heart_rate']"
+        value: "72"
+      - action: fill
+        target: "input[name='temperature']"
+        value: "36.5"
+      - action: fill
+        target: "input[name='respiratory_rate']"
+        value: "16"
+      - action: click
+        target: "button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success"]
+
+  - id: DOCTOR-CONSULT-004
+    title: "Write Progress Notes"
+    category: Consultation
+    priority: high
+    tags: [consultation, notes, clinical]
+    preconditions: [DOCTOR-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/clinical/progress-notes"
+      - action: click
+        target: "button:contains('Add'), button:contains('New Note')"
+      - action: fill
+        target: "textarea[name='subjective']"
+        value: "Patient complains of headache for 2 days"
+      - action: fill
+        target: "textarea[name='objective']"
+        value: "BP 120/80, Temp 36.5C, appears well"
+      - action: fill
+        target: "textarea[name='assessment']"
+        value: "Tension headache"
+      - action: fill
+        target: "textarea[name='plan']"
+        value: "Paracetamol 500mg TDS, rest advised"
+      - action: click
+        target: "button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success"]
+
+  # ==================== PRESCRIPTIONS ====================
+  - id: DOCTOR-PRESCRIP-001
+    title: "Create New Prescription"
+    category: Prescriptions
+    priority: critical
+    tags: [prescription, create, medication]
+    preconditions: [DOCTOR-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/prescriptions/new"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Resep", "Prescription"]
+      - action: fill
+        target: "input[name='patient_search'], input[placeholder*='patient']"
+        value: "Test Patient"
+      - action: click
+        target: "button:contains('Search')"
+      - action: wait
+        duration: 2000
+      - action: click
+        target: "table tbody tr:first-child"
+      - action: fill
+        target: "input[name='medication_name']"
+        value: "Paracetamol"
+      - action: fill
+        target: "input[name='dosage']"
+        value: "500mg"
+      - action: fill
+        target: "input[name='frequency']"
+        value: "TDS"
+      - action: fill
+        target: "input[name='duration']"
+        value: "5 days"
+      - action: click
+        target: "button:contains('Add Medication'), button:contains('Tambah')"
+      - action: click
+        target: "button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success"]
+
+  - id: DOCTOR-PRESCRIP-002
+    title: "View Prescription History"
+    category: Prescriptions
+    priority: high
+    tags: [prescription, list, history]
+    preconditions: [DOCTOR-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/prescriptions"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Resep", "Prescription"]
+      - action: verify
+        target: "table"
+        description: "Verify prescription list"
+
+  # ==================== LAB ORDERS ====================
+  - id: DOCTOR-LAB-001
+    title: "Order Lab Tests"
+    category: Laboratory
+    priority: critical
+    tags: [lab, order, tests]
+    preconditions: [DOCTOR-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/lab/order"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Lab", "Laboratorium", "Order"]
+      - action: fill
+        target: "input[name='patient_search']"
+        value: "Test Patient"
+      - action: click
+        target: "button:contains('Search')"
+      - action: wait
+        duration: 2000
+      - action: click
+        target: "table tbody tr:first-child"
+      - action: click
+        target: "input[type='checkbox'][value='CBC'], label:contains('Darah Lengkap')"
+      - action: click
+        target: "input[type='checkbox'][value='Glucose'], label:contains('Glukosa')"
+      - action: fill
+        target: "textarea[name='notes']"
+        value: "Fasting glucose check"
+      - action: click
+        target: "button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success"]
+
+  - id: DOCTOR-LAB-002
+    title: "View Lab Results"
+    category: Laboratory
+    priority: high
+    tags: [lab, results, view]
+    preconditions: [DOCTOR-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/lab"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Lab", "Laboratorium"]
+      - action: click
+        target: "table tbody tr:first-child a:contains('View'), table tbody tr:first-child button:contains('Result')"
+      - action: verify
+        target: "body"
+        expect_contains: ["Result", "Hasil"]
+
+  # ==================== RADIOLOGY ORDERS ====================
+  - id: DOCTOR-RAD-001
+    title: "Order Radiology Exam"
+    category: Radiology
+    priority: critical
+    tags: [radiology, order, imaging]
+    preconditions: [DOCTOR-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/radiology/order"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Radiologi", "Radiology"]
+      - action: fill
+        target: "input[name='patient_search']"
+        value: "Test Patient"
+      - action: click
+        target: "button:contains('Search')"
+      - action: wait
+        duration: 2000
+      - action: click
+        target: "table tbody tr:first-child"
+      - action: select
+        target: "select[name='exam_type']"
+        value: "X-Ray"
+      - action: fill
+        target: "input[name='body_part']"
+        value: "Chest"
+      - action: fill
+        target: "textarea[name='clinical_indication']"
+        value: "Suspected pneumonia"
+      - action: click
+        target: "button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success"]
+
+  - id: DOCTOR-RAD-002
+    title: "View Radiology Results"
+    category: Radiology
+    priority: high
+    tags: [radiology, results, view]
+    preconditions: [DOCTOR-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/radiology"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Radiologi", "Radiology"]
+      - action: click
+        target: "table tbody tr:first-child a:contains('View')"
+      - action: verify
+        target: "body"
+        expect_contains: ["Result", "Hasil", "Report"]
+
+  # ==================== MEDICAL CERTIFICATES ====================
+  - id: DOCTOR-CERT-001
+    title: "Create Medical Certificate"
+    category: Certificates
+    priority: high
+    tags: [certificate, medical, document]
+    preconditions: [DOCTOR-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/certificates/medical"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Surat", "Certificate", "Keterangan"]
+      - action: click
+        target: "button:contains('New'), button:contains('Create')"
+      - action: fill
+        target: "input[name='patient_search']"
+        value: "Test Patient"
+      - action: click
+        target: "button:contains('Search')"
+      - action: wait
+        duration: 2000
+      - action: fill
+        target: "textarea[name='diagnosis']"
+        value: "Upper Respiratory Tract Infection"
+      - action: fill
+        target: "input[name='days']"
+        value: "3"
+      - action: fill
+        target: "textarea[name='notes']"
+        value: "Patient needs rest"
+      - action: click
+        target: "button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success", "created"]
+
+  # ==================== REFERRALS ====================
+  - id: DOCTOR-REFER-001
+    title: "Create Patient Referral"
+    category: Referrals
+    priority: high
+    tags: [referral, patient, transfer]
+    preconditions: [DOCTOR-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/referrals/new"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Rujuk", "Referral"]
+      - action: fill
+        target: "input[name='patient_search']"
+        value: "Test Patient"
+      - action: click
+        target: "button:contains('Search')"
+      - action: wait
+        duration: 2000
+      - action: fill
+        target: "input[name='referred_facility']"
+        value: "RSUP Fatmawati"
+      - action: fill
+        target: "input[name='referred_department']"
+        value: "Cardiology"
+      - action: fill
+        target: "textarea[name='reason']"
+        value: "Requires specialized cardiac evaluation"
+      - action: click
+        target: "button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success"]
+
+  # ==================== PATIENT RECORDS ====================
+  - id: DOCTOR-PATIENT-001
+    title: "View Patient Medical History"
+    category: Patient Records
+    priority: high
+    tags: [patient, history, records]
+    preconditions: [DOCTOR-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/patients"
+      - action: fill
+        target: "input[name='search']"
+        value: "Test Patient"
+      - action: click
+        target: "button:contains('Search')"
+      - action: wait
+        duration: 2000
+      - action: click
+        target: "table tbody tr:first-child a"
+      - action: verify
+        target: "body"
+        expect_contains: ["Patient", "Pasien", "History"]
+
+  - id: DOCTOR-PATIENT-002
+    title: "Search Patient by MRN"
+    category: Patient Records
+    priority: high
+    tags: [patient, search, mrn]
+    preconditions: [DOCTOR-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/patients/search"
+      - action: fill
+        target: "input[name='mrn'], input[placeholder*='MRN']"
+        value: "MRN-001"
+      - action: click
+        target: "button:contains('Search')"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "body"
+        description: "Verify search results or no results message"
+
+  # ==================== SCHEDULE ====================
+  - id: DOCTOR-SCHED-001
+    title: "View Doctor Schedule"
+    category: Schedule
+    priority: medium
+    tags: [schedule, calendar, appointment]
+    preconditions: [DOCTOR-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/schedule"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Jadwal", "Schedule"]
+      - action: screenshot
+        filename: "doctor-schedule.png"

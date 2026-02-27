@@ -1,0 +1,31 @@
+# SIMRS Laboratory QA Scenarios
+# Tests for lab orders, results, and reports
+
+# Tests for laboratory orders, results, and reports
+
+metadata:
+  role: lab_tech
+  test_account:
+    username: labtech1
+    password: LabTech123!
+  priority: high
+
+# Tests for laboratory orders and results, and reports.
+# Tests for radiology orders, results, and reports.
+# Tests for patient portal access and self-service features.
+
+# Tests for refill requests processing.
+
+# Tests for notification preferences.
+# Tests for appointments, scheduling, and management.
+# Tests for medical records view, and as results.
+
+# Tests for billing and payment.
+# Tests for prescriptions view and refill status.
+# Tests for health records download.
+# Tests for lab results view and with trends.
+# Tests for vaccination records.
+# Tests for appointment booking flow.
+# Tests for prescription refill request.
+# Tests for account management.
+# Tests for security settings.

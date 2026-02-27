@@ -1,0 +1,506 @@
+# SIMRS Casemix (BPJS Coding) QA Scenarios
+# Tests for ICD-10 coding, INA-CBG grouping, and BPJS claims
+
+metadata:
+  role: casemix
+  test_account:
+    username: casemix1
+    password: Casemix123!
+  priority: critical
+
+stories:
+  # ==================== AUTHENTICATION ====================
+  - id: CASEMIX-AUTH-001
+    title: "Casemix Staff Login"
+    category: Authentication
+    priority: critical
+    tags: [auth, login, casemix]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/login"
+      - action: fill
+        target: "input[name='username']"
+        value: "{{username}}"
+      - action: fill
+        target: "input[name='password']"
+        value: "{{password}}"
+      - action: click
+        target: "button[type='submit']"
+      - action: wait
+        duration: 3000
+      - action: verify
+        target: "body"
+        expect_url_contains: ["/app"]
+
+  # ==================== ICD-10 CODING ====================
+  - id: CASEMIX-ICD-001
+    title: "Search ICD-10 Diagnosis Code"
+    category: ICD Coding
+    priority: critical
+    tags: [icd10, search, diagnosis]
+    preconditions: [CASEMIX-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/casemix/icd"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["ICD", "Code", "Diagnosis"]
+      - action: fill
+        target: "input[name='search'], input[placeholder*='search']"
+        value: "diabetes"
+      - action: click
+        target: "button:contains('Search'), button:contains('Cari')"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "table"
+        description: "Verify ICD-10 search results"
+      - action: screenshot
+        filename: "casemix-icd-search.png"
+
+  - id: CASEMIX-ICD-002
+    title: "Add Diagnosis to Patient Record"
+    category: ICD Coding
+    priority: critical
+    tags: [icd10, add, diagnosis, patient]
+    preconditions: [CASEMIX-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/casemix/coding"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Coding", "Diagnosis"]
+      - action: fill
+        target: "input[name='patient_search']"
+        value: "Test Patient"
+      - action: click
+        target: "button:contains('Search')"
+      - action: wait
+        duration: 2000
+      - action: fill
+        target: "input[name='icd_search']"
+        value: "E11"
+      - action: click
+        target: "button:contains('Search ICD')"
+      - action: wait
+        duration: 1000
+      - action: click
+        target: "table tbody tr:first-child"
+      - action: select
+        target: "select[name='diagnosis_type']"
+        value: "primary"
+      - action: click
+        target: "button:contains('Add Diagnosis')"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success"]
+
+  - id: CASEMIX-ICD-003
+    title: "Add Secondary Diagnosis"
+    category: ICD Coding
+    priority: high
+    tags: [icd10, secondary, diagnosis]
+    preconditions: [CASEMIX-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/casemix/coding"
+      - action: fill
+        target: "input[name='patient_search']"
+        value: "Test Patient"
+      - action: click
+        target: "button:contains('Search')"
+      - action: wait
+        duration: 2000
+      - action: fill
+        target: "input[name='icd_search']"
+        value: "I10"
+      - action: click
+        target: "button:contains('Search ICD')"
+      - action: wait
+        duration: 1000
+      - action: click
+        target: "table tbody tr:first-child"
+      - action: select
+        target: "select[name='diagnosis_type']"
+        value: "secondary"
+      - action: click
+        target: "button:contains('Add Diagnosis')"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success"]
+
+  # ==================== PROCEDURE CODING ====================
+  - id: CASEMIX-PROC-001
+    title: "Search ICD-9-CM Procedure Code"
+    category: Procedure Coding
+    priority: critical
+    tags: [icd9, procedure, code]
+    preconditions: [CASEMIX-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/casemix/procedures"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Procedure", "Prosedur", "ICD-9"]
+      - action: fill
+        target: "input[name='search']"
+        value: "appendectomy"
+      - action: click
+        target: "button:contains('Search')"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "table"
+        description: "Verify procedure search results"
+
+  - id: CASEMIX-PROC-002
+    title: "Add Procedure to Patient Record"
+    category: Procedure Coding
+    priority: high
+    tags: [icd9, add, procedure]
+    preconditions: [CASEMIX-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/casemix/coding"
+      - action: fill
+        target: "input[name='patient_search']"
+        value: "Test Patient"
+      - action: click
+        target: "button:contains('Search')"
+      - action: wait
+        duration: 2000
+      - action: click
+        target: "button:contains('Add Procedure'), tab:contains('Procedure')"
+      - action: fill
+        target: "input[name='procedure_search']"
+        value: "47.0"
+      - action: click
+        target: "button:contains('Search Procedure')"
+      - action: wait
+        duration: 1000
+      - action: click
+        target: "table tbody tr:first-child"
+      - action: click
+        target: "button:contains('Add Procedure')"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success"]
+
+  # ==================== INA-CBG GROUPING ====================
+  - id: CASEMIX-CBG-001
+    title: "View INA-CBG Grouper"
+    category: INA-CBG
+    priority: critical
+    tags: [ina-cbg, grouper, classification]
+    preconditions: [CASEMIX-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/casemix/grouper"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["INA-CBG", "Grouper", "Classification"]
+      - action: screenshot
+        filename: "casemix-grouper.png"
+
+  - id: CASEMIX-CBG-002
+    title: "Run INA-CBG Grouping"
+    category: INA-CBG
+    priority: critical
+    tags: [ina-cbg, grouping, process]
+    preconditions: [CASEMIX-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/casemix/grouper"
+      - action: fill
+        target: "input[name='patient_search']"
+        value: "Test Patient"
+      - action: click
+        target: "button:contains('Search')"
+      - action: wait
+        duration: 2000
+      - action: click
+        target: "table tbody tr:first-child"
+      - action: click
+        target: "button:contains('Group'), button:contains('Proses')"
+      - action: wait
+        duration: 5000
+      - action: verify
+        target: "body"
+        expect_contains: ["CBG", "Code", "Rate", "Tarif"]
+
+  - id: CASEMIX-CBG-003
+    title: "View CBG Code Details"
+    category: INA-CBG
+    priority: high
+    tags: [ina-cbg, details, code]
+    preconditions: [CASEMIX-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/casemix/cbg-codes"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["CBG", "Code"]
+      - action: fill
+        target: "input[name='search']"
+        value: "A-1-01"
+      - action: click
+        target: "button:contains('Search')"
+      - action: wait
+        duration: 2000
+      - action: click
+        target: "table tbody tr:first-child a"
+      - action: verify
+        target: "body"
+        expect_contains: ["Description", "Rate", "Tarif"]
+
+  # ==================== BPJS CLAIMS ====================
+  - id: CASEMIX-CLAIM-001
+    title: "View BPJS Claims List"
+    category: BPJS Claims
+    priority: critical
+    tags: [bpjs, claims, list]
+    preconditions: [CASEMIX-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/bpjs/claims"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["BPJS", "Claim", "Klaim"]
+      - action: verify
+        target: "table"
+        description: "Verify claims list"
+      - action: screenshot
+        filename: "casemix-bpjs-claims.png"
+
+  - id: CASEMIX-CLAIM-002
+    title: "Create New BPJS Claim"
+    category: BPJS Claims
+    priority: critical
+    tags: [bpjs, claim, create]
+    preconditions: [CASEMIX-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/bpjs/claims/new"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Claim", "Klaim", "Baru"]
+      - action: fill
+        target: "input[name='patient_search']"
+        value: "BPJS Patient"
+      - action: click
+        target: "button:contains('Search')"
+      - action: wait
+        duration: 2000
+      - action: click
+        target: "table tbody tr:first-child"
+      - action: fill
+        target: "input[name='sep_number']"
+        value: "SEP1234567890"
+      - action: select
+        target: "select[name='claim_type']"
+        value: "INA-CBG"
+      - action: click
+        target: "button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success"]
+
+  - id: CASEMIX-CLAIM-003
+    title: "Submit Claim to BPJS"
+    category: BPJS Claims
+    priority: critical
+    tags: [bpjs, claim, submit]
+    preconditions: [CASEMIX-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/bpjs/claims"
+      - action: click
+        target: "table tbody tr:first-child button:contains('Submit'), table tbody tr:first-child button:contains('Kirim')"
+      - action: wait
+        duration: 3000
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success", "submitted"]
+
+  - id: CASEMIX-CLAIM-004
+    title: "View Claim Status"
+    category: BPJS Claims
+    priority: high
+    tags: [bpjs, claim, status]
+    preconditions: [CASEMIX-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/bpjs/claims"
+      - action: click
+        target: "table tbody tr:first-child a:contains('View'), table tbody tr:first-child button:contains('Detail')"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "body"
+        expect_contains: ["Status", "SEP", "CBG"]
+
+  - id: CASEMIX-CLAIM-005
+    title: "Upload Claim Documents"
+    category: BPJS Claims
+    priority: high
+    tags: [bpjs, claim, documents, upload]
+    preconditions: [CASEMIX-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/bpjs/claims"
+      - action: click
+        target: "table tbody tr:first-child a:contains('Documents'), table tbody tr:first-child button:contains('Upload')"
+      - action: wait
+        duration: 2000
+      - action: select
+        target: "select[name='document_type']"
+        value: "medical_record"
+      - action: upload
+        target: "input[type='file']"
+        file: "test-document.pdf"
+      - action: click
+        target: "button:contains('Upload')"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success"]
+
+  # ==================== SEP MANAGEMENT ====================
+  - id: CASEMIX-SEP-001
+    title: "Create SEP (Surat Eligibilitas Peserta)"
+    category: SEP
+    priority: critical
+    tags: [sep, bpjs, create]
+    preconditions: [CASEMIX-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/bpjs/sep/new"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["SEP", "Eligibilitas"]
+      - action: fill
+        target: "input[name='bpjs_number']"
+        value: "0001234567890"
+      - action: click
+        target: "button:contains('Verify'), button:contains('Cek')"
+      - action: wait
+        duration: 3000
+      - action: select
+        target: "select[name='service_type']"
+        value: "outpatient"
+      - action: fill
+        target: "input[name='referral_number']"
+        value: "REF123456"
+      - action: click
+        target: "button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success", "SEP"]
+
+  - id: CASEMIX-SEP-002
+    title: "View SEP Details"
+    category: SEP
+    priority: high
+    tags: [sep, view, details]
+    preconditions: [CASEMIX-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/bpjs/sep"
+      - action: verify
+        target: "table"
+        description: "Verify SEP list"
+      - action: click
+        target: "table tbody tr:first-child a"
+      - action: verify
+        target: "body"
+        expect_contains: ["SEP", "No. SEP", "Participant"]
+
+  # ==================== VERIFICATION ====================
+  - id: CASEMIX-VERIFY-001
+    title: "Verify BPJS Patient Eligibility"
+    category: Verification
+    priority: critical
+    tags: [verify, bpjs, eligibility]
+    preconditions: [CASEMIX-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/patients/bpjs-first"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["BPJS", "Verifikasi", "Eligibility"]
+      - action: fill
+        target: "input[name='bpjs_number']"
+        value: "0001234567890"
+      - action: fill
+        target: "input[name='birth_date']"
+        value: "1990-01-15"
+      - action: click
+        target: "button:contains('Verify'), button:contains('Cek')"
+      - action: wait
+        duration: 5000
+      - action: verify
+        target: "body"
+        description: "Verify eligibility result displayed"
+
+  - id: CASEMIX-VERIFY-002
+    title: "View BPJS Patient History"
+    category: Verification
+    priority: high
+    tags: [bpjs, history, patient]
+    preconditions: [CASEMIX-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/admin/bpjs-history"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["BPJS", "History", "Riwayat"]
+      - action: fill
+        target: "input[name='bpjs_number']"
+        value: "0001234567890"
+      - action: click
+        target: "button:contains('Search'), button:contains('Cari')"
+      - action: wait
+        duration: 5000
+      - action: verify
+        target: "body"
+        description: "Verify BPJS history displayed"
+
+  # ==================== REPORTS ====================
+  - id: CASEMIX-REPORT-001
+    title: "View Casemix Summary Report"
+    category: Reports
+    priority: high
+    tags: [report, casemix, summary]
+    preconditions: [CASEMIX-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/reports/casemix"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Report", "Casemix", "Laporan"]
+      - action: fill
+        target: "input[name='start_date']"
+        value: "{{date_month_start}}"
+      - action: fill
+        target: "input[name='end_date']"
+        value: "{{date_today}}"
+      - action: click
+        target: "button:contains('Generate')"
+      - action: wait
+        duration: 5000
+      - action: screenshot
+        filename: "casemix-report.png"
+
+  - id: CASEMIX-REPORT-002
+    title: "View BPJS Claims Report"
+    category: Reports
+    priority: high
+    tags: [report, bpjs, claims]
+    preconditions: [CASEMIX-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/reports/bpjs-claims"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["BPJS", "Claim", "Report"]
+      - action: screenshot
+        filename: "casemix-bpjs-report.png"

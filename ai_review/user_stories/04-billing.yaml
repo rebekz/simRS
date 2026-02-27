@@ -1,0 +1,475 @@
+# SIMRS Billing Staff QA Scenarios
+# Tests for billing, invoicing, and payment processing
+
+metadata:
+  role: billing
+  test_account:
+    username: billing1
+    password: Billing123!
+  priority: critical
+
+stories:
+  # ==================== AUTHENTICATION ====================
+  - id: BILLING-AUTH-001
+    title: "Billing Staff Login"
+    category: Authentication
+    priority: critical
+    tags: [auth, login, billing]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/login"
+      - action: fill
+        target: "input[name='username']"
+        value: "{{username}}"
+      - action: fill
+        target: "input[name='password']"
+        value: "{{password}}"
+      - action: click
+        target: "button[type='submit']"
+      - action: wait
+        duration: 3000
+      - action: verify
+        target: "body"
+        expect_url_contains: ["/app"]
+
+  # ==================== INVOICE MANAGEMENT ====================
+  - id: BILLING-INV-001
+    title: "View Invoice List"
+    category: Invoices
+    priority: critical
+    tags: [invoice, list, billing]
+    preconditions: [BILLING-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/billing"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Tagihan", "Billing", "Invoice"]
+      - action: verify
+        target: "table"
+        description: "Verify invoice list is displayed"
+      - action: screenshot
+        filename: "billing-invoice-list.png"
+
+  - id: BILLING-INV-002
+    title: "Create New Invoice"
+    category: Invoices
+    priority: critical
+    tags: [invoice, create, billing]
+    preconditions: [BILLING-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/billing/new"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Tagihan", "Invoice", "Baru"]
+      - action: fill
+        target: "input[name='patient_search']"
+        value: "Test Patient"
+      - action: click
+        target: "button:contains('Search'), button:contains('Cari')"
+      - action: wait
+        duration: 2000
+      - action: click
+        target: "table tbody tr:first-child"
+      - action: select
+        target: "select[name='payer_type']"
+        value: "UMUM"
+      - action: select
+        target: "select[name='invoice_type']"
+        value: "outpatient"
+      - action: fill
+        target: "input[name='invoice_date']"
+        value: "{{date_today}}"
+      - action: click
+        target: "button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success", "created"]
+
+  - id: BILLING-INV-003
+    title: "Add Invoice Items"
+    category: Invoices
+    priority: critical
+    tags: [invoice, items, billing]
+    preconditions: [BILLING-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/billing"
+      - action: click
+        target: "table tbody tr:first-child a:contains('Edit'), table tbody tr:first-child button:contains('Edit')"
+      - action: wait
+        duration: 2000
+      - action: click
+        target: "button:contains('Add Item'), button:contains('Tambah Item')"
+      - action: select
+        target: "select[name='item_type']"
+        value: "professional_fee"
+      - action: fill
+        target: "input[name='item_name']"
+        value: "Consultation Fee"
+      - action: fill
+        target: "input[name='quantity']"
+        value: "1"
+      - action: fill
+        target: "input[name='unit_price']"
+        value: "150000"
+      - action: click
+        target: "button:contains('Add'), button:contains('Tambah')"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success"]
+
+  - id: BILLING-INV-004
+    title: "View Invoice Details"
+    category: Invoices
+    priority: high
+    tags: [invoice, view, details]
+    preconditions: [BILLING-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/billing"
+      - action: click
+        target: "table tbody tr:first-child a:contains('View'), table tbody tr:first-child a:contains('Detail')"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "body"
+        expect_contains: ["Invoice", "Tagihan", "Detail"]
+      - action: screenshot
+        filename: "billing-invoice-detail.png"
+
+  - id: BILLING-INV-005
+    title: "Filter Invoices by Status"
+    category: Invoices
+    priority: high
+    tags: [invoice, filter, status]
+    preconditions: [BILLING-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/billing"
+      - action: select
+        target: "select[name='status']"
+        value: "pending"
+      - action: click
+        target: "button:contains('Filter'), button:contains('Cari')"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "table"
+        description: "Verify filtered results"
+
+  # ==================== PAYMENT PROCESSING ====================
+  - id: BILLING-PAY-001
+    title: "Process Cash Payment"
+    category: Payments
+    priority: critical
+    tags: [payment, cash, process]
+    preconditions: [BILLING-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/billing"
+      - action: click
+        target: "table tbody tr:first-child a:contains('Pay'), table tbody tr:first-child button:contains('Bayar')"
+      - action: wait
+        duration: 2000
+      - action: select
+        target: "select[name='payment_method']"
+        value: "cash"
+      - action: fill
+        target: "input[name='amount']"
+        value: "500000"
+      - action: fill
+        target: "input[name='payment_date']"
+        value: "{{date_today}}"
+      - action: click
+        target: "button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success", "payment"]
+
+  - id: BILLING-PAY-002
+    title: "Process Transfer Payment"
+    category: Payments
+    priority: critical
+    tags: [payment, transfer, process]
+    preconditions: [BILLING-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/billing"
+      - action: click
+        target: "table tbody tr:first-child a:contains('Pay'), table tbody tr:first-child button:contains('Bayar')"
+      - action: wait
+        duration: 2000
+      - action: select
+        target: "select[name='payment_method']"
+        value: "transfer"
+      - action: fill
+        target: "input[name='amount']"
+        value: "500000"
+      - action: fill
+        target: "input[name='bank_name']"
+        value: "BCA"
+      - action: fill
+        target: "input[name='reference_number']"
+        value: "TRF123456789"
+      - action: fill
+        target: "input[name='payment_date']"
+        value: "{{date_today}}"
+      - action: click
+        target: "button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success"]
+
+  - id: BILLING-PAY-003
+    title: "Process Credit Card Payment"
+    category: Payments
+    priority: high
+    tags: [payment, credit_card, process]
+    preconditions: [BILLING-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/billing"
+      - action: click
+        target: "table tbody tr:first-child a:contains('Pay'), table tbody tr:first-child button:contains('Bayar')"
+      - action: wait
+        duration: 2000
+      - action: select
+        target: "select[name='payment_method']"
+        value: "credit_card"
+      - action: fill
+        target: "input[name='amount']"
+        value: "500000"
+      - action: fill
+        target: "input[name='bank_name']"
+        value: "BNI"
+      - action: fill
+        target: "input[name='reference_number']"
+        value: "CC987654321"
+      - action: click
+        target: "button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success"]
+
+  - id: BILLING-PAY-004
+    title: "Partial Payment Processing"
+    category: Payments
+    priority: high
+    tags: [payment, partial, process]
+    preconditions: [BILLING-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/billing"
+      - action: click
+        target: "table tbody tr:first-child a:contains('Pay'), table tbody tr:first-child button:contains('Bayar')"
+      - action: wait
+        duration: 2000
+      - action: select
+        target: "select[name='payment_method']"
+        value: "cash"
+      - action: fill
+        target: "input[name='amount']"
+        value: "250000"
+      - action: fill
+        target: "input[name='payment_date']"
+        value: "{{date_today}}"
+      - action: click
+        target: "button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success", "partial", "sebagian"]
+
+  # ==================== BPJS BILLING ====================
+  - id: BILLING-BPJS-001
+    title: "Create BPJS Invoice"
+    category: BPJS
+    priority: critical
+    tags: [bpjs, invoice, insurance]
+    preconditions: [BILLING-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/billing/new"
+      - action: fill
+        target: "input[name='patient_search']"
+        value: "BPJS Patient"
+      - action: click
+        target: "button:contains('Search')"
+      - action: wait
+        duration: 2000
+      - action: select
+        target: "select[name='payer_type']"
+        value: "BPJS"
+      - action: fill
+        target: "input[name='bpjs_number']"
+        value: "0001234567890"
+      - action: select
+        target: "select[name='package_type']"
+        value: "ina_cbg"
+      - action: fill
+        target: "input[name='drg_code']"
+        value: "A-1-01-I"
+      - action: click
+        target: "button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success"]
+
+  - id: BILLING-BPJS-002
+    title: "Verify BPJS Eligibility"
+    category: BPJS
+    priority: critical
+    tags: [bpjs, eligibility, verify]
+    preconditions: [BILLING-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/patients/bpjs-first"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["BPJS", "Eligibility", "Verifikasi"]
+      - action: fill
+        target: "input[name='bpjs_number']"
+        value: "0001234567890"
+      - action: click
+        target: "button:contains('Verify'), button:contains('Cek')"
+      - action: wait
+        duration: 3000
+      - action: verify
+        target: "body"
+        description: "Verify BPJS eligibility result"
+
+  # ==================== INSURANCE BILLING ====================
+  - id: BILLING-INS-001
+    title: "Create Insurance Invoice"
+    category: Insurance
+    priority: high
+    tags: [insurance, invoice, billing]
+    preconditions: [BILLING-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/billing/new"
+      - action: fill
+        target: "input[name='patient_search']"
+        value: "Insurance Patient"
+      - action: click
+        target: "button:contains('Search')"
+      - action: wait
+        duration: 2000
+      - action: select
+        target: "select[name='payer_type']"
+        value: "ASURANSI"
+      - action: fill
+        target: "input[name='insurance_company']"
+        value: "Prudential"
+      - action: fill
+        target: "input[name='policy_number']"
+        value: "POL-123456"
+      - action: click
+        target: "button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success"]
+
+  # ==================== REPORTS ====================
+  - id: BILLING-REPORT-001
+    title: "View Daily Revenue Report"
+    category: Reports
+    priority: high
+    tags: [report, revenue, daily]
+    preconditions: [BILLING-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/reports"
+      - action: click
+        target: "a:contains('Revenue'), a:contains('Pendapatan'), button:contains('Revenue')"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "body"
+        expect_contains: ["Revenue", "Pendapatan", "Report"]
+      - action: screenshot
+        filename: "billing-revenue-report.png"
+
+  - id: BILLING-REPORT-002
+    title: "View Outstanding Balances"
+    category: Reports
+    priority: high
+    tags: [report, outstanding, balances]
+    preconditions: [BILLING-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/billing"
+      - action: select
+        target: "select[name='status']"
+        value: "partial_paid"
+      - action: click
+        target: "button:contains('Filter')"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "table"
+        description: "Verify outstanding balance list"
+
+  - id: BILLING-REPORT-003
+    title: "Generate Invoice Report by Date Range"
+    category: Reports
+    priority: medium
+    tags: [report, invoice, date]
+    preconditions: [BILLING-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/reports"
+      - action: click
+        target: "a:contains('Invoice'), a:contains('Tagihan')"
+      - action: fill
+        target: "input[name='start_date']"
+        value: "{{date_month_start}}"
+      - action: fill
+        target: "input[name='end_date']"
+        value: "{{date_today}}"
+      - action: click
+        target: "button:contains('Generate'), button:contains('Generate')"
+      - action: wait
+        duration: 3000
+      - action: verify
+        target: "body"
+        description: "Verify report generated"
+
+  # ==================== APPROVAL WORKFLOW ====================
+  - id: BILLING-APPROVAL-001
+    title: "Submit Invoice for Approval"
+    category: Approval
+    priority: high
+    tags: [approval, submit, invoice]
+    preconditions: [BILLING-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/billing"
+      - action: click
+        target: "table tbody tr:first-child a:contains('Submit'), table tbody tr:first-child button:contains('Ajukan')"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success", "submitted"]
+
+  - id: BILLING-APPROVAL-002
+    title: "View Pending Approvals"
+    category: Approval
+    priority: high
+    tags: [approval, pending, list]
+    preconditions: [BILLING-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/app/billing"
+      - action: select
+        target: "select[name='status']"
+        value: "pending_approval"
+      - action: click
+        target: "button:contains('Filter')"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "table"
+        description: "Verify pending approval list"

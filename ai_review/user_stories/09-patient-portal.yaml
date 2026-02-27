@@ -1,0 +1,556 @@
+# SIMRS Patient Portal QA Scenarios
+# Tests for patient self-service portal
+
+metadata:
+  role: patient
+  test_account:
+    email: patient@example.com
+    password: Patient123!
+  priority: high
+
+stories:
+  # ==================== REGISTRATION ====================
+  - id: PORTAL-REG-001
+    title: "View Patient Registration Page"
+    category: Registration
+    priority: critical
+    tags: [portal, registration, new]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/portal/register"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Register", "Daftar", "Account"]
+      - action: screenshot
+        filename: "portal-register.png"
+
+  - id: PORTAL-REG-002
+    title: "Register New Patient Account"
+    category: Registration
+    priority: critical
+    tags: [portal, registration, create]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/portal/register"
+      - action: fill
+        target: "input[name='email']"
+        value: "newpatient@example.com"
+      - action: fill
+        target: "input[name='password']"
+        value: "Patient123!"
+      - action: fill
+        target: "input[name='confirm_password']"
+        value: "Patient123!"
+      - action: fill
+        target: "input[name='full_name']"
+        value: "Test Patient Portal"
+      - action: fill
+        target: "input[name='nik']"
+        value: "3201234567890001"
+      - action: fill
+        target: "input[name='birth_date']"
+        value: "1990-01-15"
+      - action: fill
+        target: "input[name='phone']"
+        value: "08123456789"
+      - action: click
+        target: "button[type='submit']"
+      - action: wait
+        duration: 3000
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success", "verification", "email"]
+
+  # ==================== AUTHENTICATION ====================
+  - id: PORTAL-AUTH-001
+    title: "Patient Login"
+    category: Authentication
+    priority: critical
+    tags: [portal, auth, login]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/portal/login"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Login", "Masuk", "Patient"]
+      - action: fill
+        target: "input[name='email']"
+        value: "{{email}}"
+      - action: fill
+        target: "input[name='password']"
+        value: "{{password}}"
+      - action: click
+        target: "button[type='submit']"
+      - action: wait
+        duration: 3000
+      - action: verify
+        target: "body"
+        expect_url_contains: ["/portal/dashboard", "/portal"]
+        expect_not_contains: ["error", "gagal"]
+
+  - id: PORTAL-AUTH-002
+    title: "Patient Logout"
+    category: Authentication
+    priority: high
+    tags: [portal, auth, logout]
+    preconditions: [PORTAL-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/portal/dashboard"
+      - action: click
+        target: "button:contains('Logout'), a:contains('Keluar'), [data-testid='logout']"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "body"
+        expect_url_contains: ["/portal/login"]
+
+  - id: PORTAL-AUTH-003
+    title: "Forgot Password"
+    category: Authentication
+    priority: high
+    tags: [portal, auth, password, reset]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/portal/login"
+      - action: click
+        target: "a:contains('Forgot'), a:contains('Lupa')"
+      - action: wait
+        duration: 2000
+      - action: fill
+        target: "input[name='email']"
+        value: "{{email}}"
+      - action: click
+        target: "button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["sent", "dikirim", "email", "reset"]
+
+  # ==================== DASHBOARD ====================
+  - id: PORTAL-DASH-001
+    title: "View Patient Dashboard"
+    category: Dashboard
+    priority: critical
+    tags: [portal, dashboard, overview]
+    preconditions: [PORTAL-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/portal/dashboard"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Dashboard", "Welcome", "Selamat Datang"]
+      - action: verify
+        target: "body"
+        expect_contains_any: ["Appointment", "Janji", "Record", "Rekam", "Prescription", "Resep"]
+      - action: screenshot
+        filename: "portal-dashboard.png"
+
+  # ==================== APPOINTMENTS ====================
+  - id: PORTAL-APPT-001
+    title: "View Appointments List"
+    category: Appointments
+    priority: high
+    tags: [portal, appointment, list]
+    preconditions: [PORTAL-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/portal/appointments"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Appointment", "Janji"]
+      - action: screenshot
+        filename: "portal-appointments.png"
+
+  - id: PORTAL-APPT-002
+    title: "Book New Appointment"
+    category: Appointments
+    priority: critical
+    tags: [portal, appointment, book]
+    preconditions: [PORTAL-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/portal/appointments/book"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Book", "Janji", "Appointment"]
+      - action: select
+        target: "select[name='department'], select[name='poli']"
+        value: "Poli Umum"
+      - action: select
+        target: "select[name='doctor'], select[name='dokter']"
+        value: "dr. Smith"
+      - action: fill
+        target: "input[name='appointment_date']"
+        value: "{{date_tomorrow}}"
+      - action: fill
+        target: "input[name='appointment_time']"
+        value: "09:00"
+      - action: fill
+        target: "textarea[name='notes']"
+        value: "Regular checkup"
+      - action: click
+        target: "button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success", "booked"]
+
+  - id: PORTAL-APPT-003
+    title: "Cancel Appointment"
+    category: Appointments
+    priority: high
+    tags: [portal, appointment, cancel]
+    preconditions: [PORTAL-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/portal/appointments"
+      - action: click
+        target: "table tbody tr:first-child button:contains('Cancel')"
+      - action: wait
+        duration: 2000
+      - action: fill
+        target: "textarea[name='cancel_reason']"
+        value: "Unable to attend"
+      - action: click
+        target: "button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success", "cancelled"]
+
+  # ==================== MEDICAL RECORDS ====================
+  - id: PORTAL-RECORD-001
+    title: "View Medical Records"
+    category: Medical Records
+    priority: high
+    tags: [portal, record, medical]
+    preconditions: [PORTAL-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/portal/medical-records"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Record", "Rekam", "Medical"]
+      - action: screenshot
+        filename: "portal-medical-records.png"
+
+  - id: PORTAL-RECORD-002
+    title: "View Health Record Summary"
+    category: Medical Records
+    priority: high
+    tags: [portal, record, health]
+    preconditions: [PORTAL-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/portal/health-record"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Health", "Kesehatan", "Record"]
+
+  - id: PORTAL-RECORD-003
+    title: "Download Health Record"
+    category: Medical Records
+    priority: medium
+    tags: [portal, record, download]
+    preconditions: [PORTAL-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/portal/health-record"
+      - action: click
+        target: "button:contains('Download'), button:contains('Unduh')"
+      - action: wait
+        duration: 3000
+      - action: verify
+        target: "body"
+        description: "Verify download initiated"
+
+  # ==================== LAB RESULTS ====================
+  - id: PORTAL-LAB-001
+    title: "View Lab Results"
+    category: Lab Results
+    priority: high
+    tags: [portal, lab, results]
+    preconditions: [PORTAL-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/portal/lab-results"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Lab", "Laboratorium", "Result", "Hasil"]
+      - action: screenshot
+        filename: "portal-lab-results.png"
+
+  - id: PORTAL-LAB-002
+    title: "View Lab Result Details"
+    category: Lab Results
+    priority: high
+    tags: [portal, lab, details]
+    preconditions: [PORTAL-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/portal/lab-results"
+      - action: click
+        target: "table tbody tr:first-child a, table tbody tr:first-child button"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "body"
+        expect_contains: ["Hemoglobin", "Leukocyte", "Platelet", "Result"]
+
+  # ==================== PRESCRIPTIONS ====================
+  - id: PORTAL-PRES-001
+    title: "View Prescriptions"
+    category: Prescriptions
+    priority: high
+    tags: [portal, prescription, list]
+    preconditions: [PORTAL-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/portal/prescriptions"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Prescription", "Resep"]
+      - action: screenshot
+        filename: "portal-prescriptions.png"
+
+  - id: PORTAL-PRES-002
+    title: "Request Prescription Refill"
+    category: Prescriptions
+    priority: critical
+    tags: [portal, prescription, refill]
+    preconditions: [PORTAL-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/portal/prescriptions/refill"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Refill", "Ulang", "Prescription"]
+      - action: select
+        target: "select[name='prescription']"
+        value: "Paracetamol 500mg"
+      - action: fill
+        target: "textarea[name='notes']"
+        value: "Need refill for chronic medication"
+      - action: click
+        target: "button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success", "submitted"]
+
+  # ==================== BILLING ====================
+  - id: PORTAL-BILL-001
+    title: "View Bills"
+    category: Billing
+    priority: high
+    tags: [portal, billing, list]
+    preconditions: [PORTAL-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/portal/billing"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Bill", "Tagihan", "Invoice"]
+      - action: screenshot
+        filename: "portal-billing.png"
+
+  - id: PORTAL-BILL-002
+    title: "View Bill Details"
+    category: Billing
+    priority: high
+    tags: [portal, billing, details]
+    preconditions: [PORTAL-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/portal/billing"
+      - action: click
+        target: "table tbody tr:first-child a"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "body"
+        expect_contains: ["Invoice", "Tagihan", "Item", "Total"]
+
+  - id: PORTAL-BILL-003
+    title: "Pay Bill Online"
+    category: Billing
+    priority: critical
+    tags: [portal, billing, payment]
+    preconditions: [PORTAL-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/portal/billing"
+      - action: click
+        target: "table tbody tr:first-child button:contains('Pay'), table tbody tr:first-child a:contains('Bayar')"
+      - action: wait
+        duration: 2000
+      - action: select
+        target: "select[name='payment_method']"
+        value: "transfer"
+      - action: fill
+        target: "input[name='bank_name']"
+        value: "BCA"
+      - action: click
+        target: "button:contains('Proceed'), button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains_any: ["Payment", "Pembayaran", "gateway", "midtrans"]
+
+  # ==================== PROFILE ====================
+  - id: PORTAL-PROFILE-001
+    title: "View Profile"
+    category: Profile
+    priority: high
+    tags: [portal, profile, view]
+    preconditions: [PORTAL-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/portal/account"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Account", "Profil", "Profile"]
+      - action: screenshot
+        filename: "portal-profile.png"
+
+  - id: PORTAL-PROFILE-002
+    title: "Update Profile"
+    category: Profile
+    priority: medium
+    tags: [portal, profile, update]
+    preconditions: [PORTAL-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/portal/account/profile"
+      - action: fill
+        target: "input[name='phone']"
+        value: "08198765432"
+      - action: fill
+        target: "textarea[name='address']"
+        value: "Updated address"
+      - action: click
+        target: "button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success"]
+
+  - id: PORTAL-PROFILE-003
+    title: "Change Password"
+    category: Profile
+    priority: high
+    tags: [portal, profile, password, security]
+    preconditions: [PORTAL-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/portal/account/security"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Security", "Keamanan", "Password"]
+      - action: fill
+        target: "input[name='current_password']"
+        value: "{{password}}"
+      - action: fill
+        target: "input[name='new_password']"
+        value: "NewPatient123!"
+      - action: fill
+        target: "input[name='confirm_password']"
+        value: "NewPatient123!"
+      - action: click
+        target: "button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success"]
+
+  # ==================== NOTIFICATIONS ====================
+  - id: PORTAL-NOTIF-001
+    title: "View Notification Preferences"
+    category: Notifications
+    priority: medium
+    tags: [portal, notification, preferences]
+    preconditions: [PORTAL-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/portal/notifications/preferences"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Notification", "Notifikasi", "Preference"]
+      - action: screenshot
+        filename: "portal-notifications.png"
+
+  - id: PORTAL-NOTIF-002
+    title: "Update Notification Preferences"
+    category: Notifications
+    priority: medium
+    tags: [portal, notification, update]
+    preconditions: [PORTAL-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/portal/notifications/preferences"
+      - action: click
+        target: "input[name='email_appointment'], checkbox[value='email_appointment']"
+      - action: click
+        target: "input[name='email_lab_results'], checkbox[value='email_lab_results']"
+      - action: click
+        target: "button[type='submit']"
+      - action: verify
+        target: "body"
+        expect_contains: ["berhasil", "success"]
+
+  # ==================== RADIOLOGY ====================
+  - id: PORTAL-RAD-001
+    title: "View Radiology Results"
+    category: Radiology
+    priority: high
+    tags: [portal, radiology, results]
+    preconditions: [PORTAL-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/portal/radiology"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Radiologi", "Radiology"]
+      - action: screenshot
+        filename: "portal-radiology.png"
+
+  - id: PORTAL-RAD-002
+    title: "View Radiology Report"
+    category: Radiology
+    priority: high
+    tags: [portal, radiology, report]
+    preconditions: [PORTAL-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/portal/radiology"
+      - action: click
+        target: "table tbody tr:first-child a"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "body"
+        expect_contains: ["Report", "Hasil", "Finding"]
+
+  # ==================== VACCINATIONS ====================
+  - id: PORTAL-VACC-001
+    title: "View Vaccination Records"
+    category: Vaccinations
+    priority: medium
+    tags: [portal, vaccination, records]
+    preconditions: [PORTAL-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/portal/vaccinations"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Vaccin", "Imunisasi"]
+      - action: screenshot
+        filename: "portal-vaccinations.png"
+
+  # ==================== MESSAGES ====================
+  - id: PORTAL-MSG-001
+    title: "View Messages"
+    category: Messages
+    priority: medium
+    tags: [portal, messages, communication]
+    preconditions: [PORTAL-AUTH-001]
+    steps:
+      - action: navigate
+        target: "{{base_url}}/portal/messages"
+      - action: verify
+        target: "h1, h2"
+        expect_contains: ["Message", "Pesan"]

@@ -1,0 +1,103 @@
+# SIMRS Dashboard Navigation User Stories
+# Tests dashboard loading and navigation
+
+stories:
+  - id: DASH-001
+    title: "Dashboard Loads Successfully"
+    priority: critical
+    preconditions:
+      - "User must be logged in"
+    steps:
+      - action: navigate
+        target: "http://localhost:3000/app/login"
+      - action: fill
+        target: "input[name='username'], #username"
+        value: "superadmin"
+      - action: fill
+        target: "input[name='password'], #password"
+        value: "SuperAdmin123!"
+      - action: click
+        target: "button[type='submit']"
+      - action: wait
+        duration: 3000
+      - action: navigate
+        target: "http://localhost:3000/app/dashboard"
+        description: "Navigate to dashboard"
+      - action: verify
+        target: "h1, h2, [data-testid='page-title']"
+        description: "Verify dashboard page title"
+        expect_contains: ["Dashboard", "Beranda"]
+      - action: verify
+        target: "body"
+        description: "Verify dashboard widgets loaded"
+        expect_contains: ["Pasien", "Patient", "Antrian", "Queue", "Janji", "Appointment"]
+      - action: screenshot
+        filename: "dashboard-overview.png"
+    screenshot_steps: true
+
+  - id: DASH-002
+    title: "Sidebar Navigation Works"
+    priority: high
+    preconditions:
+      - "User must be logged in"
+    steps:
+      - action: navigate
+        target: "http://localhost:3000/app/login"
+      - action: fill
+        target: "input[name='username'], #username"
+        value: "superadmin"
+      - action: fill
+        target: "input[name='password'], #password"
+        value: "SuperAdmin123!"
+      - action: click
+        target: "button[type='submit']"
+      - action: wait
+        duration: 3000
+      - action: click
+        target: "a[href*='/patients'], nav a:contains('Pasien'), [data-testid='nav-patients']"
+        description: "Click patients in sidebar"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "body"
+        description: "Verify navigated to patients page"
+        expect_url_contains: ["/patients"]
+      - action: click
+        target: "a[href*='/appointments'], nav a:contains('Janji'), [data-testid='nav-appointments']"
+        description: "Click appointments in sidebar"
+      - action: wait
+        duration: 2000
+      - action: verify
+        target: "body"
+        description: "Verify navigated to appointments page"
+        expect_url_contains: ["/appointments"]
+    screenshot_steps: true
+
+  - id: DASH-003
+    title: "Queue Management Page"
+    priority: high
+    preconditions:
+      - "User must be logged in"
+    steps:
+      - action: navigate
+        target: "http://localhost:3000/app/login"
+      - action: fill
+        target: "input[name='username'], #username"
+        value: "superadmin"
+      - action: fill
+        target: "input[name='password'], #password"
+        value: "SuperAdmin123!"
+      - action: click
+        target: "button[type='submit']"
+      - action: wait
+        duration: 3000
+      - action: navigate
+        target: "http://localhost:3000/app/queue"
+        description: "Navigate to queue page"
+      - action: verify
+        target: "h1, h2, [data-testid='page-title']"
+        description: "Verify queue page"
+        expect_contains: ["Antrian", "Queue"]
+      - action: screenshot
+        filename: "queue-management.png"
+    screenshot_steps: true

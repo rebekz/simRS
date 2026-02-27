@@ -1,0 +1,148 @@
+# SIMRS Clinical Workflows User Stories
+# Tests clinical operations: consultation, prescriptions, lab orders
+
+stories:
+  - id: CLINICAL-001
+    title: "Prescriptions Page Loads"
+    priority: high
+    preconditions:
+      - "User must be logged in"
+    steps:
+      - action: navigate
+        target: "http://localhost:3000/app/login"
+      - action: fill
+        target: "input[name='username'], #username"
+        value: "superadmin"
+      - action: fill
+        target: "input[name='password'], #password"
+        value: "SuperAdmin123!"
+      - action: click
+        target: "button[type='submit']"
+      - action: wait
+        duration: 3000
+      - action: navigate
+        target: "http://localhost:3000/app/prescriptions"
+        description: "Navigate to prescriptions"
+      - action: verify
+        target: "h1, h2, [data-testid='page-title']"
+        description: "Verify prescriptions page"
+        expect_contains: ["Resep", "Prescription"]
+      - action: screenshot
+        filename: "prescriptions-page.png"
+    screenshot_steps: true
+
+  - id: CLINICAL-002
+    title: "Lab Orders Page Loads"
+    priority: high
+    preconditions:
+      - "User must be logged in"
+    steps:
+      - action: navigate
+        target: "http://localhost:3000/app/login"
+      - action: fill
+        target: "input[name='username'], #username"
+        value: "superadmin"
+      - action: fill
+        target: "input[name='password'], #password"
+        value: "SuperAdmin123!"
+      - action: click
+        target: "button[type='submit']"
+      - action: wait
+        duration: 3000
+      - action: navigate
+        target: "http://localhost:3000/app/lab"
+        description: "Navigate to lab orders"
+      - action: verify
+        target: "h1, h2, [data-testid='page-title']"
+        description: "Verify lab page"
+        expect_contains: ["Lab", "Laboratorium"]
+      - action: screenshot
+        filename: "lab-page.png"
+    screenshot_steps: true
+
+  - id: CLINICAL-003
+    title: "Radiology Page Loads"
+    priority: high
+    preconditions:
+      - "User must be logged in"
+    steps:
+      - action: navigate
+        target: "http://localhost:3000/app/login"
+      - action: fill
+        target: "input[name='username'], #username"
+        value: "superadmin"
+      - action: fill
+        target: "input[name='password'], #password"
+        value: "SuperAdmin123!"
+      - action: click
+        target: "button[type='submit']"
+      - action: wait
+        duration: 3000
+      - action: navigate
+        target: "http://localhost:3000/app/radiology"
+        description: "Navigate to radiology"
+      - action: verify
+        target: "h1, h2, [data-testid='page-title']"
+        description: "Verify radiology page"
+        expect_contains: ["Radiologi", "Radiology"]
+      - action: screenshot
+        filename: "radiology-page.png"
+    screenshot_steps: true
+
+  - id: CLINICAL-004
+    title: "Emergency/Triage Page Loads"
+    priority: high
+    preconditions:
+      - "User must be logged in"
+    steps:
+      - action: navigate
+        target: "http://localhost:3000/app/login"
+      - action: fill
+        target: "input[name='username'], #username"
+        value: "superadmin"
+      - action: fill
+        target: "input[name='password'], #password"
+        value: "SuperAdmin123!"
+      - action: click
+        target: "button[type='submit']"
+      - action: wait
+        duration: 3000
+      - action: navigate
+        target: "http://localhost:3000/app/emergency"
+        description: "Navigate to emergency"
+      - action: verify
+        target: "h1, h2, [data-testid='page-title']"
+        description: "Verify emergency page"
+        expect_contains: ["Darurat", "Emergency", "IGD"]
+      - action: screenshot
+        filename: "emergency-page.png"
+    screenshot_steps: true
+
+  - id: CLINICAL-005
+    title: "Billing Page Loads"
+    priority: high
+    preconditions:
+      - "User must be logged in"
+    steps:
+      - action: navigate
+        target: "http://localhost:3000/app/login"
+      - action: fill
+        target: "input[name='username'], #username"
+        value: "superadmin"
+      - action: fill
+        target: "input[name='password'], #password"
+        value: "SuperAdmin123!"
+      - action: click
+        target: "button[type='submit']"
+      - action: wait
+        duration: 3000
+      - action: navigate
+        target: "http://localhost:3000/app/billing"
+        description: "Navigate to billing"
+      - action: verify
+        target: "h1, h2, [data-testid='page-title']"
+        description: "Verify billing page"
+        expect_contains: ["Tagihan", "Billing", "Invoice"]
+      - action: screenshot
+        filename: "billing-page.png"
+    screenshot_steps: true
