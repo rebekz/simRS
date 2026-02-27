@@ -20,7 +20,7 @@ interface BPJSClaim {
   patientName: string;
   mrn: string;
   admissionDate: string;
-  dischargeDate: string;
+  dischargeDate: string | null;
   diagnosis: string;
   cbgCode: string;
   tarif: number;
