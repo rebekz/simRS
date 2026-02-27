@@ -9,3 +9,10 @@ export type {
   EmergencyContact,
   BPJSVerificationResult,
 } from './PatientRegistrationForm';
+
+export { QuickCheckIn } from './QuickCheckIn';
+export type {
+  ReturningPatient,
+  CheckInData,
+  QuickCheckInProps,
+} from './QuickCheckIn';
