@@ -15226,3 +15226,80 @@ All 5 stories completed:
 **Epic Progress:** WEB-EPIC-2: 5/5 stories complete - EPIC COMPLETE!
 **Duration:** ~1 hour
 **Completed:** 2026-02-27
+
+
+---
+
+## [2026-02-28] WEB-S-3.1: BPJS-First New Patient Registration - COMPLETED
+
+### Summary
+Implemented BPJS-first registration flow with auto-fill from BPJS verification, manual entry fallback, photo capture, and emergency contact.
+
+### What was implemented:
+
+1. **PatientRegistrationForm Component** (components/registration/PatientRegistrationForm.tsx)
+   - BPJSVerificationCard - Primary BPJS verification with prominent input
+   - PhotoUpload - Camera capture and file upload support
+   - InsuranceSelection - BPJS/Asuransi/Umum options
+   - EmergencyContactForm - Collapsible emergency contact section
+   - Full form validation with error messages
+
+2. **Demo Page** (/demo/patient-registration)
+   - Complete registration flow demonstration
+   - Success state with patient summary
+   - Demo hint for testing BPJS verification
+
+3. **Features**
+   - BPJS card number as primary input (prominent)
+   - Verify BPJS button with loading state
+   - Auto-fill from BPJS data (name, NIK, DOB, address, phone)
+   - Manual registration as secondary option
+   - Photo capture via camera or file upload
+   - Emergency contact section (expandable)
+   - Insurance type selection
+   - Form validation
+
+### Acceptance Criteria Met:
+
+- [x] AC-3.1.1: BPJS card number is PRIMARY input (prominent)
+- [x] AC-3.1.2: Verify BPJS button with loading state
+- [x] AC-3.1.3: Auto-fill patient data from BPJS (name, NIK, DOB)
+- [x] AC-3.1.4: Manual registration as secondary option (below BPJS)
+- [x] AC-3.1.5: Photo upload (optional, with camera capture)
+- [x] AC-3.1.6: Emergency contact section
+- [x] AC-3.1.7: Insurance selection (BPJS/Asuransi/Umum)
+
+### Files Created:
+
+- frontend/src/components/registration/PatientRegistrationForm.tsx (680 lines)
+- frontend/src/components/registration/index.ts
+- frontend/src/app/demo/patient-registration/page.tsx (200 lines)
+
+### Technical Notes:
+
+- BPJS card number is the primary input with prominent gradient card
+- Auto-fill from BPJS verification results
+- Manual registration available via secondary button
+- Photo capture via camera (getUserMedia) or file upload
+- Emergency contact section is collapsible
+- Insurance selection with conditional fields for Asuransi
+- Full form validation with error messages
+- Loading states for async operations
+
+### Dependencies:
+
+- WEB-EPIC-1: Component Library Foundation (COMPLETED)
+- WEB-EPIC-2: BPJS Integration Suite (COMPLETED)
+- lucide-react: For icons
+- Existing UI components (Button, Badge)
+
+### Next Steps:
+
+1. Implement WEB-S-3.2: Returning Patient Quick Check-In
+2. Implement WEB-S-3.3: Queue Management Dashboard
+3. Continue WEB-EPIC-3: Patient Registration Redesign
+
+**Story Completed:** WEB-S-3.1
+**Epic Progress:** WEB-EPIC-3: 1/7 stories complete
+**Duration:** ~1 hour
+**Completed:** 2026-02-28
