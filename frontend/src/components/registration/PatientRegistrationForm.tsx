@@ -651,7 +651,8 @@ export function PatientRegistrationForm({
     };
   };
 
-  const handleUseBPJSData = (data: NonNullable<BPJSVerificationResult['data']>) => {
+  const handleUseBPJSData = (data: BPJSVerificationResult['data']) => {
+    if (!data) return;
     setFormData((prev) => ({
       ...prev,
       bpjsCardNumber: data.noKart,

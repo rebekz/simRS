@@ -16,12 +16,14 @@ export interface BPJSParticipant {
   nama: string;
   nik: string;
   tglLahir: string;
-  jkelamin: string;
-  sex: 'L' | 'P';
-  noTelp: string;
+  jkelamin: 'L' | 'P';  // L = Laki-laki, P = Perempuan
+  sex: 'L' | 'P';       // Same as jkelamin
+  noTelp?: string;
+  alamat?: string;      // Added for form compatibility
   hubungan: string;
   kelasRawat: string;
   jenisKelamin: string;
+  jenisPeserta?: string;  // Added for form compatibility
   kelasTanggungan?: string;
   status: 'AKTIF' | 'PSTanggu' | 'NonPST';
   tanggalCetak?: string;
@@ -50,6 +52,12 @@ export interface BPJSVerificationCardProps {
   onVerificationSuccess?: (data: BPJSParticipant, result: BPJSVerificationResult) => void;
   onVerificationError?: (error: BPJSError) => void;
   onVerificationStart?: () => void;
+  /** Called when user wants to use verified BPJS data - alternative callback for forms */
+  onUseData?: (data: BPJSParticipant) => void;
+  /** Called when user wants to switch to manual entry */
+  onManualEntry?: () => void;
+  /** Custom verify handler - if provided, will be used instead of internal verification */
+  onVerify?: (cardNumber: string) => Promise<BPJSVerificationResult>;
   className?: string;
 }
 
@@ -63,7 +71,7 @@ const mockParticipants: Record<string, BPJSParticipant> = {
     nama: 'Ahmad Susanto',
     nik: '3171234567890123',
     tglLahir: '1985-05-15',
-    jkelamin: 'Laki-laki',
+    jkelamin: 'L',
     sex: 'L',
     noTelp: '081234567890',
     hubungan: 'Peserta Utama',
@@ -81,7 +89,7 @@ const mockParticipants: Record<string, BPJSParticipant> = {
     nama: 'Siti Rahayu',
     nik: '3171234567890456',
     tglLahir: '1990-08-20',
-    jkelamin: 'Perempuan',
+    jkelamin: 'P',
     sex: 'P',
     noTelp: '082345678901',
     hubungan: 'Istri',
@@ -113,6 +121,9 @@ export const BPJSVerificationCard: React.FC<BPJSVerificationCardProps> = ({
   onVerificationSuccess,
   onVerificationError,
   onVerificationStart,
+  onUseData,
+  onManualEntry,
+  onVerify,
   className = '',
 }) => {
   const [cardNumber, setCardNumber] = useState('');
@@ -143,7 +154,7 @@ export const BPJSVerificationCard: React.FC<BPJSVerificationCardProps> = ({
           nama: 'Demo Pasien',
           nik: '3171234567890001',
           tglLahir: '1990-01-01',
-          jkelamin: 'Laki-laki',
+          jkelamin: 'L',
           sex: 'L',
           noTelp: '081234567890',
           hubungan: 'Peserta Utama',
@@ -183,7 +194,10 @@ export const BPJSVerificationCard: React.FC<BPJSVerificationCardProps> = ({
     onVerificationStart?.();
 
     try {
-      const result = await simulateBPJSVerification(cardNumber);
+      // Use custom onVerify if provided, otherwise use simulation
+      const result = onVerify
+        ? await onVerify(cardNumber)
+        : await simulateBPJSVerification(cardNumber);
 
       if (result.success && result.data) {
         setVerificationResult(result);
@@ -328,16 +342,41 @@ export const BPJSVerificationCard: React.FC<BPJSVerificationCardProps> = ({
                 )}
               </Button>
             ) : (
-              <Button
-                variant="secondary"
-                onClick={handleReset}
-                className="flex-1"
-              >
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Reset
-              </Button>
+              <>
+                {onUseData && verificationResult.data && (
+                  <Button
+                    variant="primary"
+                    onClick={() => onUseData(verificationResult.data!)}
+                    className="flex-1"
+                  >
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    Gunakan Data
+                  </Button>
+                )}
+                <Button
+                  variant="secondary"
+                  onClick={handleReset}
+                  className="flex-1"
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Reset
+                </Button>
+              </>
             )}
           </div>
+
+          {/* Manual Entry Option */}
+          {onManualEntry && (
+            <div className="mt-3 text-center">
+              <button
+                type="button"
+                onClick={onManualEntry}
+                className="text-sm text-teal-600 hover:text-teal-700 hover:underline"
+              >
+                Tidak punya BPJS? Isi data manual
+              </button>
+            </div>
+          )}
 
           {/* Demo Hint */}
           <div className="mt-4 p-3 bg-blue-50 rounded-lg">
